@@ -1,5 +1,11 @@
-package ingredients;
+package ingredientsFactory;
 
+import ingredients.Cheese;
+import ingredients.Clams;
+import ingredients.Dough;
+import ingredients.Pepperoni;
+import ingredients.Sauce;
+import ingredients.Veggies;
 
 public interface PizzaIngredientFactory {
 	public Dough createDough();
