@@ -1,6 +1,6 @@
 package pizza;
 
-import ingredients.*;
+import ingredients.original.*;
 import java.util.ArrayList;
 import java.util.List;
 

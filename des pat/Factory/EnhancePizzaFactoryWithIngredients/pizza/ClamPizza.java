@@ -18,7 +18,7 @@ public class ClamPizza extends Pizza {
 		sauce = ingredientFactory.createSauce();
 		cheese = ingredientFactory.createCheese();
 
-		// If it's a New York factory, the clams will be fresh; if it's Chicago, they'll be frozen.
+		// If it's a New York factory, the clams will be fresh; if it's MyTho, they'll be frozen.
 		clams = ingredientFactory.createClam();
 	}
 }

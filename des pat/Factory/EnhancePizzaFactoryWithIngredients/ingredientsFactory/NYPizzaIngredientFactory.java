@@ -1,44 +1,50 @@
 package ingredientsFactory;
 
-import ingredients.Cheese;
-import ingredients.Clams;
-import ingredients.Dough;
-import ingredients.FreshClams;
-import ingredients.Garlic;
-import ingredients.MarinaraSauce;
-import ingredients.Mushroom;
-import ingredients.Onion;
-import ingredients.Pepperoni;
-import ingredients.ReggianoCheese;
-import ingredients.Sauce;
-import ingredients.SlicedPepperoni;
-import ingredients.ThinCrustDough;
-import ingredients.Veggies;
+import ingredients.original.Cheese;
+import ingredients.original.Clams;
+import ingredients.original.Dough;
+import ingredients.original.Pepperoni;
+import ingredients.original.Sauce;
+import ingredients.original.Veggies;
+import ingredients.ny.NYFreshClams;
+import ingredients.ny.NYGarlic;
+import ingredients.ny.NYMarinaraSauce;
+import ingredients.ny.NYMushroom;
+import ingredients.ny.NYOnion;
+import ingredients.ny.NYReggianoCheese;
+import ingredients.ny.NYSlicedPepperoni;
+import ingredients.ny.NYThinCrustDough;
 
 // For each ingredient in the ingredient family, we create the New York version.
 public class NYPizzaIngredientFactory implements PizzaIngredientFactory {
+	@Override
 	public Dough createDough() {
-		return new ThinCrustDough();
+		return new NYThinCrustDough();
 	}
 
+	@Override
 	public Sauce createSauce() {
-		return new MarinaraSauce();
+		return new NYMarinaraSauce();
 	}
 
+	@Override
 	public Cheese createCheese() {
-		return new ReggianoCheese();
+		return new NYReggianoCheese();
 	}
 
+	@Override
 	public Veggies[] createVeggies() {
-		Veggies veggies[] = { new Garlic(), new Onion(), new Mushroom() };
+		Veggies veggies[] = { new NYGarlic(), new NYOnion(), new NYMushroom() };
 		return veggies;
 	}
 
+	@Override
 	public Pepperoni createPepperoni() {
-		return new SlicedPepperoni();
+		return new NYSlicedPepperoni();
 	}
 
+	@Override
 	public Clams createClam() {
-		return new FreshClams();
+		return new NYFreshClams();
 	}
 }

@@ -1,11 +1,11 @@
 package ingredientsFactory;
 
-import ingredients.Cheese;
-import ingredients.Clams;
-import ingredients.Dough;
-import ingredients.Pepperoni;
-import ingredients.Sauce;
-import ingredients.Veggies;
+import ingredients.original.Cheese;
+import ingredients.original.Clams;
+import ingredients.original.Dough;
+import ingredients.original.Pepperoni;
+import ingredients.original.Sauce;
+import ingredients.original.Veggies;
 
 public interface PizzaIngredientFactory {
 	public Dough createDough();
