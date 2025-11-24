@@ -1,0 +1,1 @@
+// Example constants for the application

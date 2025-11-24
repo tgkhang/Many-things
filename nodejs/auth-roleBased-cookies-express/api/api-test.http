@@ -1,0 +1,116 @@
+### ============================================
+### API Testing - Auth Role-Based Cookies Express
+### ============================================
+### Install "REST Client" extension in VSCode to use this file
+### Click "Send Request" above each request to execute
+
+@baseUrl = http://localhost:8010/v1
+
+### ============================================
+### PUBLIC ROUTES
+### ============================================
+
+### Check API Status
+GET {{baseUrl}}/status
+
+### ----------------------------------------
+### Register New User
+### ----------------------------------------
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "email": "trangiakhang555@gmail.com",
+  "password": "Password123!"
+}
+
+### ----------------------------------------
+### Verify Account (use token from email)
+### ----------------------------------------
+PUT {{baseUrl}}/users/verify_account
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "token": "paste_verification_token_here"
+}
+
+### ----------------------------------------
+### Login
+### ----------------------------------------
+# @name login
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### ----------------------------------------
+### Refresh Token (uses cookie automatically)
+### ----------------------------------------
+GET {{baseUrl}}/users/refresh_token
+
+### ----------------------------------------
+### Logout
+### ----------------------------------------
+DELETE {{baseUrl}}/users/logout
+
+### ----------------------------------------
+### Forgot Password
+### ----------------------------------------
+POST {{baseUrl}}/users/forgot_password
+Content-Type: application/json
+
+{
+  "email": "test@example.com"
+}
+
+### ----------------------------------------
+### Reset Password (use token from email)
+### ----------------------------------------
+PUT {{baseUrl}}/users/reset_password
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "token": "paste_reset_token_here",
+  "newPassword": "NewPassword123!"
+}
+
+### ============================================
+### PROTECTED ROUTES (Requires Authorization)
+### ============================================
+### After login, copy the accessToken from response
+
+@accessToken = paste_your_access_token_here
+
+### ----------------------------------------
+### Update User Profile
+### ----------------------------------------
+PUT {{baseUrl}}/users/update
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "displayName": "John Doe"
+}
+
+### ----------------------------------------
+### Get Security Events
+### ----------------------------------------
+GET {{baseUrl}}/users/security_events
+Authorization: Bearer {{accessToken}}
+
+### ----------------------------------------
+### Get Active Sessions
+### ----------------------------------------
+GET {{baseUrl}}/users/sessions
+Authorization: Bearer {{accessToken}}
+
+### ----------------------------------------
+### Logout All Devices
+### ----------------------------------------
+DELETE {{baseUrl}}/users/logout_all
+Authorization: Bearer {{accessToken}}

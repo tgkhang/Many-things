@@ -17,3 +17,17 @@ export const USER_ROLES = {
   ADMIN: 'admin',
   CLIENT: 'client',
 }
+
+// Security configurations
+export const SECURITY_CONFIG = {
+  // Account lockout settings
+  MAX_LOGIN_ATTEMPTS: 5, // Lock after 5 failed attempts
+  LOCKOUT_DURATION_MINUTES: 15, // Lock for 15 minutes
+
+  // Password reset settings
+  PASSWORD_RESET_EXPIRY_MINUTES: 60, // 1 hour
+
+  // Token settings
+  REFRESH_TOKEN_EXPIRY_DAYS: 14,
+  MAX_SESSIONS_PER_USER: 5, // Maximum concurrent sessions
+}

@@ -19,6 +19,14 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   verifyToken: Joi.string(),
   verifyTokenExpiry: Joi.date().timestamp('javascript').default(null),
 
+  // Password reset fields
+  passwordResetToken: Joi.string().default(null),
+  passwordResetExpiry: Joi.date().timestamp('javascript').default(null),
+
+  // Account lockout fields
+  failedLoginAttempts: Joi.number().default(0),
+  lockoutUntil: Joi.date().timestamp('javascript').default(null),
+
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false),
@@ -53,8 +61,16 @@ const findOneById = async (userId) => {
 
 const findOneByEmail = async (email) => {
   try {
-    const res = await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email })
+    const res = await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email: email.toLowerCase() })
     return res
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const findByPasswordResetToken = async (token) => {
+  try {
+    return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ passwordResetToken: token })
   } catch (error) {
     throw new Error(error)
   }
@@ -84,5 +100,6 @@ export const userModel = {
   createNew,
   findOneById,
   findOneByEmail,
+  findByPasswordResetToken,
   update,
 }

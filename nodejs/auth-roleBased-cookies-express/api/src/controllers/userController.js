@@ -2,10 +2,19 @@ import { StatusCodes } from 'http-status-codes'
 import ms from 'ms'
 import { userService } from '~/services/userService'
 import ApiError from '~/utils/ApiError'
+import { env } from '~/config/environment'
+
+// Cookie options helper
+const getCookieOptions = (maxAge) => ({
+  httpOnly: true,
+  secure: env.BUILD_MODE === 'production',
+  sameSite: env.BUILD_MODE === 'production' ? 'none' : 'lax',
+  maxAge,
+})
 
 const createNew = async (req, res, next) => {
   try {
-    const createdUser = await userService.createNew(req.body)
+    const createdUser = await userService.createNew(req.body, req)
     res.status(StatusCodes.CREATED).json(createdUser)
   } catch (error) {
     next(error)
@@ -14,7 +23,7 @@ const createNew = async (req, res, next) => {
 
 const verifyAccount = async (req, res, next) => {
   try {
-    const result = await userService.verifyAccount(req.body)
+    const result = await userService.verifyAccount(req.body, req)
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(error)
@@ -23,22 +32,14 @@ const verifyAccount = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const result = await userService.login(req.body)
+    const result = await userService.login(req.body, req)
 
-    // send cookie
-    res.cookie('accessToken', result.accessToken, {
-      httpOnly: true, // fe will not be able to access the cookie via client-side JS
-      secure: true,
-      sameSite: 'none', // allow cross-site cookie
-      maxAge: ms('7d'), // 7 days
-    })
+    // Set cookies with proper expiry
+    const accessTokenMaxAge = ms(env.ACCESS_JWT_EXPIRES_IN || '1h')
+    const refreshTokenMaxAge = ms(env.REFRESH_JWT_EXPIRES_IN || '14d')
 
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true, // fe will not be able to access the cookie via client-side JS
-      secure: true,
-      sameSite: 'none', // allow cross-site cookie
-      maxAge: ms('7d'), // 7 days
-    })
+    res.cookie('accessToken', result.accessToken, getCookieOptions(accessTokenMaxAge))
+    res.cookie('refreshToken', result.refreshToken, getCookieOptions(refreshTokenMaxAge))
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
@@ -48,8 +49,15 @@ const login = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
-    const result = await userService.refreshToken(req.cookies?.refreshToken)
-    res.cookie('accessToken', result.accessToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: ms('7d') })
+    const result = await userService.refreshToken(req.cookies?.refreshToken, req)
+
+    // Set new cookies (rotation - both tokens are new)
+    const accessTokenMaxAge = ms(env.ACCESS_JWT_EXPIRES_IN || '1h')
+    const refreshTokenMaxAge = ms(env.REFRESH_JWT_EXPIRES_IN || '14d')
+
+    res.cookie('accessToken', result.accessToken, getCookieOptions(accessTokenMaxAge))
+    res.cookie('refreshToken', result.refreshToken, getCookieOptions(refreshTokenMaxAge))
+
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(new ApiError(StatusCodes.FORBIDDEN, 'Could not refresh access token, please login again'))
@@ -58,9 +66,56 @@ const refreshToken = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
-    res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: 'none' })
-    res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'none' })
+    await userService.logout(req.cookies?.refreshToken, req)
+
+    // Clear cookies with same options used when setting
+    const clearOptions = {
+      httpOnly: true,
+      secure: env.BUILD_MODE === 'production',
+      sameSite: env.BUILD_MODE === 'production' ? 'none' : 'lax',
+    }
+
+    res.clearCookie('accessToken', clearOptions)
+    res.clearCookie('refreshToken', clearOptions)
     res.status(StatusCodes.OK).json({ loggedOut: true })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const logoutAllDevices = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const result = await userService.logoutAllDevices(userId, req)
+
+    // Clear current device cookies
+    const clearOptions = {
+      httpOnly: true,
+      secure: env.BUILD_MODE === 'production',
+      sameSite: env.BUILD_MODE === 'production' ? 'none' : 'lax',
+    }
+
+    res.clearCookie('accessToken', clearOptions)
+    res.clearCookie('refreshToken', clearOptions)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    const result = await userService.forgotPassword(req.body, req)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const result = await userService.resetPassword(req.body, req)
+    res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(error)
   }
@@ -68,11 +123,29 @@ const logout = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    // decoded in authMiddleware
     const userId = req.jwtDecoded._id
-    // console.log('userAvatarFile:', userAvatarFile)
-    const updatedUser = await userService.update(userId, req.body)
+    const updatedUser = await userService.update(userId, req.body, req)
     res.status(StatusCodes.OK).json(updatedUser)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getSecurityEvents = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const events = await userService.getSecurityEvents(userId)
+    res.status(StatusCodes.OK).json(events)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getActiveSessions = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const sessions = await userService.getActiveSessions(userId)
+    res.status(StatusCodes.OK).json(sessions)
   } catch (error) {
     next(error)
   }
@@ -84,5 +157,10 @@ export const userController = {
   login,
   refreshToken,
   logout,
+  logoutAllDevices,
+  forgotPassword,
+  resetPassword,
   update,
+  getSecurityEvents,
+  getActiveSessions,
 }
