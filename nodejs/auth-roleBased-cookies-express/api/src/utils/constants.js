@@ -16,6 +16,7 @@ export const WEBSITE_DOMAIN =
 export const USER_ROLES = {
   ADMIN: 'admin',
   CLIENT: 'client',
+  MODERATOR: 'moderator',
 }
 
 // Security configurations
@@ -30,4 +31,61 @@ export const SECURITY_CONFIG = {
   // Token settings
   REFRESH_TOKEN_EXPIRY_DAYS: 14,
   MAX_SESSIONS_PER_USER: 5, // Maximum concurrent sessions
+}
+
+// MOCK DB for roles and permissions (LV2: Role-based with permissions)
+export const MOCK_ROLES_LV2 = [
+  {
+    _id: 'role1',
+    name: 'admin',
+    permissions: ['read-message-a', 'write-message-a', 'delete-message-a', 'read-message-b', 'write-message-b', 'delete-message-b', 'manage-users'],
+  },
+  {
+    _id: 'role2',
+    name: 'moderator',
+    permissions: ['read-message-a', 'write-message-a', 'read-message-b'],
+  },
+  {
+    _id: 'role3',
+    name: 'client',
+    permissions: ['read-message-b'],
+  }
+]
+
+// MOCK DB for roles with inheritance (LV3: Role inheritance)
+export const MOCK_ROLES_LV3 = [
+  {
+    _id: 'role1',
+    name: 'admin',
+    permissions: ['delete-message-a', 'delete-message-b', 'manage-users'],
+    inheritRoles: ['moderator'], // Admin inherits all moderator permissions
+  },
+  {
+    _id: 'role2',
+    name: 'moderator',
+    permissions: ['write-message-a', 'write-message-b'],
+    inheritRoles: ['client'], // Moderator inherits all client permissions
+  },
+  {
+    _id: 'role3',
+    name: 'client',
+    permissions: ['read-message-a', 'read-message-b'],
+    inheritRoles: [],
+  }
+]
+
+// Available permissions in the system
+export const PERMISSIONS = {
+  // Message A permissions
+  READ_MESSAGE_A: 'read-message-a',
+  WRITE_MESSAGE_A: 'write-message-a',
+  DELETE_MESSAGE_A: 'delete-message-a',
+
+  // Message B permissions
+  READ_MESSAGE_B: 'read-message-b',
+  WRITE_MESSAGE_B: 'write-message-b',
+  DELETE_MESSAGE_B: 'delete-message-b',
+
+  // User management
+  MANAGE_USERS: 'manage-users',
 }

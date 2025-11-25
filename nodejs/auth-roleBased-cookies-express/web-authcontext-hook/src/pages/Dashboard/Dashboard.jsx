@@ -6,6 +6,7 @@ import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import SettingsIcon from '@mui/icons-material/Settings'
 import SecurityIcon from '@mui/icons-material/Security'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 import { Link } from 'react-router-dom'
 import AppBar from '~/components/AppBar/AppBar'
 import { useAuth } from '~/hooks/useAuth'
@@ -78,6 +79,15 @@ function Dashboard() {
               sx={{ textTransform: 'none' }}
             >
               Security
+            </Button>
+            <Button
+              component={Link}
+              to="/rbac-test"
+              variant="outlined"
+              startIcon={<VerifiedUserIcon />}
+              sx={{ textTransform: 'none' }}
+            >
+              RBAC Test
             </Button>
           </Box>
         </Paper>

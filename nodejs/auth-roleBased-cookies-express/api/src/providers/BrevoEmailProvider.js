@@ -1,5 +1,3 @@
-// third party imports (jwt, mail, s3,...)
-
 import { TransactionalEmailsApi, SendSmtpEmail } from '@getbrevo/brevo'
 import { env } from '~/config/environment'
 

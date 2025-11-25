@@ -1,4 +1,4 @@
-# Authentication API Template (Enhanced)
+# Authentication API Template
 
 A secure, role-based authentication API built with Express.js and MongoDB using HttpOnly cookies with advanced security features.
 
@@ -8,7 +8,7 @@ A secure, role-based authentication API built with Express.js and MongoDB using 
 - **Refresh Token Rotation** - New tokens issued on each refresh, old ones invalidated
 - **Token Theft Detection** - Automatic session revocation on reuse detection
 - HttpOnly secure cookies (XSS protection)
-- Role-based authorization (admin, client)
+- **Three-Level RBAC** - Simple roles, permissions, and role inheritance
 - Email verification flow
 - **Password Reset Flow** - Secure email-based password recovery
 - **Account Lockout** - Protection after failed login attempts
@@ -440,7 +440,11 @@ GET /v1/users/sessions
 
 ## Role-Based Authorization
 
-Use the `requireRole` middleware for protected routes:
+This template includes **three levels** of RBAC (Role-Based Access Control) implementation, each with increasing complexity and flexibility.
+
+### Quick Start - Using Basic RBAC
+
+Use the `requireRole` middleware for simple role-based protection:
 
 ```javascript
 import { authMiddleware } from '~/middlewares/authMiddleware'
@@ -464,7 +468,79 @@ Router.route('/dashboard')
 
 **Available Roles:**
 - `admin` - Full access
+- `moderator` - Limited administrative access
 - `client` - Standard user (default)
+
+### Advanced RBAC - Three Levels
+
+For more sophisticated access control, this template provides three RBAC implementations:
+
+| Level | Description | Use Case |
+|-------|-------------|----------|
+| **LV1** | Simple role checking | Basic apps with 2-3 roles |
+| **LV2** | Permission-based (roles have permissions) | Standard business apps |
+| **LV3** | Role inheritance (roles inherit from other roles) | Enterprise apps with complex hierarchies |
+
+**Example - Level 2 (Permission-based):**
+```javascript
+import { rbacMiddleware_LV2 } from '~/middlewares/rbacMiddleware-LV2'
+import { PERMISSIONS } from '~/utils/constants'
+
+Router.delete(
+  '/messages/:id',
+  authMiddleware.isAuthorized,
+  rbacMiddleware_LV2.isValidPermission([PERMISSIONS.DELETE_MESSAGE_A]),
+  messageController.delete
+)
+```
+
+**Example - Level 3 (Role Inheritance):**
+```javascript
+import { rbacMiddleware_LV3 } from '~/middlewares/rbacMiddleware-LV3'
+
+// Admin inherits all permissions from moderator and client
+Router.put(
+  '/complex-operation',
+  authMiddleware.isAuthorized,
+  rbacMiddleware_LV3.isValidPermission([
+    PERMISSIONS.READ_MESSAGE_A,
+    PERMISSIONS.WRITE_MESSAGE_A,
+    PERMISSIONS.DELETE_MESSAGE_A
+  ]),
+  controller.complexOperation
+)
+```
+
+### RBAC Test Endpoints
+
+Test all three RBAC levels using the `/v1/rbac/*` endpoints:
+
+```bash
+# Check your current permissions
+GET /v1/rbac/me
+
+# Test LV1 (simple role check)
+GET /v1/rbac/lv1/admin-only
+GET /v1/rbac/lv1/admin-moderator
+
+# Test LV2 (permission-based)
+GET /v1/rbac/lv2/read-message-a
+POST /v1/rbac/lv2/write-message-a
+DELETE /v1/rbac/lv2/delete-message-a
+
+# Test LV3 (role inheritance)
+GET /v1/rbac/lv3/read-message-a
+POST /v1/rbac/lv3/write-message-a
+DELETE /v1/rbac/lv3/delete-message-a
+```
+
+📚 **For detailed RBAC documentation**, see [RBAC_GUIDE.md](RBAC_GUIDE.md) which includes:
+- Complete explanation of each level
+- Permission matrices
+- Role inheritance hierarchy diagrams
+- Implementation examples
+- When to use which level
+- Migration guide
 
 ---
 
@@ -564,7 +640,10 @@ src/
 ├── controllers/
 │   └── userController.js
 ├── middlewares/
-│   ├── authMiddleware.js      # JWT & role validation
+│   ├── authMiddleware.js         # JWT & role validation
+│   ├── rbacMiddleware-LV1.js     # Simple role-based RBAC
+│   ├── rbacMiddleware-LV2.js     # Permission-based RBAC
+│   ├── rbacMiddleware-LV3.js     # Role inheritance RBAC
 │   └── errorHandlingMiddleware.js
 ├── models/
 │   ├── userModel.js           # User schema & queries
@@ -576,17 +655,19 @@ src/
 ├── routes/
 │   └── v1/
 │       ├── index.js
-│       └── userRoute.js
+│       ├── userRoute.js
+│       └── rbacRoute.js       # RBAC test routes
 ├── services/
 │   └── userService.js   # Business logic
 ├── utils/
 │   ├── ApiError.js
-│   ├── constants.js     # Security config
+│   ├── constants.js     # Security config + RBAC data
 │   ├── formatters.js
 │   └── validators.js
 ├── validations/
 │   └── userValidation.js
-└── server.js            # App entry point
+├── server.js            # App entry point
+└── RBAC_GUIDE.md        # Complete RBAC documentation
 ```
 
 ---

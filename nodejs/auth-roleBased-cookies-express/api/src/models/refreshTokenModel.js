@@ -1,5 +1,4 @@
 import Joi from 'joi'
-import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 
 const REFRESH_TOKEN_COLLECTION_NAME = 'refreshTokens'

@@ -2,6 +2,7 @@ import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 
 import { userRoute } from '~/routes/v1/userRoute'
+import { rbacRoute } from './rbacRoute'
 
 const Router = express.Router()
 
@@ -12,5 +13,8 @@ Router.get('/status', (req, res) => {
 
 // User API routes
 Router.use('/users', userRoute)
+
+// RBAC protected routes
+Router.use('/rbac', rbacRoute)
 
 export const APIs_V1 = Router

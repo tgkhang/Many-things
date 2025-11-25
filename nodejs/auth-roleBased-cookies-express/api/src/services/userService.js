@@ -60,6 +60,7 @@ const createNew = async (reqBody, req = null) => {
         <h3>Thank you for registering!</h3>
       `
       await BrevoEmailProvider.sendEmail(getNewUser.email, emailSubject, textContent, htmlContent)
+    // eslint-disable-next-line no-unused-vars
     } catch (emailError) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to send verification email')
     }
