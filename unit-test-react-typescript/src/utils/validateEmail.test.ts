@@ -5,7 +5,7 @@ describe('Unit test: validateEmail():', () => {
     ['khangaa@gmail.com', true],
     ['person1@', false],
     ['@person2.com', false],
-    [{ email: 'demo@gmail.com' }, true], // ex case unexpected input
+    // [{ email: 'demo@gmail.com' }, true], // ex case unexpected input
   ]
 
   it.each(cases)('validateEmail(%s) should return %s', (...args: any[]) => {

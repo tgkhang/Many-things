@@ -1,9 +1,9 @@
 import React from 'react'
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & { content: string }
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  content: string
+}
 
 export const Button: React.FC<ButtonProps> = ({ content, ...rest }) => {
-  return (
-    <button {...rest}>{content}</button>
-  )
+  return <button {...rest}>{content}</button>
 }
