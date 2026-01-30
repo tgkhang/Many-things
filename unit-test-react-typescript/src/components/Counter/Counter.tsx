@@ -1,22 +1,15 @@
-import React from "react"
-import { Button } from "~/components/Button/Button"
+import React, { useState } from 'react'
+import { Button } from '~/components/Button/Button'
 
-// Component Counter có nhiệm vụ tăng/giảm giá trị, tuy nhiên không được phép giảm xuống số âm.
+// coponent counter has the task of increasing/decreasing value, but it must not decrease to negative number.
 export const Counter: React.FC = () => {
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = useState(0)
 
   return (
     <div>
       <p>Count: {value}</p>
-      <Button
-        content="+"
-        onClick={() => setValue((v) => v + 1)}
-      />
-      <Button
-        content="-"
-        /* So sánh giữa 0 và v-1, lấy số lớn hơn, đảm bảo không âm. */
-        onClick={() => setValue((v) => Math.max(0, v - 1))}
-      />
+      <Button content='+' onClick={() => setValue((v) => v + 1)} />
+      <Button content='-' onClick={() => setValue((v) => Math.max(0, v - 1))} />
     </div>
   )
 }
