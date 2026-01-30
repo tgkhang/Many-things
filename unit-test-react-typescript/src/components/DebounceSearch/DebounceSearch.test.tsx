@@ -25,7 +25,7 @@ describe('<DebounceSearch />', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('user?q='),
+      expect.stringContaining('users?q='),
     )
 
     await userEvent.type(screen.getByPlaceholderText(/search/i), 'john')
@@ -37,7 +37,7 @@ describe('<DebounceSearch />', () => {
     expect(await screen.findByText(/john doe/i)).toBeInTheDocument()
     expect(globalThis.fetch).toHaveBeenCalledTimes(2)
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('user?q=john'),
+      expect.stringContaining('users?q=john'),
     )
   })
 
