@@ -1,16 +1,16 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from 'react'
 
 // Data Type này chúng ta follow theo dummyjson.com (gọi api ở dưới)
 type Todo = {
-  id: number,
-  todo: string,
-  completed: boolean,
-  userId: number,
+  id: number
+  todo: string
+  completed: boolean
+  userId: number
 }
 
 export const TodoList: React.FC = () => {
-  const [todos, setTodos] = React.useState<Todo[]>([])
-  const [loading, setLoading] = React.useState(false)
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setLoading(true)
