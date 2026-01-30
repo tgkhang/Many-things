@@ -1,5 +1,5 @@
-import React from "react"
-import { useForm } from "react-hook-form"
+import React from 'react'
+import { useForm } from 'react-hook-form'
 
 type FormValues = {
   email: string
@@ -13,7 +13,7 @@ type SignUpFormProps = {
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({
   onSubmit,
-  defaultValues = { email: "", password: "" },
+  defaultValues = { email: '', password: '' },
 }) => {
   const {
     register,
@@ -31,38 +31,56 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+        }}
+      >
         <label>Email:</label>
         <input
-          {...register("email", {
-            required: "Email is required",
+          {...register('email', {
+            required: 'Email is required',
             pattern: {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Email is not valid",
+              message: 'Email is not valid',
             },
           })}
-          placeholder="Enter email"
+          placeholder='Enter email'
         />
-        {errors.email && <span style={{ color: "red"}}>{errors.email.message}</span>}
+        {errors.email && (
+          <span style={{ color: 'red' }}>{errors.email.message}</span>
+        )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+        }}
+      >
         <label>Password:</label>
         <input
-          type="password"
-          {...register("password", {
-            required: "Password is required",
+          type='password'
+          {...register('password', {
+            required: 'Password is required',
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters",
+              message: 'Password must be at least 6 characters',
             },
           })}
-          placeholder="Enter password"
+          placeholder='Enter password'
         />
-        {errors.password && <span style={{ color: "red"}}> {errors.password.message}</span>}
+        {errors.password && (
+          <span style={{ color: 'red' }}> {errors.password.message}</span>
+        )}
       </div>
 
-      <button type="submit">Submit</button>
+      <button type='submit'>Submit</button>
     </form>
   )
 }
