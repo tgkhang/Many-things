@@ -17,5 +17,8 @@ export class ApiError extends Error {
   static BadRequest(msg = 'Bad Request', details?: unknown) {
     return new ApiError(StatusCodes.BAD_REQUEST, msg, details)
   }
+  static Unauthorized(msg = 'Unauthorized', details?: unknown) {
+    return new ApiError(StatusCodes.UNAUTHORIZED, msg, details)
+  }
   // Sau này mở rộng thêm các static theo mã lỗi...
 }
