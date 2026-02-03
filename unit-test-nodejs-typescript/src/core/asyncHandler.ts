@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { RequestHandler } from 'express'
 
 /**
  * Cách bọc toàn bộ Controller để Clean Code:
@@ -12,6 +12,8 @@ import type { RequestHandler } from "express";
  */
 export function asyncHandler(handler: RequestHandler): RequestHandler {
   return (req, res, next) => {
-    return Promise.resolve(handler(req, res, next)).catch(next);
-  };
+    return Promise.resolve(handler(req, res, next)).catch(next)
+    // similar to
+    // return Promise.resolve(handler(req, res, next)).catch((error) => next(error))
+  }
 }
