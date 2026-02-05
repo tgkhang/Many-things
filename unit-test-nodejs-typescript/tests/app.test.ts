@@ -36,7 +36,7 @@ describe('createApp', () => {
   it('app error', async () => {
     // init an api use only in this test scope
     app.get('/throw-error', (_req, _res) => {
-      throw ApiError.BadRequest
+      throw ApiError.BadRequest()
     })
 
     const res = await request(app).get('/throw-error')
