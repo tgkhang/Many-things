@@ -1,15 +1,27 @@
+// for production build only
+
 {
+  // extend base config
   "extends": "./tsconfig.base.json",
+
+  // CompilerOptions: Build-specific compilation settings
   "compilerOptions": {
+    // RootDir: Source root directory (helps preserve directory structure in output)
     "rootDir": "src",
+
+    // OutDir: Output directory for compiled JavaScript files
     "outDir": "dist"
   },
+
+  // Include: Only compile source code (no tests)
   "include": ["src"],
+
+  // Exclude: Files/directories to exclude from production build
   "exclude": [
-    "node_modules",
-    "dist",
-    "tests",
-    "**/?(*.)+(spec|test).ts",
-    "**/__tests__/**"
+    "node_modules", // Third-party dependencies (not needed in compilation)
+    "dist", // Output directory (avoid recursive compilation)
+    "tests", // Test files (not part of production bundle)
+    "**/?(*.)+(spec|test).ts", // Any .spec.ts or .test.ts files (glob pattern)
+    "**/__tests__/**" // Any __tests__ directories
   ]
 }

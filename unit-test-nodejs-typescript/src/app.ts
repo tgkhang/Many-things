@@ -14,6 +14,7 @@ export const createApp = () => {
 
   app.disable('etag')
 
+  // this handle no cache for request api, to prevent sending back old result
   app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
     res.setHeader('Pragma', 'no-cache')
@@ -26,7 +27,7 @@ export const createApp = () => {
   app.use(express.json())
   app.use(cookieParser())
   app.use(morgan('dev')) // dev preset: Ngắn gọn, có màu, phù hợp môi trường dev
-  
+
   app.use('/api', routes)
 
   // health

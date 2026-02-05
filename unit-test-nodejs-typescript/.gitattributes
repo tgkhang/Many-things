@@ -1,5 +1,6 @@
 # ============================================================
 # 🚀 .GITATTRIBUTES — Standard for Node.js + TypeScript Project
+# The .gitattributes file configures how Git handles different file types in your repository
 # ============================================================
 
 # ------------------------

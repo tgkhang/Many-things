@@ -1,4 +1,13 @@
+// For ESLint to type-check your code.
+// Ensures ESLint understands TypeScript types in all your code
+
 {
+  // Extends: Inherits all settings from base config
   "extends": "./tsconfig.base.json",
-  "include": ["src", "tests"]
+
+  // Include: Directories for ESLint to type-check (both source and tests should be linted)
+  "include": [
+    "src", // Application source code
+    "tests" // Test files (ESLint should check tests too)
+  ]
 }

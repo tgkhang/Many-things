@@ -1,5 +1,8 @@
 # ============================================================
 # 🚀 .editorconfig — Standard for Node.js + TypeScript Project
+# This file defines coding styles and conventions for the project.
+# It helps maintain consistency across different editors and IDEs.(vscode, intellij, sublime text)
+# Automatically recognize and apply when edit file
 # ============================================================
 
 # Top-most EditorConfig file

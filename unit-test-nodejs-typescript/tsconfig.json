@@ -1,4 +1,11 @@
 {
+  // Extends: Inherits all settings from base config (avoids duplication)
   "extends": "./tsconfig.base.json",
-  "include": ["src", "tests", "src/types"]
+
+  // Include: Directories/files to include in compilation (used by IDE and default tsc command)
+  "include": [
+    "src", // Main application source code
+    "tests", // Test files for type checking in development
+    "src/types" // Global type definitions (e.g., ambient declarations)
+  ]
 }

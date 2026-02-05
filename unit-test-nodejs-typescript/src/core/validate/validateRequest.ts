@@ -3,7 +3,7 @@ import { z, ZodObject } from 'zod'
 
 import { ApiError } from '~/core/http/ApiError'
 
-// Empty object chung dành cho khia báo optional & empty
+// General empty object
 export const ZodEmptyObject = z.object({}).optional()
 
 /**
@@ -27,10 +27,7 @@ export function validateRequest(schema: ZodObject) {
         path: e.path.join('.'),
         message: e.message,
       }))
-      throw ApiError.BadRequest(
-        `Validation error: ${details.map(i => i.path).join(', ')}`,
-        details
-      )
+      throw ApiError.BadRequest(`Validation error: ${details.map((i) => i.path).join(', ')}`, details)
     }
     // Cho phép request hợp lệ đi tiếp
     next()
