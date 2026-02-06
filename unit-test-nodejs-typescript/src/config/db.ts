@@ -2,7 +2,7 @@ import { MongoClient, Db, Collection, OptionalId } from 'mongodb'
 
 import { logger } from './logger'
 
-import type { User} from '~/modules/users/user.types'
+import type { User } from '~/modules/users/user.types'
 
 let client: MongoClient
 let db: Db
@@ -18,7 +18,7 @@ export async function connectMongo(uri: string) {
 }
 
 export function getDb(): Db {
-  if (!db) throw new Error('MongoDB not initialized')
+  if (!db) throw new Error('MongoDB is not initialized')
   return db
 }
 
