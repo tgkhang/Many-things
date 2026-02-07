@@ -5,7 +5,7 @@ import pizza.NYStyleClamPizza;
 import pizza.NYStyleVeggiePizza;
 import pizza.Pizza;
 
-public class NYStylePizzaStore extends PizzaStore {
+public class NYStylePizzaStore extends PizzaStore{
 
 	public NYStylePizzaStore() {
 		super();
@@ -22,7 +22,6 @@ public class NYStylePizzaStore extends PizzaStore {
 		} else if (type.equals("clam")) {
 			pizza = new NYStyleClamPizza();
 		}
-
 		return pizza;
 	}
 

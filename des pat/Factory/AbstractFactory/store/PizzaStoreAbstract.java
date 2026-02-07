@@ -2,9 +2,9 @@ package store;
 
 import pizza.Pizza;
 
-public abstract class PizzaStore {
+public abstract class PizzaStoreAbstract {
 
-	public PizzaStore() {
+	public PizzaStoreAbstract() {
 		//this.factory = factory;
 	}
 

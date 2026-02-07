@@ -1,13 +1,12 @@
 import pizza.Pizza;
 import store.MyThoStylePizzaStore;
 import store.NYStylePizzaStore;
-import store.PizzaStore;
+import store.PizzaStoreAbstract;
 
-public class Main {
-
+public class AbstractFactoryMain {
 	public static void main(String[] args) {
-		PizzaStore nyStore = new NYStylePizzaStore();
-		PizzaStore myThoStore = new MyThoStylePizzaStore();
+		PizzaStoreAbstract nyStore = new NYStylePizzaStore();
+		PizzaStoreAbstract myThoStore = new MyThoStylePizzaStore();
 
 		Pizza pizza = nyStore.orderPizza("cheese");
 		System.out.println("Ethan ordered a " + pizza.getName() + "\n");

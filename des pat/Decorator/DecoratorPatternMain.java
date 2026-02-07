@@ -2,7 +2,7 @@ import decorator.*;
 import drinks.*;
 import condiments.*;
 
-public class Main {
+public class DecoratorPatternMain {
 	public static void main(String[] args) {
 		Beverage beverage = new Espresso();
 
@@ -13,6 +13,5 @@ public class Main {
 		beverage2 = new Mocha(beverage2);
 		beverage2 = new Whip(beverage2);
 		System.out.println(beverage2.getDescription() + " $" + beverage2.cost());
-
 	}
 }

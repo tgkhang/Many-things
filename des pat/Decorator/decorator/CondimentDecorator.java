@@ -1,5 +1,6 @@
 package decorator;
 
 public abstract class CondimentDecorator extends Beverage {
-	public abstract String getDescription();
+	// Subclasses must override getDescription() to add their condiment name
+	// The cost() method must also be implemented
 }

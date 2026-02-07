@@ -6,7 +6,7 @@ import modernDisplay.ModernForecastDisplay;
 import modernDisplay.ModernStatisticsDisplay;
 import modernDisplay.ModernWeatherData;
 
-public class Main {
+public class ObserverPatternMain {
     public static void main(String[] args) {
 
         WeatherData weatherData = new WeatherData();

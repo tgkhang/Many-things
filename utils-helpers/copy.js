@@ -1,3 +1,9 @@
+// skip in pagination
+const skip = (page-1) *limit
+
+
+const roundProductRating = (val) => Math.round(val * 10) / 10, // e.g., 4.6666 => 47 => 4.7 
+
 const arr = [{id: 1, data: {x: 1}}, {id: 2, data: {x: 2}}]
 
 //Shallower copy methods:

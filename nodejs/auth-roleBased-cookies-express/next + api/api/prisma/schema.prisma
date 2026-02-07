@@ -1,0 +1,249 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  username             String    @unique
+  password             String
+  displayName          String?
+  avatar               String?
+  role                 String    @default("client") // client, admin, operator
+  isActive             Boolean   @default(false)
+  verifyToken          String?
+  verifyTokenExpiry    DateTime?
+  passwordResetToken   String?   @unique
+  passwordResetExpiry  DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relationships
+  refreshTokens   RefreshToken[]
+  payment_methods PaymentMethod[]
+  feedbacks       Feedback[]
+  bookings        Booking[]
+
+  @@map("users")
+}
+
+// Refresh Token for JWT rotation
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  familyId  String    // Token family for rotation detection
+  expiresAt DateTime
+  isRevoked Boolean   @default(false)
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model PaymentMethod {
+  id         String  @id @default(uuid())
+  user_id    String
+  provider   String  // stripe, paypal, vnpay, etc.
+  token      String  // encrypted token/card details
+  is_default Boolean @default(false)
+  created_at DateTime @default(now())
+
+  // Relationships
+  user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@map("payment_methods")
+}
+
+// Operator Management
+model Operator {
+  id            String    @id @default(uuid())
+  name          String
+  contact_email String
+  contact_phone String?
+  status        String    @default("pending") // pending, approved, suspended
+  approved_at   DateTime?
+
+  // Relationships
+  routes Route[]
+  buses  Bus[]
+
+  @@map("operators")
+}
+
+// Route and Transportation
+model Route {
+  id                String @id @default(uuid())
+  operator_id       String
+  origin            String
+  destination       String
+  distance_km       Int
+  estimated_minutes Int
+
+  // Relationships
+  operator Operator @relation(fields: [operator_id], references: [id], onDelete: Cascade)
+  trips    Trip[]
+
+  @@map("routes")
+}
+
+model Bus {
+  id             String @id @default(uuid())
+  operator_id    String
+  plate_number   String @unique
+  model          String
+  seat_capacity  Int
+  amenities_json String? // JSON string for amenities like WiFi, AC, etc.
+
+  // Relationships
+  operator Operator @relation(fields: [operator_id], references: [id], onDelete: Cascade)
+  seats    Seat[]
+  trips    Trip[]
+
+  @@map("buses")
+}
+
+model Seat {
+  id          String  @id @default(uuid())
+  bus_id      String
+  seat_number String
+  seat_type   String  @default("regular") // regular, premium, sleeper
+  is_active   Boolean @default(true)
+
+  // Relationships
+  bus          Bus          @relation(fields: [bus_id], references: [id], onDelete: Cascade)
+  seat_statuses SeatStatus[]
+
+  @@unique([bus_id, seat_number])
+  @@map("seats")
+}
+
+// Trip and Booking Management
+model Trip {
+  id             String    @id @default(uuid())
+  route_id       String
+  bus_id         String
+  departure_time DateTime
+  arrival_time   DateTime
+  base_price     Decimal   @db.Decimal(10, 2)
+  status         String    @default("scheduled") // scheduled, active, completed, cancelled
+
+  // Relationships
+  route         Route        @relation(fields: [route_id], references: [id], onDelete: Cascade)
+  bus           Bus          @relation(fields: [bus_id], references: [id], onDelete: Cascade)
+  seat_statuses SeatStatus[]
+  bookings      Booking[]
+  feedbacks     Feedback[]
+
+  @@map("trips")
+}
+
+model SeatStatus {
+  id           String    @id @default(uuid())
+  trip_id      String
+  seat_id      String
+  status       String    @default("available") // available, locked, booked
+  locked_until DateTime?
+
+  // Relationships
+  trip Trip @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+  seat Seat @relation(fields: [seat_id], references: [id], onDelete: Cascade)
+
+  @@unique([trip_id, seat_id])
+  @@map("seat_statuses")
+}
+
+model Booking {
+  id           String   @id @default(uuid())
+  user_id      String
+  trip_id      String
+  status       String   @default("pending") // pending, confirmed, cancelled, completed
+  total_amount Decimal  @db.Decimal(10, 2)
+  booked_at    DateTime @default(now())
+
+  // Relationships
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  trip             Trip              @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+  payments         Payment[]
+  notifications    Notification[]
+  passenger_details PassengerDetail[]
+
+  @@map("bookings")
+}
+
+model Payment {
+  id              String    @id @default(uuid())
+  booking_id      String
+  provider        String    // stripe, paypal, vnpay, etc.
+  transaction_ref String?   @unique
+  amount          Decimal   @db.Decimal(10, 2)
+  status          String    @default("pending") // pending, completed, failed, refunded
+  processed_at    DateTime?
+
+  // Relationships
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model PassengerDetail {
+  id          String @id @default(uuid())
+  booking_id  String
+  full_name   String
+  document_id String // ID card, passport number
+  seat_code   String // e.g., "A1", "B5"
+
+  // Relationships
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@map("passenger_details")
+}
+
+// Notification and Feedback
+model Notification {
+  id               String    @id @default(uuid())
+  booking_id       String?
+  payment_method_id String?
+  channel          String    // email, sms, push
+  template         String    // booking_confirmed, payment_received, etc.
+  status           String    @default("pending") // pending, sent, failed
+  sent_at          DateTime?
+
+  // Relationships
+  booking        Booking?       @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  payment_method PaymentMethod? @relation(fields: [payment_method_id], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Feedback {
+  id           String   @id @default(uuid())
+  trip_id      String
+  user_id      String
+  rating       Int      // 1-5 stars
+  comment      String?
+  submitted_at DateTime @default(now())
+
+  // Relationships
+  trip Trip @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([trip_id, user_id]) // One feedback per user per trip
+  @@map("feedbacks")
+}

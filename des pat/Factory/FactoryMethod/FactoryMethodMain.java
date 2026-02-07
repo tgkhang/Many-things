@@ -3,7 +3,7 @@ import store.MyThoStylePizzaStore;
 import store.NYStylePizzaStore;
 import store.PizzaStore;
 
-public class Main {
+public class FactoryMethodMain {
 
 	public static void main(String[] args) {
 		PizzaStore nyStore = new NYStylePizzaStore();

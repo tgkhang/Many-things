@@ -8,7 +8,7 @@ import pizza.PepperoniPizza;
 import pizza.Pizza;
 import pizza.VeggiePizza;
 
-public class MyThoStylePizzaStore extends PizzaStore {
+public class MyThoStylePizzaStore extends PizzaStoreAbstract {
 
 	public MyThoStylePizzaStore() {
 		super();

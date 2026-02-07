@@ -1,0 +1,10 @@
+# TypeScript Type Definitions
+
+This directory will contain TypeScript type definitions and interfaces.
+
+Examples:
+- auth.ts - Authentication-related types
+- booking.ts - Booking-related types
+- bus.ts - Bus-related types
+- api.ts - API response types
+- common.ts - Common shared types

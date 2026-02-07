@@ -1,0 +1,35 @@
+// Foundation config that others extend from.
+
+{
+  // Compiler options: Core TypeScript compilation settings
+  "compilerOptions": {
+    "target": "ES2022", // target ES2022 for modern JS features
+    "lib": ["ES2022"], // standard library features for ES2022 (Promise, Array methods, etc.)
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    "forceConsistentCasingInFileNames": true,
+
+    // Strict: Enables all strict type-checking options (noImplicitAny, strictNullChecks, etc.)
+    "strict": true,
+
+    // SkipLibCheck: Skips type checking of declaration files (.d.ts) to speed up compilation
+    "skipLibCheck": true,
+
+    // Types: Include Jest type definitions globally (so describe, it, expect are recognized)
+    "types": ["jest"],
+
+    // BaseUrl: Base directory for resolving non-relative module names (. = project root)
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"] // ~/* resolves to src/* directory
+    }
+  },
+
+  // Ts-node: Configuration for running TypeScript directly with ts-node
+  "ts-node": {
+    // Require: Modules to load before execution (tsconfig-paths makes Node.js understand ~/* aliases at runtime)
+    "require": ["tsconfig-paths/register"]
+  }
+}

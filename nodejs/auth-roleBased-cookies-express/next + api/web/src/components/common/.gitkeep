@@ -1,0 +1,9 @@
+# Common Components
+
+This directory will contain reusable components used throughout the application.
+
+Examples:
+- Loading components
+- Error boundary components
+- Generic UI components
+- Utility components

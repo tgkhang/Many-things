@@ -17,7 +17,6 @@ public class ForecastDisplay implements Observer, DisplayElement {
     @Override
     public void display() {
         System.out.println("Forecast:");
-
     }
 
     @Override
@@ -26,6 +25,5 @@ public class ForecastDisplay implements Observer, DisplayElement {
         this.humidity = humidity;
         this.pressure = pressure;
         display();
-
     }
 }

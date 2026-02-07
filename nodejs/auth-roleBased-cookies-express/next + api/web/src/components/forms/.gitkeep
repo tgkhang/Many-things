@@ -1,0 +1,9 @@
+# Form Components
+
+This directory will contain form-related components for the bus ticket booking system.
+
+Examples:
+- Login/Register forms
+- Booking forms
+- Payment forms
+- Validation components

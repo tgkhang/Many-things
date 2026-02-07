@@ -1,10 +1,10 @@
 //imoprt java.util.*;
 import Pizza.*;
 
-class PizzaStore {
+class BasicPizzaStore {
 	SimplePizzaFactory factory;
 
-	public PizzaStore(SimplePizzaFactory factory) {
+	public BasicPizzaStore(SimplePizzaFactory factory) {
 		this.factory = factory;
 	}
 

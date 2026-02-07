@@ -8,9 +8,7 @@ public class ShoppingCart {
     }
 
     public void checkout(double amount) {
-        if (paymentStrategy == null) {
-            return;
-        }
+        if (paymentStrategy == null) return;
         paymentStrategy.pay(amount);
     }
 }

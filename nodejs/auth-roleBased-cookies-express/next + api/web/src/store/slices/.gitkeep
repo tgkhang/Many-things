@@ -1,0 +1,9 @@
+# Redux Store Slices
+
+This directory will contain Redux Toolkit slices for state management.
+
+Examples:
+- authSlice.ts - Authentication state
+- bookingSlice.ts - Booking state
+- busSlice.ts - Bus information state
+- uiSlice.ts - UI state (modals, loading, etc.)

@@ -1,0 +1,9 @@
+# Custom Styles
+
+This directory will contain custom CSS/SCSS files and style utilities.
+
+Examples:
+- components.css - Component-specific styles
+- animations.css - Animation definitions
+- variables.css - CSS custom properties
+- responsive.css - Responsive design utilities

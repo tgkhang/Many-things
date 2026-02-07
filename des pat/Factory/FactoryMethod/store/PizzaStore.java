@@ -7,13 +7,11 @@ public abstract class PizzaStore {
 	public PizzaStore() {
 		//this.factory = factory;
 	}
-
 	public Pizza orderPizza(String type) {
 		Pizza pizza;
 
 		//pizza = factory.createPizza(type);
 		pizza = createPizza(type);
-
 
 		pizza.prepare();
 		pizza.bake();

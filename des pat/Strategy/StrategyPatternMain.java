@@ -2,8 +2,7 @@ import Payment.CashPayment;
 import Payment.CreditCardPayment;
 import Payment.PayPalPayment;
 
-public class Main {
-
+public class StrategyPatternMain {
 	public static void main(String[] args)
 	{
 		ShoppingCart cart = new ShoppingCart();
