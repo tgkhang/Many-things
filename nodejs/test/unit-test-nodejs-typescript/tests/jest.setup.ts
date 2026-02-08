@@ -5,6 +5,11 @@ process.env.NODE_ENV = 'test'
 // Chuẩn hóa timezone về múi giờ chuẩn quốc tế UTC (tránh lệch giờ khi test các tính năng liên quan đến ngày tháng - Date)
 process.env.TIMEZONE = process.env.TIMEZONE ?? 'UTC'
 
+// Set required environment variables for tests
+process.env.MONGO_URI = process.env.MONGO_URI ?? 'mongodb://localhost:27017/test'
+process.env.CORS_ORIGINS = process.env.CORS_ORIGINS ?? 'http://localhost:3000,http://localhost:5173'
+process.env.FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL ?? 'http://localhost:3000'
+
 // Optional: giảm log trên môi trường CI (tùy dự án cần hay không)
 const shouldMuteConsole = process.env.CI === 'true' || process.env.JEST_MUTE_CONSOLE === 'true'
 if (shouldMuteConsole) {
