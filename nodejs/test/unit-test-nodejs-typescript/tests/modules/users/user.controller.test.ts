@@ -18,7 +18,6 @@ describe('UserController', () => {
     const res = {} as Response
     res.status = jest.fn().mockReturnValue(res)
     res.json = jest.fn().mockReturnValue(res)
-
     return res
   }
 
@@ -41,15 +40,14 @@ describe('UserController', () => {
       }
 
       // defensive semicolon
+      // use to prevent error when the previous line is a function call
+      // and this line starts with (
       ;(UserService.register as jest.Mock).mockResolvedValue(fakeUserResponse)
-
       await UserController.register(req, res)
 
       // userservice.register call with correct params
       expect(UserService.register).toHaveBeenCalledWith(req.body.email, req.body.username, req.body.password)
-
       expect(res.status).toHaveBeenCalledWith(StatusCodes.CREATED)
-
       expect(res.json).toHaveBeenCalledWith(fakeUserResponse)
     })
   })

@@ -22,7 +22,7 @@ describe('validateRequest middleware', () => {
     } as unknown as Request
 
     const res = {} as Response
-    const next = jest.fn() as NextFunction
+    const next = jest.fn() as unknown as NextFunction
 
     // create middle from schema
     const validateRequestMiddleware = validateRequest(schema)
@@ -63,7 +63,7 @@ describe('validateRequest middleware', () => {
     } as unknown as Request
 
     const res = {} as Response
-    const next = jest.fn() as NextFunction
+    const next = jest.fn() as unknown as NextFunction
 
     try {
       validateRequest(schema)(req, res, next)

@@ -20,5 +20,5 @@ export class ApiError extends Error {
   static Unauthorized(msg = 'Unauthorized', details?: unknown) {
     return new ApiError(StatusCodes.UNAUTHORIZED, msg, details)
   }
-  // Sau này mở rộng thêm các static theo mã lỗi...
+  // More code will be added in the future...
 }

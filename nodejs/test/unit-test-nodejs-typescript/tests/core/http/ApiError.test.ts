@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { ApiError } from '~/core/http/ApiError'
 
 describe('ApiError', () => {
-  it('constructor shoudl set status, message, details', () => {
+  it('Constructor should set status, message, details', () => {
     const details = { field: 'username', reason: 'required' }
     const error = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, 'Invalid input username', details)
 
@@ -12,9 +12,8 @@ describe('ApiError', () => {
     expect(error.details).toEqual(details)
   })
 
-  it('Should be instance of Api error and error', () => {
+  it('Should be instance of ApiError and Error', () => {
     const error = new ApiError(StatusCodes.NOT_FOUND, 'Resource not found')
-
     expect(error).toBeInstanceOf(ApiError)
     expect(error).toBeInstanceOf(Error)
   })
@@ -26,7 +25,7 @@ describe('ApiError', () => {
     expect(error.stack).toContain('ApiError')
   })
 
-  it('method badrequest should return 400 with default message', () => {
+  it('method BadRequest should return 400 with default message', () => {
     const error = ApiError.BadRequest()
 
     expect(error).toBeInstanceOf(ApiError)
@@ -35,7 +34,7 @@ describe('ApiError', () => {
     expect(error.details).toBeUndefined()
   })
 
-  it('method badrequest should return custom message and data', () => {
+  it('method BadRequest should return custom message and data', () => {
     const details = { field: 'email', reason: 'invalid format' }
     const error = ApiError.BadRequest('Invalid email format', details)
 

@@ -102,10 +102,3 @@ lerna-debug.log
 out/
 *.local
 *.tgz
-
-# ------------------------
-# Optional:
-# keep useful examples
-# ------------------------
-# !.env.example
-# !src/**/*.example.ts

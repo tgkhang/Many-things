@@ -17,7 +17,8 @@ const corsOptions: CorsOptions = {
     callback(new Error(`Origin ${origin} not allowed by CORS`))
   },
   credentials: true, // cho phép gửi cookies/authorization header
-  optionsSuccessStatus: 204, // status code cho preflight (OPTIONS)
+  optionsSuccessStatus: 204, // trả về status code cho preflight request
+  // preflight request là những request OPTIONS trước khi gửi request chính
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }

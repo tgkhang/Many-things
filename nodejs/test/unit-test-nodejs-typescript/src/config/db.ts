@@ -25,7 +25,7 @@ export function getDb(): Db {
 export const col = {
   users: (): Collection<OptionalId<User>> => getDb().collection('users'),
 
-  /** Tương lai sau này làm tiếp với các collection khác, đón chờ khóa học siêu phẩm trong năm 2026 nhé =)) */
+  /** Tương lai sau này làm tiếp với các collection khác */
   // sessions: (): Collection<OptionalId<UserSession>> => getDb().collection('user_sessions'),
   // loginHistory: (): Collection<OptionalId<LoginHistory>> => getDb().collection('login_history'),
   // loginAttempts: (): Collection<OptionalId<LoginAttempt>> => getDb().collection('login_attempts'),

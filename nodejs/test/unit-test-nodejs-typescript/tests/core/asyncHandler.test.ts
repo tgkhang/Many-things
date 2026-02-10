@@ -38,7 +38,6 @@ describe('asyncHandler', () => {
     }
 
     await asyncHandler(handleFunc as any)(req, res, next)
-
     // no error
     expect(next).not.toHaveBeenCalled()
   })

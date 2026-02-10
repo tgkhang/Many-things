@@ -34,6 +34,7 @@ export const createApp = () => {
   app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
   // Important: must be last
+  // global error handler
   app.use(errorHandler)
 
   return app

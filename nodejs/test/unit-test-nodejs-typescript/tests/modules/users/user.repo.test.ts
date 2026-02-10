@@ -67,7 +67,6 @@ describe('UserRepo', () => {
       expect(col.users).toHaveBeenCalledTimes(1)
       expect(findOne).toHaveBeenCalledTimes(1)
       expect(findOne).toHaveBeenCalledWith({ email: 'admin@gmail.com' })
-
       expect(result).toEqual(fakeUserResponse)
     })
   })
@@ -114,6 +113,7 @@ describe('UserRepo', () => {
       jest.useRealTimers()
     })
   })
+
   describe('list()', () => {
     it('should return list of users', async () => {
       const fakeUsers = [
@@ -138,9 +138,7 @@ describe('UserRepo', () => {
       expect(col.users).toHaveBeenCalledTimes(1)
       expect(find).toHaveBeenCalledTimes(1)
       expect(toArray).toHaveBeenCalledTimes(1)
-
       expect(toArray).toHaveBeenCalledTimes(1)
-
       expect(result).toEqual(fakeUsers)
     })
   })

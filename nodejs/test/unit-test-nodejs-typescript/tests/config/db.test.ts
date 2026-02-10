@@ -31,9 +31,7 @@ describe('database config', () => {
   const URI = 'mongodb://localhost:27017/testdb'
 
   beforeEach(() => {
-    // clear history
-    jest.clearAllMocks()
-
+    jest.clearAllMocks()// clear history
     jest.resetModules() // reset module registry to clear cached db instance
   })
 

@@ -14,6 +14,7 @@ process.env.FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL ?? 'http://localho
 const shouldMuteConsole = process.env.CI === 'true' || process.env.JEST_MUTE_CONSOLE === 'true'
 if (shouldMuteConsole) {
   // beforeAll(): Chạy 1 lần trước toàn bộ test
+  // Giả lập (mock) các hàm console để không in log ra terminal khi chạy test
   beforeAll(() => {
     jest.spyOn(console, 'log').mockImplementation(() => {})
     jest.spyOn(console, 'info').mockImplementation(() => {})

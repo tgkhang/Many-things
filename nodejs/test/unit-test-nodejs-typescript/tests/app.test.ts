@@ -39,7 +39,9 @@ describe('createApp', () => {
       throw ApiError.BadRequest()
     })
 
-    const res = await request(app).get('/throw-error').ok((res) => res.status === 400)
+    const res = await request(app)
+      .get('/throw-error')
+      .ok((res) => res.status === 400)
 
     expect(res.status).toBe(StatusCodes.BAD_REQUEST)
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST)
