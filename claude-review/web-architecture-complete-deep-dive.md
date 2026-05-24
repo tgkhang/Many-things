@@ -1,4 +1,5 @@
 # 🌐 Web Architecture — Complete Deep Dive
+>
 > Browser Internals, DOM, HTML Events, React, Next.js, SEO, Performance
 
 ---
@@ -1086,7 +1087,7 @@ function getCached(key, createFn) {
 
 # 6. React — Deep Dive
 
-> 📖 https://react.dev/
+> 📖 <https://react.dev/>
 
 ## 6.1 Hooks — Complete Guide
 
@@ -1414,7 +1415,7 @@ function Search() {
 
 # 7. Next.js — Full Stack React
 
-> 📖 https://nextjs.org/docs
+> 📖 <https://nextjs.org/docs>
 
 ## 7.1 Rendering Strategies
 
@@ -1616,7 +1617,7 @@ app/
 
 # 8. SEO — Search Engine Optimization
 
-> 📖 https://developers.google.com/search/docs
+> 📖 <https://developers.google.com/search/docs>
 
 ## 8.1 Technical SEO Fundamentals
 
@@ -2288,7 +2289,7 @@ self.addEventListener('fetch', (e) => {
 
 # 12. TypeScript Essentials
 
-> 📖 https://www.typescriptlang.org/docs/
+> 📖 <https://www.typescriptlang.org/docs/>
 
 ## 12.1 Type System
 
@@ -2437,21 +2438,21 @@ Cache-Control:           immutable (static w/hash) | no-store (sensitive) | max-
 
 | Topic | Link |
 |-------|------|
-| MDN Web Docs | https://developer.mozilla.org/en-US/ |
-| React Docs | https://react.dev/ |
-| Next.js Docs | https://nextjs.org/docs |
-| TypeScript Handbook | https://www.typescriptlang.org/docs/ |
-| Google Web Dev | https://web.dev/ |
-| PageSpeed Insights | https://pagespeed.web.dev/ |
-| HTML Living Standard | https://html.spec.whatwg.org/ |
-| CSS Tricks | https://css-tricks.com/ |
-| Can I Use | https://caniuse.com/ |
-| Google Search Central | https://developers.google.com/search/docs |
-| Web Vitals | https://web.dev/vitals/ |
-| Schema.org | https://schema.org/ |
-| Lighthouse | https://developer.chrome.com/docs/lighthouse/ |
-| V8 Blog | https://v8.dev/blog |
-| WHATWG Streams | https://streams.spec.whatwg.org/ |
+| MDN Web Docs | <https://developer.mozilla.org/en-US/> |
+| React Docs | <https://react.dev/> |
+| Next.js Docs | <https://nextjs.org/docs> |
+| TypeScript Handbook | <https://www.typescriptlang.org/docs/> |
+| Google Web Dev | <https://web.dev/> |
+| PageSpeed Insights | <https://pagespeed.web.dev/> |
+| HTML Living Standard | <https://html.spec.whatwg.org/> |
+| CSS Tricks | <https://css-tricks.com/> |
+| Can I Use | <https://caniuse.com/> |
+| Google Search Central | <https://developers.google.com/search/docs> |
+| Web Vitals | <https://web.dev/vitals/> |
+| Schema.org | <https://schema.org/> |
+| Lighthouse | <https://developer.chrome.com/docs/lighthouse/> |
+| V8 Blog | <https://v8.dev/blog> |
+| WHATWG Streams | <https://streams.spec.whatwg.org/> |
 
 ---
 

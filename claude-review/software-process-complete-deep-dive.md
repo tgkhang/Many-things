@@ -1,4 +1,5 @@
 # 🚀 Software Development Process — Complete Deep Dive
+>
 > Agile, Scrum, Kanban, Waterfall, DevOps, CI/CD và Quy trình Phát triển Phần mềm
 
 ---
@@ -224,7 +225,7 @@ Popular in Germany, automotive industry (ASPICE), medical devices
 
 # 3. Agile Manifesto & Principles
 
-> 📖 https://agilemanifesto.org/ (signed 2001, Snowbird Utah by 17 developers)
+> 📖 <https://agilemanifesto.org/> (signed 2001, Snowbird Utah by 17 developers)
 
 ## 3.1 The Agile Manifesto
 
@@ -336,7 +337,7 @@ Customer role   PO role     Varies      On-site     Product Mgmt
 
 # 4. Scrum Framework
 
-> 📖 https://scrumguides.org/ (Schwaber & Sutherland, 2020)
+> 📖 <https://scrumguides.org/> (Schwaber & Sutherland, 2020)
 
 ## 4.1 Scrum Overview
 
@@ -887,7 +888,7 @@ Best for          New features    Maintenance + support
 
 # 6. SAFe — Scaled Agile Framework
 
-> 📖 https://scaledagileframework.com/
+> 📖 <https://scaledagileframework.com/>
 
 ## 6.1 Why SAFe?
 
@@ -1352,7 +1353,7 @@ BDD (Behavior Driven Development):
 
 # 10. CI/CD Pipeline
 
-> 📖 https://docs.gitlab.com/ee/ci/
+> 📖 <https://docs.gitlab.com/ee/ci/>
 
 ## 10.1 CI/CD Overview
 
@@ -1998,20 +1999,20 @@ Most teams use a HYBRID:
 
 | Topic | Link |
 |-------|------|
-| Scrum Guide 2020 | https://scrumguides.org/scrum-guide.html |
-| Agile Manifesto | https://agilemanifesto.org/ |
-| SAFe Framework | https://scaledagileframework.com/ |
-| Kanban Guide | https://kanbanguides.org/ |
-| Nexus Guide | https://www.scrum.org/resources/nexus-guide |
-| DORA Metrics | https://dora.dev/research/2022/dora-report/ |
-| GitHub Actions | https://docs.github.com/en/actions |
-| GitLab CI/CD | https://docs.gitlab.com/ee/ci/ |
-| Jira (Atlassian) | https://www.atlassian.com/software/jira/guides |
-| SRE Book (Google) | https://sre.google/sre-book/table-of-contents/ |
-| DevOps Handbook | https://itrevolution.com/product/the-devops-handbook/ |
-| Accelerate (DORA book) | https://itrevolution.com/product/accelerate/ |
-| Extreme Programming | http://www.extremeprogramming.org/ |
-| Martin Fowler Blog | https://martinfowler.com/ |
+| Scrum Guide 2020 | <https://scrumguides.org/scrum-guide.html> |
+| Agile Manifesto | <https://agilemanifesto.org/> |
+| SAFe Framework | <https://scaledagileframework.com/> |
+| Kanban Guide | <https://kanbanguides.org/> |
+| Nexus Guide | <https://www.scrum.org/resources/nexus-guide> |
+| DORA Metrics | <https://dora.dev/research/2022/dora-report/> |
+| GitHub Actions | <https://docs.github.com/en/actions> |
+| GitLab CI/CD | <https://docs.gitlab.com/ee/ci/> |
+| Jira (Atlassian) | <https://www.atlassian.com/software/jira/guides> |
+| SRE Book (Google) | <https://sre.google/sre-book/table-of-contents/> |
+| DevOps Handbook | <https://itrevolution.com/product/the-devops-handbook/> |
+| Accelerate (DORA book) | <https://itrevolution.com/product/accelerate/> |
+| Extreme Programming | <http://www.extremeprogramming.org/> |
+| Martin Fowler Blog | <https://martinfowler.com/> |
 
 ---
 

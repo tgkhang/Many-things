@@ -1,4 +1,5 @@
 # 🤖 Introduction to AI — Complete Deep Dive
+>
 > Search, Heuristics, Machine Learning, Deep Learning, Reinforcement Learning, Decision Trees
 
 ---
@@ -1763,7 +1764,7 @@ class MultiHeadAttention(nn.Module):
 
 # 12. Reinforcement Learning
 
-> 📖 https://spinningup.openai.com/
+> 📖 <https://spinningup.openai.com/>
 
 ## 12.1 RL Framework
 
@@ -2278,21 +2279,21 @@ EVALUATION:
 
 | Topic | Link |
 |-------|------|
-| CS50 AI (Harvard, free) | https://cs50.harvard.edu/ai/ |
-| Deep Learning Book | https://www.deeplearningbook.org/ |
-| fast.ai (practical DL) | https://course.fast.ai/ |
-| PyTorch Tutorial | https://pytorch.org/tutorials/ |
-| Scikit-learn User Guide | https://scikit-learn.org/stable/user_guide.html |
-| OpenAI Spinning Up (RL) | https://spinningup.openai.com/ |
-| Hugging Face NLP Course | https://huggingface.co/learn/nlp-course/ |
-| Stanford CS229 (ML) | https://cs229.stanford.edu/ |
-| Stanford CS231n (CNN) | http://cs231n.stanford.edu/ |
-| Stanford CS224n (NLP) | http://web.stanford.edu/class/cs224n/ |
-| RLHF Paper | https://arxiv.org/abs/2203.02155 |
-| Attention Is All You Need | https://arxiv.org/abs/1706.03762 |
-| AlphaGo Paper | https://www.nature.com/articles/nature16961 |
-| Google AI Principles | https://ai.google/principles/ |
-| AI Safety (Anthropic) | https://www.anthropic.com/research |
+| CS50 AI (Harvard, free) | <https://cs50.harvard.edu/ai/> |
+| Deep Learning Book | <https://www.deeplearningbook.org/> |
+| fast.ai (practical DL) | <https://course.fast.ai/> |
+| PyTorch Tutorial | <https://pytorch.org/tutorials/> |
+| Scikit-learn User Guide | <https://scikit-learn.org/stable/user_guide.html> |
+| OpenAI Spinning Up (RL) | <https://spinningup.openai.com/> |
+| Hugging Face NLP Course | <https://huggingface.co/learn/nlp-course/> |
+| Stanford CS229 (ML) | <https://cs229.stanford.edu/> |
+| Stanford CS231n (CNN) | <http://cs231n.stanford.edu/> |
+| Stanford CS224n (NLP) | <http://web.stanford.edu/class/cs224n/> |
+| RLHF Paper | <https://arxiv.org/abs/2203.02155> |
+| Attention Is All You Need | <https://arxiv.org/abs/1706.03762> |
+| AlphaGo Paper | <https://www.nature.com/articles/nature16961> |
+| Google AI Principles | <https://ai.google/principles/> |
+| AI Safety (Anthropic) | <https://www.anthropic.com/research> |
 
 ---
 

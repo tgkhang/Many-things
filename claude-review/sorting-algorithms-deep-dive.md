@@ -1,4 +1,5 @@
 # 🔢 Sorting Algorithms — Complete Deep Dive
+>
 > Bubble, Selection, Insertion, Merge, Quick, Heap, Counting, Radix, Tim Sort
 
 ---
@@ -1279,12 +1280,12 @@ long mergeCountInversions(int[] arr, int lo, int hi) {
 
 | Topic | Link |
 |-------|------|
-| Arrays.sort() (Java) | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Arrays.html#sort(int[]) |
-| Collections.sort() | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Collections.html#sort(java.util.List) |
-| Comparator | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Comparator.html |
-| Dual-Pivot QuickSort | https://arxiv.org/abs/1503.04020 |
-| Tim Sort Paper | https://svn.python.org/projects/python/trunk/Objects/listsort.txt |
-| Visualgo Sorting | https://visualgo.net/en/sorting |
-| Sorting Algorithm Animations | https://www.toptal.com/developers/sorting-algorithms |
-| Big-O Cheatsheet | https://www.bigocheatsheet.com/ |
-| CP Algorithms - Sorting | https://cp-algorithms.com/algebra/sorting.html |
+| Arrays.sort() (Java) | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Arrays.html#sort(int[>]) |
+| Collections.sort() | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Collections.html#sort(java.util.List)> |
+| Comparator | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Comparator.html> |
+| Dual-Pivot QuickSort | <https://arxiv.org/abs/1503.04020> |
+| Tim Sort Paper | <https://svn.python.org/projects/python/trunk/Objects/listsort.txt> |
+| Visualgo Sorting | <https://visualgo.net/en/sorting> |
+| Sorting Algorithm Animations | <https://www.toptal.com/developers/sorting-algorithms> |
+| Big-O Cheatsheet | <https://www.bigocheatsheet.com/> |
+| CP Algorithms - Sorting | <https://cp-algorithms.com/algebra/sorting.html> |

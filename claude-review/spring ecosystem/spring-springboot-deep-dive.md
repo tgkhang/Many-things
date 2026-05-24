@@ -1,8 +1,9 @@
 # 🌱 Spring & Spring Boot — Complete Deep Dive
+>
 > Từ core concepts đến production-ready application
 
-> 📖 Spring Docs: https://docs.spring.io/spring-framework/docs/current/reference/html/
-> 📖 Spring Boot Docs: https://docs.spring.io/spring-boot/docs/current/reference/html/
+> 📖 Spring Docs: <https://docs.spring.io/spring-framework/docs/current/reference/html/>
+> 📖 Spring Boot Docs: <https://docs.spring.io/spring-boot/docs/current/reference/html/>
 
 ---
 
@@ -84,11 +85,12 @@ Spring Boot = Spring Framework + Starter POMs + Auto-Configuration
 
 # 2. IoC Container & Dependency Injection
 
-> 📖 https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans
+> 📖 <https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans>
 
 ## 2.1 IoC — Inversion of Control là gì?
 
 **Không có IoC** (mày kiểm soát object creation):
+
 ```java
 // Mày tạo → mày quản lý
 OrderService service = new OrderService(
@@ -99,6 +101,7 @@ OrderService service = new OrderService(
 ```
 
 **Có IoC** (Container kiểm soát object creation):
+
 ```java
 // Mày chỉ khai báo cần gì — Spring tạo và inject cho mày
 @Service
@@ -226,7 +229,7 @@ public class StripeGateway implements PaymentGateway { ... }
 
 # 3. Bean Lifecycle
 
-> 📖 https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-lifecycle
+> 📖 <https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-lifecycle>
 
 ## 3.1 Full Lifecycle
 
@@ -375,7 +378,7 @@ public class OrderService {
 
 # 4. Spring Core Annotations
 
-> 📖 https://docs.spring.io/spring-framework/docs/current/reference/html/core.html
+> 📖 <https://docs.spring.io/spring-framework/docs/current/reference/html/core.html>
 
 ## 4.1 Stereotype Annotations
 
@@ -477,7 +480,7 @@ public class AppConfig {
 
 # 5. Spring Boot — Auto Configuration
 
-> 📖 https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.auto-configuration
+> 📖 <https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.auto-configuration>
 
 ## 5.1 Cơ chế Auto-Configuration
 
@@ -650,7 +653,7 @@ private String mailFrom;
 
 # 6. Spring MVC — REST API
 
-> 📖 https://docs.spring.io/spring-framework/docs/current/reference/html/web.html
+> 📖 <https://docs.spring.io/spring-framework/docs/current/reference/html/web.html>
 
 ## 6.1 Request Handling
 
@@ -809,7 +812,7 @@ return ResponseEntity
 
 # 7. Spring Data JPA
 
-> 📖 https://docs.spring.io/spring-data/jpa/docs/current/reference/html/
+> 📖 <https://docs.spring.io/spring-data/jpa/docs/current/reference/html/>
 
 ## 7.1 Entity
 
@@ -1016,7 +1019,7 @@ private List<Order> orders;
 
 # 8. Spring Security
 
-> 📖 https://docs.spring.io/spring-security/reference/index.html
+> 📖 <https://docs.spring.io/spring-security/reference/index.html>
 
 ## 8.1 Security Filter Chain
 
@@ -1151,7 +1154,7 @@ public class AdminController {
 
 # 9. Spring AOP
 
-> 📖 https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop
+> 📖 <https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop>
 
 ## 9.1 AOP Concepts
 
@@ -1240,7 +1243,7 @@ public class UserService {
 
 # 10. Configuration & Profiles
 
-> 📖 https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles
+> 📖 <https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles>
 
 ## 10.1 Spring Profiles
 
@@ -1320,7 +1323,7 @@ public class DataSourceConfig {
 
 # 11. Exception Handling
 
-> 📖 https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-exceptionhandler
+> 📖 <https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-exceptionhandler>
 
 ## 11.1 Global Exception Handler
 
@@ -1397,7 +1400,7 @@ public class DuplicateResourceException extends RuntimeException {
 
 # 12. Testing
 
-> 📖 https://docs.spring.io/spring-boot/docs/current/reference/html/testing.html
+> 📖 <https://docs.spring.io/spring-boot/docs/current/reference/html/testing.html>
 
 ## 12.1 Unit Test (không cần Spring context)
 
@@ -1693,18 +1696,18 @@ public void processOrder(Long id) {
 
 | Topic | Link |
 |-------|------|
-| Spring Framework | https://docs.spring.io/spring-framework/docs/current/reference/html/ |
-| Spring Boot | https://docs.spring.io/spring-boot/docs/current/reference/html/ |
-| Spring Data JPA | https://docs.spring.io/spring-data/jpa/docs/current/reference/html/ |
-| Spring Security | https://docs.spring.io/spring-security/reference/index.html |
-| Spring MVC | https://docs.spring.io/spring-framework/docs/current/reference/html/web.html |
-| Spring AOP | https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop |
-| Spring Testing | https://docs.spring.io/spring-boot/docs/current/reference/html/testing.html |
-| Spring Profiles | https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles |
-| Bean Lifecycle | https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-lifecycle |
-| Transaction Mgmt | https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#transaction |
-| Actuator | https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html |
-| Auto-Config | https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.auto-configuration |
+| Spring Framework | <https://docs.spring.io/spring-framework/docs/current/reference/html/> |
+| Spring Boot | <https://docs.spring.io/spring-boot/docs/current/reference/html/> |
+| Spring Data JPA | <https://docs.spring.io/spring-data/jpa/docs/current/reference/html/> |
+| Spring Security | <https://docs.spring.io/spring-security/reference/index.html> |
+| Spring MVC | <https://docs.spring.io/spring-framework/docs/current/reference/html/web.html> |
+| Spring AOP | <https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop> |
+| Spring Testing | <https://docs.spring.io/spring-boot/docs/current/reference/html/testing.html> |
+| Spring Profiles | <https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles> |
+| Bean Lifecycle | <https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-lifecycle> |
+| Transaction Mgmt | <https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#transaction> |
+| Actuator | <https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html> |
+| Auto-Config | <https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.auto-configuration> |
 
 ---
 

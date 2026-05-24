@@ -1,4 +1,5 @@
 # 🧱 OOP Deep Dive — Interface, Abstract & Design Principles
+>
 > Interface types, Abstract Classes, Polymorphism, SOLID, Design Patterns
 
 ---
@@ -104,7 +105,7 @@ Open/Closed in practice:
 
 # 2. Interface — Complete Deep Dive
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/concepts/interface.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/concepts/interface.html>
 
 ## 2.1 What is an Interface?
 
@@ -459,7 +460,7 @@ Comparator<User> complex = Comparator
 
 # 3. Abstract Class — Complete Deep Dive
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html>
 
 ## 3.1 What is an Abstract Class?
 
@@ -2818,16 +2819,16 @@ Employee contractor = new Employee("Charlie",
 
 | Topic | Link |
 |-------|------|
-| Java Interfaces | https://docs.oracle.com/javase/tutorial/java/concepts/interface.html |
-| Abstract Classes | https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html |
-| Inheritance | https://docs.oracle.com/javase/tutorial/java/IandI/subclasses.html |
-| Sealed Classes | https://docs.oracle.com/en/java/se/17/language/sealed-classes-and-interfaces.html |
-| Functional Interfaces | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/function/package-summary.html |
-| java.util.function | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/function/package-summary.html |
-| Design Patterns (GoF) | https://refactoring.guru/design-patterns |
-| SOLID Principles | https://www.digitalocean.com/community/conceptual-articles/s-o-l-i-d-the-first-five-principles-of-object-oriented-design |
-| Effective Java (Bloch) | https://www.oreilly.com/library/view/effective-java/9780134686097/ |
-| Composition over Inheritance | https://www.thoughtworks.com/insights/blog/composition-vs-inheritance-how-choose |
+| Java Interfaces | <https://docs.oracle.com/javase/tutorial/java/concepts/interface.html> |
+| Abstract Classes | <https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html> |
+| Inheritance | <https://docs.oracle.com/javase/tutorial/java/IandI/subclasses.html> |
+| Sealed Classes | <https://docs.oracle.com/en/java/se/17/language/sealed-classes-and-interfaces.html> |
+| Functional Interfaces | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/function/package-summary.html> |
+| java.util.function | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/function/package-summary.html> |
+| Design Patterns (GoF) | <https://refactoring.guru/design-patterns> |
+| SOLID Principles | <https://www.digitalocean.com/community/conceptual-articles/s-o-l-i-d-the-first-five-principles-of-object-oriented-design> |
+| Effective Java (Bloch) | <https://www.oreilly.com/library/view/effective-java/9780134686097/> |
+| Composition over Inheritance | <https://www.thoughtworks.com/insights/blog/composition-vs-inheritance-how-choose> |
 
 ---
 

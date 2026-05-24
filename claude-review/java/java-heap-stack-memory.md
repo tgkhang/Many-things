@@ -1,4 +1,5 @@
 # 🧠 Heap & Stack — Memory Deep Dive in Java
+>
 > What actually happens in memory when you write `new`, declare a variable, or load a class
 
 ---
@@ -94,6 +95,7 @@ main() return → pop frame         ← bộ nhớ giải phóng ngay
 ```
 
 **Quan trọng:**
+
 - Primitive value (`int`, `double`, `boolean`...) → lưu **thẳng giá trị** trong slot
 - Reference variable (`String`, `Object`, array...) → lưu **địa chỉ** (pointer) trỏ tới Heap
 
@@ -249,12 +251,14 @@ Person p = new Person("Khang", 21);
 **Bước 3:** JVM **allocate** vùng nhớ đó trên **Eden Space** (Heap).
 
 **Bước 4:** JVM **zero-initialize** tất cả fields:
+
 ```
 name  → null
 age   → 0
 ```
 
 **Bước 5:** Gọi constructor, assign giá trị thực:
+
 ```
 name  → 0xC100 (trỏ tới String "Khang" trên heap)
 age   → 21
@@ -759,6 +763,6 @@ public class PersonRepository {
 
 ---
 
-> 📖 JVM Spec: https://docs.oracle.com/javase/specs/jvms/se21/html/index.html
-> 📖 GC Tuning: https://docs.oracle.com/en/java/se/21/gctuning/index.html
-> 📖 Memory Management: https://www.oracle.com/technetwork/java/javase/memorymanagement-whitepaper-150215.pdf
+> 📖 JVM Spec: <https://docs.oracle.com/javase/specs/jvms/se21/html/index.html>
+> 📖 GC Tuning: <https://docs.oracle.com/en/java/se/21/gctuning/index.html>
+> 📖 Memory Management: <https://www.oracle.com/technetwork/java/javase/memorymanagement-whitepaper-150215.pdf>

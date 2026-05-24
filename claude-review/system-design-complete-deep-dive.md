@@ -1,4 +1,5 @@
 # 🏗️ System Design — Complete Deep Dive
+>
 > Scalability, Databases, Kafka, Redis, Caching, N+1, Load Balancing và hơn nữa
 
 ---
@@ -687,7 +688,7 @@ Caffeine (Java):
 
 # 5. Message Queues & Kafka
 
-> 📖 https://kafka.apache.org/documentation/
+> 📖 <https://kafka.apache.org/documentation/>
 
 ## 5.1 Why Message Queues?
 
@@ -988,7 +989,7 @@ SQS strengths:
 
 # 6. Redis — Advanced Patterns
 
-> 📖 https://redis.io/docs/manual/patterns/
+> 📖 <https://redis.io/docs/manual/patterns/>
 
 ## 6.1 Redis as Primary Database
 
@@ -2058,18 +2059,18 @@ LOW LATENCY:
 
 | Topic | Link |
 |-------|------|
-| Apache Kafka | https://kafka.apache.org/documentation/ |
-| Redis Docs | https://redis.io/docs/ |
-| Redis Patterns | https://redis.io/docs/manual/patterns/ |
-| PostgreSQL Performance | https://www.postgresql.org/docs/current/performance-tips.html |
-| System Design Primer | https://github.com/donnemartin/system-design-primer |
-| Designing Data-Intensive Apps | https://dataintensive.net/ |
-| AWS Architecture Center | https://aws.amazon.com/architecture/ |
-| Google SRE Book | https://sre.google/sre-book/table-of-contents/ |
-| Martin Fowler Patterns | https://martinfowler.com/articles/patterns-of-distributed-systems/ |
-| High Scalability Blog | http://highscalability.com/ |
-| Resilience4j | https://resilience4j.readme.io/ |
-| DDIA (free summary) | https://github.com/keyvanakbary/learning-notes/blob/master/books/designing-data-intensive-applications.md |
+| Apache Kafka | <https://kafka.apache.org/documentation/> |
+| Redis Docs | <https://redis.io/docs/> |
+| Redis Patterns | <https://redis.io/docs/manual/patterns/> |
+| PostgreSQL Performance | <https://www.postgresql.org/docs/current/performance-tips.html> |
+| System Design Primer | <https://github.com/donnemartin/system-design-primer> |
+| Designing Data-Intensive Apps | <https://dataintensive.net/> |
+| AWS Architecture Center | <https://aws.amazon.com/architecture/> |
+| Google SRE Book | <https://sre.google/sre-book/table-of-contents/> |
+| Martin Fowler Patterns | <https://martinfowler.com/articles/patterns-of-distributed-systems/> |
+| High Scalability Blog | <http://highscalability.com/> |
+| Resilience4j | <https://resilience4j.readme.io/> |
+| DDIA (free summary) | <https://github.com/keyvanakbary/learning-notes/blob/master/books/designing-data-intensive-applications.md> |
 
 ---
 

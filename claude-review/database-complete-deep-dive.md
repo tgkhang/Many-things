@@ -1,9 +1,10 @@
 # 🗄️ Database Complete Deep Dive
+>
 > SQL, Partitioning, Sharding, Replication, NoSQL, Query Optimization, Redis
 
-> 📖 PostgreSQL Docs: https://www.postgresql.org/docs/current/
-> 📖 MySQL Docs: https://dev.mysql.com/doc/refman/8.0/en/
-> 📖 Redis Docs: https://redis.io/docs/
+> 📖 PostgreSQL Docs: <https://www.postgresql.org/docs/current/>
+> 📖 MySQL Docs: <https://dev.mysql.com/doc/refman/8.0/en/>
+> 📖 Redis Docs: <https://redis.io/docs/>
 
 ---
 
@@ -125,7 +126,7 @@ JSONB           -- stored as binary, indexed, faster queries ← prefer this
 
 # 2. SQL Deep Dive
 
-> 📖 https://www.postgresql.org/docs/current/sql.html
+> 📖 <https://www.postgresql.org/docs/current/sql.html>
 
 ## 2.1 DDL — Data Definition Language
 
@@ -447,7 +448,7 @@ FROM users;
 
 # 3. Indexes — The Most Important Optimization
 
-> 📖 https://www.postgresql.org/docs/current/indexes.html
+> 📖 <https://www.postgresql.org/docs/current/indexes.html>
 
 ## 3.1 How Indexes Work Internally
 
@@ -559,7 +560,7 @@ LIMIT 20;
 
 # 4. Transactions & ACID
 
-> 📖 https://www.postgresql.org/docs/current/transaction-iso.html
+> 📖 <https://www.postgresql.org/docs/current/transaction-iso.html>
 
 ## 4.1 ACID Properties
 
@@ -659,7 +660,7 @@ SELECT pg_try_advisory_lock(12345);   -- non-blocking (returns boolean)
 
 # 5. Query Optimization
 
-> 📖 https://www.postgresql.org/docs/current/performance-tips.html
+> 📖 <https://www.postgresql.org/docs/current/performance-tips.html>
 
 ## 5.1 EXPLAIN ANALYZE — Reading Query Plans
 
@@ -795,7 +796,7 @@ VACUUM FULL users;       -- reclaim space, rewrites table (locks table!)
 
 # 6. Partitioning
 
-> 📖 https://www.postgresql.org/docs/current/ddl-partitioning.html
+> 📖 <https://www.postgresql.org/docs/current/ddl-partitioning.html>
 
 ## 6.1 What is Partitioning?
 
@@ -916,7 +917,7 @@ CREATE TABLE user_events_3 PARTITION OF user_events
 
 # 7. Replication
 
-> 📖 https://www.postgresql.org/docs/current/high-availability.html
+> 📖 <https://www.postgresql.org/docs/current/high-availability.html>
 
 ## 7.1 Replication Overview
 
@@ -1131,8 +1132,8 @@ Solutions:
 
 # 9. NoSQL Databases
 
-> 📖 https://www.mongodb.com/docs/
-> 📖 https://cassandra.apache.org/doc/
+> 📖 <https://www.mongodb.com/docs/>
+> 📖 <https://cassandra.apache.org/doc/>
 
 ## 9.1 NoSQL Types
 
@@ -1263,8 +1264,8 @@ db.posts.createIndex({ content: "text" });               // full-text search
 
 # 10. Redis — In-Memory Data Store
 
-> 📖 https://redis.io/docs/data-types/
-> 📖 https://redis.io/docs/manual/patterns/
+> 📖 <https://redis.io/docs/data-types/>
+> 📖 <https://redis.io/docs/manual/patterns/>
 
 ## 10.1 Redis Data Structures
 
@@ -1678,22 +1679,22 @@ Solution: PgBouncer between app and DB
 
 | Topic | Link |
 |-------|------|
-| PostgreSQL Docs | https://www.postgresql.org/docs/current/ |
-| PostgreSQL Tutorial | https://www.postgresqltutorial.com/ |
-| MySQL 8.0 Docs | https://dev.mysql.com/doc/refman/8.0/en/ |
-| PostgreSQL Partitioning | https://www.postgresql.org/docs/current/ddl-partitioning.html |
-| PostgreSQL Replication | https://www.postgresql.org/docs/current/high-availability.html |
-| PostgreSQL Indexes | https://www.postgresql.org/docs/current/indexes.html |
-| PostgreSQL EXPLAIN | https://www.postgresql.org/docs/current/sql-explain.html |
-| PostgreSQL Transactions | https://www.postgresql.org/docs/current/transaction-iso.html |
-| Redis Data Types | https://redis.io/docs/data-types/ |
-| Redis Commands | https://redis.io/commands/ |
-| Redis Patterns | https://redis.io/docs/manual/patterns/ |
-| Redis Cluster | https://redis.io/docs/manual/scaling/ |
-| MongoDB Docs | https://www.mongodb.com/docs/ |
-| MongoDB Aggregation | https://www.mongodb.com/docs/manual/aggregation/ |
-| Use the Index, Luke | https://use-the-index-luke.com/ |
-| pganalyze | https://pganalyze.com/docs |
+| PostgreSQL Docs | <https://www.postgresql.org/docs/current/> |
+| PostgreSQL Tutorial | <https://www.postgresqltutorial.com/> |
+| MySQL 8.0 Docs | <https://dev.mysql.com/doc/refman/8.0/en/> |
+| PostgreSQL Partitioning | <https://www.postgresql.org/docs/current/ddl-partitioning.html> |
+| PostgreSQL Replication | <https://www.postgresql.org/docs/current/high-availability.html> |
+| PostgreSQL Indexes | <https://www.postgresql.org/docs/current/indexes.html> |
+| PostgreSQL EXPLAIN | <https://www.postgresql.org/docs/current/sql-explain.html> |
+| PostgreSQL Transactions | <https://www.postgresql.org/docs/current/transaction-iso.html> |
+| Redis Data Types | <https://redis.io/docs/data-types/> |
+| Redis Commands | <https://redis.io/commands/> |
+| Redis Patterns | <https://redis.io/docs/manual/patterns/> |
+| Redis Cluster | <https://redis.io/docs/manual/scaling/> |
+| MongoDB Docs | <https://www.mongodb.com/docs/> |
+| MongoDB Aggregation | <https://www.mongodb.com/docs/manual/aggregation/> |
+| Use the Index, Luke | <https://use-the-index-luke.com/> |
+| pganalyze | <https://pganalyze.com/docs> |
 
 ---
 

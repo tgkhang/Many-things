@@ -1,4 +1,5 @@
 # 🌐 Computer Networking — Complete Deep Dive
+>
 > TCP/IP, HTTP/HTTPS, UDP, OSI Model, Subnetting, DNS, TLS, Routing và hơn nữa
 
 ---
@@ -119,8 +120,8 @@ LAYER 1 — PHYSICAL
 
 # 2. IP Addressing
 
-> 📖 https://www.rfc-editor.org/rfc/rfc791 (IPv4)
-> 📖 https://www.rfc-editor.org/rfc/rfc8200 (IPv6)
+> 📖 <https://www.rfc-editor.org/rfc/rfc791> (IPv4)
+> 📖 <https://www.rfc-editor.org/rfc/rfc8200> (IPv6)
 
 ## 2.1 IPv4
 
@@ -489,7 +490,7 @@ Problems with NAT:
 
 # 5. UDP — User Datagram Protocol
 
-> 📖 https://www.rfc-editor.org/rfc/rfc768
+> 📖 <https://www.rfc-editor.org/rfc/rfc768>
 
 ## 5.1 UDP Header
 
@@ -543,7 +544,7 @@ Use cases:
 
 # 6. TCP — Transmission Control Protocol
 
-> 📖 https://www.rfc-editor.org/rfc/rfc9293
+> 📖 <https://www.rfc-editor.org/rfc/rfc9293>
 
 ## 6.1 TCP Header
 
@@ -706,7 +707,7 @@ Broadcasting      No                   Yes
 
 # 7. DNS — Domain Name System
 
-> 📖 https://www.rfc-editor.org/rfc/rfc1035
+> 📖 <https://www.rfc-editor.org/rfc/rfc1035>
 
 ## 7.1 DNS Hierarchy
 
@@ -871,7 +872,7 @@ Split-horizon DNS:
 
 # 8. TLS/SSL — Transport Layer Security
 
-> 📖 https://www.rfc-editor.org/rfc/rfc8446 (TLS 1.3)
+> 📖 <https://www.rfc-editor.org/rfc/rfc8446> (TLS 1.3)
 
 ## 8.1 TLS Overview
 
@@ -1038,8 +1039,8 @@ TLS 1.3: TLS_AES_256_GCM_SHA384 (simpler, all must use ECDHE)
 
 # 9. HTTP — HyperText Transfer Protocol
 
-> 📖 https://developer.mozilla.org/en-US/docs/Web/HTTP
-> 📖 https://www.rfc-editor.org/rfc/rfc9110 (HTTP Semantics)
+> 📖 <https://developer.mozilla.org/en-US/docs/Web/HTTP>
+> 📖 <https://www.rfc-editor.org/rfc/rfc9110> (HTTP Semantics)
 
 ## 9.1 HTTP/1.1
 
@@ -1280,7 +1281,7 @@ Lifecycle:
 
 # 11. WebSocket & Long Polling
 
-> 📖 https://www.rfc-editor.org/rfc/rfc6455 (WebSocket)
+> 📖 <https://www.rfc-editor.org/rfc/rfc6455> (WebSocket)
 
 ## 11.1 HTTP Polling vs Long Polling vs WebSocket
 
@@ -1631,20 +1632,20 @@ Port   Protocol   Service
 
 | Topic | Link |
 |-------|------|
-| HTTP/1.1 RFC | https://www.rfc-editor.org/rfc/rfc9110 |
-| HTTP/2 RFC | https://www.rfc-editor.org/rfc/rfc9113 |
-| HTTP/3 RFC | https://www.rfc-editor.org/rfc/rfc9114 |
-| TLS 1.3 RFC | https://www.rfc-editor.org/rfc/rfc8446 |
-| TCP RFC | https://www.rfc-editor.org/rfc/rfc9293 |
-| UDP RFC | https://www.rfc-editor.org/rfc/rfc768 |
-| DNS RFC | https://www.rfc-editor.org/rfc/rfc1035 |
-| IPv4 RFC | https://www.rfc-editor.org/rfc/rfc791 |
-| IPv6 RFC | https://www.rfc-editor.org/rfc/rfc8200 |
-| WebSocket RFC | https://www.rfc-editor.org/rfc/rfc6455 |
-| MDN HTTP Guide | https://developer.mozilla.org/en-US/docs/Web/HTTP |
-| Nginx Docs | https://nginx.org/en/docs/ |
-| QUIC RFC | https://www.rfc-editor.org/rfc/rfc9000 |
-| Cloudflare Learning | https://www.cloudflare.com/learning/ |
+| HTTP/1.1 RFC | <https://www.rfc-editor.org/rfc/rfc9110> |
+| HTTP/2 RFC | <https://www.rfc-editor.org/rfc/rfc9113> |
+| HTTP/3 RFC | <https://www.rfc-editor.org/rfc/rfc9114> |
+| TLS 1.3 RFC | <https://www.rfc-editor.org/rfc/rfc8446> |
+| TCP RFC | <https://www.rfc-editor.org/rfc/rfc9293> |
+| UDP RFC | <https://www.rfc-editor.org/rfc/rfc768> |
+| DNS RFC | <https://www.rfc-editor.org/rfc/rfc1035> |
+| IPv4 RFC | <https://www.rfc-editor.org/rfc/rfc791> |
+| IPv6 RFC | <https://www.rfc-editor.org/rfc/rfc8200> |
+| WebSocket RFC | <https://www.rfc-editor.org/rfc/rfc6455> |
+| MDN HTTP Guide | <https://developer.mozilla.org/en-US/docs/Web/HTTP> |
+| Nginx Docs | <https://nginx.org/en/docs/> |
+| QUIC RFC | <https://www.rfc-editor.org/rfc/rfc9000> |
+| Cloudflare Learning | <https://www.cloudflare.com/learning/> |
 | Computer Networks (Tanenbaum) | Textbook reference |
 
 ---

@@ -1,4 +1,5 @@
 # 📦 Data Structures — Complete Review
+>
 > Array, LinkedList, Stack, Queue, HashMap, Heap, Graph và khi nào dùng cái gì
 
 ---
@@ -1356,12 +1357,12 @@ m = string/key length
 
 | Topic | Link |
 |-------|------|
-| Java Collections Framework | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Collection.html |
-| ArrayList | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/ArrayList.html |
-| LinkedList | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/LinkedList.html |
-| HashMap | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/HashMap.html |
-| TreeMap | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/TreeMap.html |
-| PriorityQueue | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/PriorityQueue.html |
-| ArrayDeque | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/ArrayDeque.html |
-| Big-O Cheatsheet | https://www.bigocheatsheet.com/ |
-| Visualgo (visualizations) | https://visualgo.net/ |
+| Java Collections Framework | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Collection.html> |
+| ArrayList | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/ArrayList.html> |
+| LinkedList | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/LinkedList.html> |
+| HashMap | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/HashMap.html> |
+| TreeMap | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/TreeMap.html> |
+| PriorityQueue | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/PriorityQueue.html> |
+| ArrayDeque | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/ArrayDeque.html> |
+| Big-O Cheatsheet | <https://www.bigocheatsheet.com/> |
+| Visualgo (visualizations) | <https://visualgo.net/> |

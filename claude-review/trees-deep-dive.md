@@ -1,4 +1,5 @@
 # 🌳 Tree Data Structures — Complete Deep Dive
+>
 > Binary Tree, BST, AVL, Red-Black, B-Tree, Segment Tree, Fenwick Tree, Heap
 
 ---
@@ -1679,11 +1680,11 @@ m = string length (Trie), m = order (B-Tree)
 
 | Topic | Link |
 |-------|------|
-| TreeMap (Red-Black) | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/TreeMap.html |
-| PriorityQueue (Heap) | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/PriorityQueue.html |
-| Visualgo Trees | https://visualgo.net/en/bst |
-| CP Algorithms | https://cp-algorithms.com/data_structures/segment_tree.html |
-| Fenwick Tree Tutorial | https://cp-algorithms.com/data_structures/fenwick.html |
-| B-Tree Visualization | https://www.cs.usfca.edu/~galles/visualization/BTree.html |
-| Red-Black Tree | https://www.cs.usfca.edu/~galles/visualization/RedBlack.html |
-| AVL Tree | https://www.cs.usfca.edu/~galles/visualization/AVLtree.html |
+| TreeMap (Red-Black) | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/TreeMap.html> |
+| PriorityQueue (Heap) | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/PriorityQueue.html> |
+| Visualgo Trees | <https://visualgo.net/en/bst> |
+| CP Algorithms | <https://cp-algorithms.com/data_structures/segment_tree.html> |
+| Fenwick Tree Tutorial | <https://cp-algorithms.com/data_structures/fenwick.html> |
+| B-Tree Visualization | <https://www.cs.usfca.edu/~galles/visualization/BTree.html> |
+| Red-Black Tree | <https://www.cs.usfca.edu/~galles/visualization/RedBlack.html> |
+| AVL Tree | <https://www.cs.usfca.edu/~galles/visualization/AVLtree.html> |

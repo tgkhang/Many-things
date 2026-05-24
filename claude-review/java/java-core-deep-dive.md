@@ -1,4 +1,5 @@
 # ☕ Java Core — Deep Dive Study Guide
+>
 > Based on [roadmap.sh/java](https://roadmap.sh/java) | Every concept explained in depth with examples, pitfalls, and internals
 
 ---
@@ -27,7 +28,7 @@
 
 # 1. Learn the Basics
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/nutsandbolts/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/nutsandbolts/index.html>
 
 ---
 
@@ -40,6 +41,7 @@ YourCode.java  →[javac]→  YourCode.class (bytecode)  →[JVM]→  Native Mac
 ```
 
 The JVM does **two things** to run bytecode:
+
 - **Interpreter**: reads bytecode line by line (slow startup, starts immediately)
 - **JIT Compiler** (Just-In-Time): detects "hot" frequently-run code and compiles it to native machine code at runtime (fast after warmup)
 
@@ -115,6 +117,7 @@ public class MyClass {              // 3. Class (filename must be MyClass.java)
 ```
 
 **Memory Areas:**
+
 - **Heap**: where ALL objects and arrays live. Shared across threads. GC manages this.
 - **Stack**: one per thread. Stores method call frames (local variables, return address).
 - **Metaspace** (Java 8+): stores class metadata, method bytecode, static variables.
@@ -667,7 +670,7 @@ for (int i = 0; i < 5; i++) {
 
 # 2. Object-Oriented Programming
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/concepts/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/concepts/index.html>
 
 ---
 
@@ -921,7 +924,7 @@ Outer.Inner inner = outer.new Inner(); // need Outer instance
 
 # 3. More About OOP
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/IandI/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/IandI/index.html>
 
 ---
 
@@ -1335,7 +1338,7 @@ System.out.println(myList);  // [original, new item] — NOT changed!
 
 # 4. Exception Handling
 
-> 📖 https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html>
 
 ---
 
@@ -1499,8 +1502,8 @@ try {
 
 # 5. Lambda Expressions & Functional Programming
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
-> 📖 Stream API: https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/stream/Stream.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html>
+> 📖 Stream API: <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/stream/Stream.html>
 
 ---
 
@@ -1699,7 +1702,7 @@ collection.parallelStream()              // parallel processing
 
 # 6. Annotations
 
-> 📖 https://docs.oracle.com/javase/tutorial/java/annotations/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/java/annotations/index.html>
 
 ---
 
@@ -1781,7 +1784,7 @@ class WeeklyTask { }
 
 # 7. Modules (Java 9+)
 
-> 📖 https://dev.java/learn/modules/
+> 📖 <https://dev.java/learn/modules/>
 
 ---
 
@@ -1835,7 +1838,7 @@ module com.myapp {
 
 # 8. Optionals
 
-> 📖 https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Optional.html
+> 📖 <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Optional.html>
 
 ---
 
@@ -1911,7 +1914,7 @@ Optional<User> result = findInCache(id)
 
 # 9. Collections Framework
 
-> 📖 https://docs.oracle.com/javase/tutorial/collections/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/collections/index.html>
 
 ---
 
@@ -2122,7 +2125,7 @@ System.out.println(strings.getClass() == ints.getClass()); // true!
 
 # 10. Concurrency
 
-> 📖 https://docs.oracle.com/javase/tutorial/essential/concurrency/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/essential/concurrency/index.html>
 
 ---
 
@@ -2359,7 +2362,7 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 
 # 11. Cryptography
 
-> 📖 https://docs.oracle.com/en/java/se/17/security/java-cryptography-architecture-jca-reference-guide.html
+> 📖 <https://docs.oracle.com/en/java/se/17/security/java-cryptography-architecture-jca-reference-guide.html>
 
 ---
 
@@ -2399,7 +2402,7 @@ byte[] encodedHash = factory.generateSecret(spec).getEncoded();
 
 # 12. Date and Time
 
-> 📖 https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/time/package-summary.html
+> 📖 <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/time/package-summary.html>
 
 ---
 
@@ -2484,7 +2487,7 @@ Instant back2 = legacyDate.toInstant();
 
 # 13. Networking
 
-> 📖 https://docs.oracle.com/javase/tutorial/networking/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/networking/index.html>
 
 ---
 
@@ -2544,7 +2547,7 @@ asyncResponse
 
 # 14. Regular Expressions
 
-> 📖 https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/regex/Pattern.html
+> 📖 <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/regex/Pattern.html>
 
 ---
 
@@ -2629,7 +2632,7 @@ if (dm.matches()) {
 
 # 15. Dependency Injection
 
-> 📖 https://docs.oracle.com/javaee/6/tutorial/doc/giwhl.html
+> 📖 <https://docs.oracle.com/javaee/6/tutorial/doc/giwhl.html>
 
 ---
 
@@ -2713,7 +2716,7 @@ void testCreateOrder() {
 
 # 16. I/O Operations
 
-> 📖 https://docs.oracle.com/javase/tutorial/essential/io/index.html
+> 📖 <https://docs.oracle.com/javase/tutorial/essential/io/index.html>
 
 ---
 
@@ -2815,7 +2818,7 @@ try (ObjectInputStream ois = new ObjectInputStream(
 
 # 17. File Operations
 
-> 📖 https://docs.oracle.com/javase/tutorial/essential/io/fileio.html
+> 📖 <https://docs.oracle.com/javase/tutorial/essential/io/fileio.html>
 
 ---
 
@@ -2972,30 +2975,30 @@ while (true) {
 
 | Topic | Link |
 |-------|------|
-| Java SE 21 API Docs | https://docs.oracle.com/en/java/se/21/docs/api/ |
-| The Java™ Tutorials | https://docs.oracle.com/javase/tutorial/ |
-| Language Basics | https://docs.oracle.com/javase/tutorial/java/nutsandbolts/ |
-| OOP Concepts | https://docs.oracle.com/javase/tutorial/java/concepts/ |
-| Interfaces & Inheritance | https://docs.oracle.com/javase/tutorial/java/IandI/ |
-| Generics | https://docs.oracle.com/javase/tutorial/java/generics/ |
-| Collections | https://docs.oracle.com/javase/tutorial/collections/ |
-| Lambda Expressions | https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html |
-| Stream API | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/stream/Stream.html |
-| Exception Handling | https://docs.oracle.com/javase/tutorial/essential/exceptions/ |
-| Concurrency | https://docs.oracle.com/javase/tutorial/essential/concurrency/ |
-| Virtual Threads | https://docs.oracle.com/en/java/se/21/core/virtual-threads.html |
-| I/O and NIO.2 | https://docs.oracle.com/javase/tutorial/essential/io/ |
-| Networking | https://docs.oracle.com/javase/tutorial/networking/ |
-| Regex Pattern | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/regex/Pattern.html |
-| Date & Time | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/time/package-summary.html |
-| Security/Crypto | https://docs.oracle.com/en/java/se/17/security/java-cryptography-architecture-jca-reference-guide.html |
-| Annotations | https://docs.oracle.com/javase/tutorial/java/annotations/ |
-| Records | https://docs.oracle.com/en/java/se/16/language/records.html |
-| Modules | https://dev.java/learn/modules/ |
-| String API | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/lang/String.html |
-| Collections Framework | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Collection.html |
-| CompletableFuture | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/concurrent/CompletableFuture.html |
-| Optional | https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Optional.html |
+| Java SE 21 API Docs | <https://docs.oracle.com/en/java/se/21/docs/api/> |
+| The Java™ Tutorials | <https://docs.oracle.com/javase/tutorial/> |
+| Language Basics | <https://docs.oracle.com/javase/tutorial/java/nutsandbolts/> |
+| OOP Concepts | <https://docs.oracle.com/javase/tutorial/java/concepts/> |
+| Interfaces & Inheritance | <https://docs.oracle.com/javase/tutorial/java/IandI/> |
+| Generics | <https://docs.oracle.com/javase/tutorial/java/generics/> |
+| Collections | <https://docs.oracle.com/javase/tutorial/collections/> |
+| Lambda Expressions | <https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html> |
+| Stream API | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/stream/Stream.html> |
+| Exception Handling | <https://docs.oracle.com/javase/tutorial/essential/exceptions/> |
+| Concurrency | <https://docs.oracle.com/javase/tutorial/essential/concurrency/> |
+| Virtual Threads | <https://docs.oracle.com/en/java/se/21/core/virtual-threads.html> |
+| I/O and NIO.2 | <https://docs.oracle.com/javase/tutorial/essential/io/> |
+| Networking | <https://docs.oracle.com/javase/tutorial/networking/> |
+| Regex Pattern | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/regex/Pattern.html> |
+| Date & Time | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/time/package-summary.html> |
+| Security/Crypto | <https://docs.oracle.com/en/java/se/17/security/java-cryptography-architecture-jca-reference-guide.html> |
+| Annotations | <https://docs.oracle.com/javase/tutorial/java/annotations/> |
+| Records | <https://docs.oracle.com/en/java/se/16/language/records.html> |
+| Modules | <https://dev.java/learn/modules/> |
+| String API | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/lang/String.html> |
+| Collections Framework | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Collection.html> |
+| CompletableFuture | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/concurrent/CompletableFuture.html> |
+| Optional | <https://docs.oracle.com/en/java/se/17/docs/api/java.base/java/util/Optional.html> |
 
 ---
 

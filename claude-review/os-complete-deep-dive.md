@@ -1,4 +1,5 @@
 # 💻 Operating Systems — Complete Deep Dive
+>
 > Kernel, Scheduling, Memory, Processes, Threads, File Systems, Security
 
 ---
@@ -2072,18 +2073,18 @@ sysctl -w vm.dirty_ratio=15
 
 | Topic | Link |
 |-------|------|
-| Linux Kernel Docs | https://www.kernel.org/doc/html/latest/ |
-| Linux Man Pages | https://man7.org/linux/man-pages/ |
-| The Linux Programming Interface (book) | https://man7.org/tlpi/ |
-| Linux Syscalls Table | https://syscalls.mebeim.net/?table=x86/64/x64/latest |
-| POSIX Standard | https://pubs.opengroup.org/onlinepubs/9699919799/ |
-| Linux Scheduler | https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html |
-| Memory Management | https://www.kernel.org/doc/html/latest/mm/index.html |
-| eBPF | https://ebpf.io/what-is-ebpf/ |
-| systemd | https://systemd.io/ |
-| Linux Performance | https://www.brendangregg.com/linuxperf.html |
-| OSDev Wiki | https://wiki.osdev.org/Main_Page |
-| OS: Three Easy Pieces (free book) | https://pages.cs.wisc.edu/~remzi/OSTEP/ |
+| Linux Kernel Docs | <https://www.kernel.org/doc/html/latest/> |
+| Linux Man Pages | <https://man7.org/linux/man-pages/> |
+| The Linux Programming Interface (book) | <https://man7.org/tlpi/> |
+| Linux Syscalls Table | <https://syscalls.mebeim.net/?table=x86/64/x64/latest> |
+| POSIX Standard | <https://pubs.opengroup.org/onlinepubs/9699919799/> |
+| Linux Scheduler | <https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html> |
+| Memory Management | <https://www.kernel.org/doc/html/latest/mm/index.html> |
+| eBPF | <https://ebpf.io/what-is-ebpf/> |
+| systemd | <https://systemd.io/> |
+| Linux Performance | <https://www.brendangregg.com/linuxperf.html> |
+| OSDev Wiki | <https://wiki.osdev.org/Main_Page> |
+| OS: Three Easy Pieces (free book) | <https://pages.cs.wisc.edu/~remzi/OSTEP/> |
 
 ---
 
