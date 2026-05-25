@@ -14,3 +14,8 @@ export const getTwoCharacterInitials = (name) => {
   // ex: "Alice" -> "AL"
   return name.substring(0, 2).toUpperCase()
 }
+
+export const capitalizeFirstLetter = (str) => {
+  if (!str || typeof str !== 'string') return ''
+  return str.charAt(0).toUpperCase() + strs.slice(1)
+}
