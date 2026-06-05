@@ -1675,6 +1675,1106 @@ Solution: PgBouncer between app and DB
 
 ---
 
+# 13. Plain-English Guide — Basics for Every Developer
+
+## 13.1 Relational Database — Đơn Giản Nhất
+
+```
+RELATIONAL DATABASE = a collection of organized spreadsheets that can talk to each other
+
+Imagine Google Sheets, but:
+  - Rows follow strict rules (can't put a name where a number is expected)
+  - Rows can REFERENCE rows in other sheets (foreign keys!)
+  - All changes happen safely (ACID — explained below)
+  - Millions of rows work fast with proper indexing
+
+WHAT IS A TABLE?
+  A table = one concept (users, orders, products)
+  Each column = one attribute (id, name, email, created_at)
+  Each row    = one record (one user, one order, one product)
+
+  TABLE: users
+  ┌────┬──────────────────────┬───────────────┬────────────────────────┐
+  │ id │ email                │ name          │ created_at             │
+  ├────┼──────────────────────┼───────────────┼────────────────────────┤
+  │  1 │ khang@example.com    │ Khang         │ 2025-01-15 08:00:00+07 │
+  │  2 │ alice@example.com    │ Alice         │ 2025-02-20 09:30:00+07 │
+  │  3 │ bob@example.com      │ Bob           │ 2025-03-01 14:00:00+07 │
+  └────┴──────────────────────┴───────────────┴────────────────────────┘
+
+  TABLE: orders
+  ┌────┬─────────┬────────────┬────────────────────────┐
+  │ id │ user_id │ total      │ status                 │
+  ├────┼─────────┼────────────┼────────────────────────┤
+  │ 10 │    1    │  500,000   │ CONFIRMED              │
+  │ 11 │    1    │  250,000   │ SHIPPED                │
+  │ 12 │    2    │ 1,200,000  │ DELIVERED              │
+  └────┴─────────┴────────────┴────────────────────────┘
+
+  user_id = 1 in orders → points to id = 1 in users (Khang)
+  This is a FOREIGN KEY — the "relationship" in relational database!
+
+WHY SPLIT INTO MULTIPLE TABLES?
+  Don't duplicate: don't store user's name in EVERY order row
+  If Khang changes email → update ONE place in users table
+  All orders automatically see the new email (via join)
+  This is called NORMALIZATION — "store each fact exactly once"
+
+KEY CONCEPTS:
+  Primary Key: unique identifier per row (id column — every table has one)
+  Foreign Key: column that points to primary key of another table
+  Schema:      the blueprint — table names, column names, types, constraints
+```
+
+## 13.2 NoSQL — What and Why
+
+```
+NoSQL = "Not Only SQL" — different data storage approaches
+  Designed for: scale, flexibility, specific data patterns
+  Trade-off: less structure, often less ACID guarantees
+
+FOUR MAIN TYPES:
+
+1. DOCUMENT DATABASE (MongoDB, Firestore, CouchDB)
+   Store JSON-like documents — flexible, nested structure
+   A "document" is like ONE row but can contain nested data
+
+   // MongoDB document — ONE user WITH their addresses embedded
+   {
+     "_id": "507f1f77bcf86cd799439011",
+     "email": "khang@example.com",
+     "name": "Khang",
+     "addresses": [                  // nested array!
+       { "type": "home", "city": "HCMC", "street": "Le Loi" },
+       { "type": "work", "city": "HCMC", "street": "Nguyen Hue" }
+     ],
+     "preferences": {                // nested object!
+       "theme": "dark",
+       "language": "vi"
+     },
+     "createdAt": "2025-01-15T08:00:00Z"
+   }
+
+   vs RELATIONAL (same data needs 3 tables + JOINs):
+     users table
+     user_addresses table (foreign key → users)
+     user_preferences table (foreign key → users)
+
+2. KEY-VALUE DATABASE (Redis, DynamoDB, Memcached)
+   Simplest: key → value
+   Like a giant dictionary/HashMap in the cloud
+
+   SET user:1:name "Khang"
+   SET session:abc123 '{"userId":1,"role":"admin"}' EX 3600
+   GET user:1:name → "Khang"
+   Use for: caching, sessions, counters, rate limiting
+
+3. COLUMN-FAMILY DATABASE (Cassandra, HBase)
+   Optimized for massive writes, time-series data
+   Rows can have different sets of columns
+   Used by: Netflix (viewing history), Instagram (timelines)
+
+4. GRAPH DATABASE (Neo4j, Amazon Neptune)
+   Nodes and relationships — best for connected data
+   "Who are friends of friends of Khang who also like Java?"
+   Used by: LinkedIn connections, recommendation engines
+
+RELATIONAL vs DOCUMENT — ANALOGY:
+  Relational: organized filing cabinet with strict folders
+              Everything has its place, cross-references work perfectly
+              Perfect for structured data with clear relationships
+
+  Document:   flexible storage bins
+              Put anything anywhere, nested structure fine
+              Perfect for varied/flexible data that doesn't fit a rigid schema
+```
+
+## 13.3 ACID — Why It Matters (Real Examples)
+
+```
+ACID = 4 guarantees that make databases trustworthy
+Without ACID: data corruption, lost money, inconsistent records
+
+── A: ATOMICITY — "All or Nothing" ──
+
+  REAL EXAMPLE: Bank Transfer
+    Khang sends 500,000 VND to Alice
+    
+    Step 1: Deduct 500,000 from Khang's account
+    Step 2: Add 500,000 to Alice's account
+    
+    What if server crashes after Step 1 but BEFORE Step 2?
+    
+    WITHOUT ATOMICITY:
+      Khang's balance: -500,000  ← money deducted!
+      Alice's balance: unchanged ← money never arrived!
+      500,000 VND vanishes into thin air!
+    
+    WITH ATOMICITY:
+      Both steps succeed → money transferred ✅
+      OR crash after Step 1 → BOTH steps rolled back ✅
+      Khang's balance restored, Alice unchanged
+      Never a partial state!
+
+  CODE:
+  BEGIN;  -- start transaction
+    UPDATE accounts SET balance = balance - 500000 WHERE user_id = 1;
+    UPDATE accounts SET balance = balance + 500000 WHERE user_id = 2;
+  COMMIT; -- ONLY if both succeed!
+  -- If anything fails → automatic ROLLBACK (both undone)
+
+── C: CONSISTENCY — "Valid State Always" ──
+
+  Rules (constraints) are ALWAYS enforced:
+    - balance cannot go below 0 (CHECK constraint)
+    - email must be unique (UNIQUE constraint)
+    - every order MUST have a valid user_id (FOREIGN KEY)
+  
+  Without consistency:
+    Two users could register with same email
+    Orders could exist for deleted users
+    Account balances could go negative
+  
+  Atomicity alone isn't enough → you need constraints too!
+
+── I: ISOLATION — "Transactions Don't Interfere" ──
+
+  Two people buy the last concert ticket AT THE SAME TIME:
+    
+    WITHOUT ISOLATION:
+      User A reads: "1 ticket available" ← both see 1 ticket!
+      User B reads: "1 ticket available"
+      User A buys: ticket count = 0
+      User B buys: ticket count = -1  ← OVERSOLD!
+    
+    WITH ISOLATION:
+      User A's transaction runs completely → ticket count = 0
+      User B's transaction then reads count = 0 → "sorry, sold out!"
+      OR: use FOR UPDATE lock → second buyer waits for first to finish
+
+── D: DURABILITY — "Committed = Permanent" ──
+
+  After you see "Payment Successful":
+    Even if server crashes immediately after
+    Even if power goes out
+    Data IS saved and will be there when server restarts
+  
+  HOW: Write-Ahead Log (WAL)
+    DB writes change to WAL on disk BEFORE confirming to you
+    On startup after crash: replay WAL to restore state
+    Your "successful" transaction is never lost
+
+── WHAT NOSQL SACRIFICES FOR PERFORMANCE ──
+  Many NoSQL databases choose:
+  - Eventual Consistency (not immediate)
+  - No multi-document transactions
+  - No ACID guarantees across documents
+  
+  Why? Because ACID requires coordination = slower at massive scale
+  "BASE" (Basically Available, Soft state, Eventually consistent)
+  
+  WHEN ACID IS NOT CRITICAL:
+    Social media likes/views (slight inconsistency OK, speed matters)
+    Shopping cart (eventual consistency fine for most cases)
+    Event logging (append-only, no coordination needed)
+  
+  WHEN ACID IS CRITICAL:
+    Financial transactions (ALWAYS use ACID!)
+    Inventory management (can't oversell)
+    User registration (email uniqueness MUST be enforced)
+    Medical records (consistency is life-or-death)
+```
+
+## 13.4 How Queries Retrieve Data — Simple Mental Model
+
+```
+WHAT HAPPENS WHEN YOU RUN: SELECT * FROM users WHERE email = 'khang@test.com'
+
+WITHOUT INDEX — Full Table Scan:
+  Database reads every single row, one by one
+  Checks: "is this row's email = 'khang@test.com'?"
+  If yes → add to results
+  If no → skip and continue
+  
+  With 1,000,000 users: reads ALL 1,000,000 rows
+  Even to find ONE user!
+  Time: O(n) — proportional to number of rows
+
+  Analogy: finding a name in a book by reading EVERY PAGE
+  (very slow for 1000-page book!)
+
+WITH INDEX — Index Lookup:
+  Database looks up email in the index (B-Tree data structure)
+  Index stores: email → exact location of row on disk
+  
+  Jump DIRECTLY to the right row
+  Time: O(log n) — logarithmic
+  
+  With 1,000,000 users: ~20 comparisons to find the row!
+  (log₂(1,000,000) ≈ 20)
+  
+  Analogy: looking up a name using a book's INDEX AT THE BACK
+  "Smith → page 847" → jump straight there!
+
+WHAT IS AN INDEX ACTUALLY?
+  A separate data structure maintained by the database
+  Like a sorted copy of one column with pointers to the real rows
+  
+  Index on users.email:
+  ┌─────────────────────────────┬─────────────┐
+  │ email (sorted!)             │ row pointer │
+  ├─────────────────────────────┼─────────────┤
+  │ alice@example.com           │ row #2      │
+  │ bob@example.com             │ row #3      │
+  │ khang@example.com           │ row #1      │ ← binary search finds this fast!
+  └─────────────────────────────┴─────────────┘
+  
+  Because it's sorted → binary search works → O(log n)!
+
+INDEX TRADE-OFF:
+  BENEFIT: fast SELECT/WHERE/JOIN (reads)
+  COST:    slower INSERT/UPDATE/DELETE (must update the index too)
+           uses extra disk space
+  
+  Rule of thumb:
+    Columns you often filter by → add index
+    Columns you rarely filter by → no index (just slows writes)
+    Tables you write to 1000x/sec with few reads → be careful with indexes!
+```
+
+---
+
+# 14. Practical Schema Navigation
+
+## 14.1 Inspecting Database Structure (PostgreSQL)
+
+```sql
+-- ── LIST ALL TABLES ──
+\dt                              -- psql: list all tables
+\dt public.*                     -- tables in public schema
+\dt orders.*                     -- tables matching pattern
+
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;
+
+-- ── DESCRIBE A TABLE (show columns) ──
+\d users                         -- psql: full table description (columns + indexes!)
+\d+ users                        -- more detail (storage, comments)
+
+-- Standard SQL:
+SELECT
+    column_name,
+    data_type,
+    character_maximum_length,
+    is_nullable,
+    column_default
+FROM information_schema.columns
+WHERE table_name = 'users'
+ORDER BY ordinal_position;
+
+-- ── SEE TABLE SIZE ──
+SELECT
+    relname AS table,
+    pg_size_pretty(pg_total_relation_size(relid)) AS total_size,
+    pg_size_pretty(pg_relation_size(relid)) AS table_size,
+    pg_size_pretty(pg_total_relation_size(relid) - pg_relation_size(relid)) AS index_size
+FROM pg_catalog.pg_statio_user_tables
+ORDER BY pg_total_relation_size(relid) DESC;
+
+-- ── LIST ALL INDEXES ON A TABLE ──
+\di users*                       -- psql: indexes for users
+
+SELECT
+    indexname,
+    indexdef
+FROM pg_indexes
+WHERE tablename = 'orders';
+
+-- ── LIST FOREIGN KEYS ──
+SELECT
+    tc.table_name,
+    kcu.column_name,
+    ccu.table_name  AS references_table,
+    ccu.column_name AS references_column
+FROM information_schema.table_constraints AS tc
+JOIN information_schema.key_column_usage AS kcu
+    ON tc.constraint_name = kcu.constraint_name
+JOIN information_schema.constraint_column_usage AS ccu
+    ON ccu.constraint_name = tc.constraint_name
+WHERE tc.constraint_type = 'FOREIGN KEY'
+  AND tc.table_schema = 'public'
+ORDER BY tc.table_name;
+
+-- ── COUNT ROWS IN EACH TABLE (fast estimate) ──
+SELECT relname AS table, reltuples::bigint AS estimated_rows
+FROM pg_class
+WHERE relkind = 'r' AND relnamespace = 'public'::regnamespace
+ORDER BY reltuples DESC;
+
+-- ── SEE RUNNING QUERIES ──
+SELECT pid, now() - query_start AS duration, query, state
+FROM pg_stat_activity
+WHERE state != 'idle'
+ORDER BY duration DESC;
+
+-- ── KILL LONG-RUNNING QUERY ──
+SELECT pg_cancel_backend(pid);   -- graceful cancel
+SELECT pg_terminate_backend(pid); -- force terminate
+```
+
+## 14.2 Inspecting MySQL Schema
+
+```sql
+-- ── LIST ALL DATABASES & TABLES ──
+SHOW DATABASES;
+USE mydb;
+SHOW TABLES;
+
+-- ── DESCRIBE TABLE ──
+DESCRIBE users;                  -- columns + types
+SHOW FULL COLUMNS FROM users;   -- with comments, privileges
+SHOW CREATE TABLE users;        -- full CREATE TABLE statement (shows indexes too!)
+
+-- ── SHOW INDEXES ──
+SHOW INDEX FROM orders;
+
+-- ── TABLE SIZE ──
+SELECT
+    table_name,
+    ROUND(data_length / 1024 / 1024, 2) AS data_mb,
+    ROUND(index_length / 1024 / 1024, 2) AS index_mb,
+    table_rows AS estimated_rows
+FROM information_schema.tables
+WHERE table_schema = 'mydb'
+ORDER BY (data_length + index_length) DESC;
+```
+
+## 14.3 Navigating MongoDB Collections
+
+```javascript
+// ── LIST ALL COLLECTIONS ──
+show collections          // mongo shell
+db.listCollections().toArray()  // programmatic
+
+// ── INSPECT DOCUMENT STRUCTURE (sample) ──
+db.users.findOne()        // see one document's structure
+db.users.find().limit(3).pretty()  // formatted output
+
+// ── COUNT DOCUMENTS ──
+db.users.countDocuments()
+db.users.countDocuments({ status: "active" })
+db.orders.estimatedDocumentCount()  // fast estimate (uses metadata)
+
+// ── COLLECTION STATS ──
+db.orders.stats()         // size, count, index sizes
+
+// ── LIST INDEXES ──
+db.users.getIndexes()
+
+// ── SAMPLE DOCUMENTS (see variety of shapes) ──
+db.users.aggregate([{ $sample: { size: 5 } }])  // random 5 docs
+
+// ── FIND DISTINCT VALUES IN A FIELD ──
+db.users.distinct("status")         // ["active", "inactive", "banned"]
+db.orders.distinct("paymentMethod") // ["card", "transfer", "cod"]
+
+// ── GET FIELD NAMES THAT EXIST ──
+db.users.aggregate([
+  { $project: { keys: { $objectToArray: "$$ROOT" } } },
+  { $unwind: "$keys" },
+  { $group: { _id: "$keys.k" } }
+])
+// Shows all field names used across documents
+```
+
+---
+
+# 15. Index Impact — Concrete Before/After Examples
+
+## 15.1 Why a Query Is Slow — Step by Step
+
+```sql
+-- SCENARIO: orders table with 5,000,000 rows
+-- User complaint: "The orders report takes 30 seconds!"
+
+-- THE SLOW QUERY:
+SELECT user_id, status, SUM(total) as revenue
+FROM orders
+WHERE status = 'DELIVERED'
+  AND created_at >= '2025-01-01'
+GROUP BY user_id, status
+ORDER BY revenue DESC
+LIMIT 100;
+
+-- STEP 1: Run EXPLAIN ANALYZE to see the problem
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT user_id, status, SUM(total) as revenue
+FROM orders
+WHERE status = 'DELIVERED' AND created_at >= '2025-01-01'
+GROUP BY user_id, status
+ORDER BY revenue DESC LIMIT 100;
+
+-- OUTPUT (BAD):
+-- Limit  (cost=89234.56..89234.81 rows=100)
+--   -> Sort  (cost=89234.56..89284.56 rows=20000)
+--       -> HashAggregate  (cost=87500.00..88500.00 rows=20000)
+--           -> Seq Scan on orders  (cost=0.00..85000.00 rows=500000)
+--                Filter: ((status='DELIVERED') AND (created_at >= '2025-01-01'))
+--                Rows Removed by Filter: 4500000
+-- Execution Time: 28,450 ms   ← 28 SECONDS!
+
+-- "Seq Scan on orders" = reading ALL 5M rows
+-- "Rows Removed by Filter: 4,500,000" = threw away 90% of what it read
+-- This is the PROBLEM
+
+-- STEP 2: Add the right index
+CREATE INDEX idx_orders_status_created
+    ON orders(status, created_at DESC)
+    INCLUDE (user_id, total);
+
+-- STEP 3: Run EXPLAIN again
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT user_id, status, SUM(total) as revenue
+FROM orders
+WHERE status = 'DELIVERED' AND created_at >= '2025-01-01'
+GROUP BY user_id, status ORDER BY revenue DESC LIMIT 100;
+
+-- OUTPUT (GOOD):
+-- Limit  (cost=1234.56..1234.81 rows=100)
+--   -> Sort  (cost=1234.56..1284.56 rows=20000)
+--       -> HashAggregate  (cost=500.00..600.00 rows=20000)
+--           -> Index Only Scan on idx_orders_status_created
+--                Index Cond: ((status='DELIVERED') AND (created_at >= '2025-01-01'))
+--                Rows Removed by Filter: 0
+-- Execution Time: 45 ms   ← 45 MILLISECONDS!
+
+-- 28,450ms → 45ms = 632x improvement!
+-- "Index Only Scan" = reading ONLY the index (no table access!)
+-- "Rows Removed by Filter: 0" = index returned exactly what was needed
+```
+
+## 15.2 Common Slow Query Patterns & Fixes
+
+```sql
+-- ── PATTERN 1: Missing index on foreign key ──
+-- Symptom: "select all orders for user X" is slow
+SELECT * FROM orders WHERE user_id = 12345;
+-- EXPLAIN shows: Seq Scan on orders (reads ALL orders!)
+
+-- Fix:
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+-- Now: Index Scan → jumps directly to user 12345's orders
+
+-- ── PATTERN 2: Function on indexed column kills index ──
+-- SLOW: function wraps the column → index can't be used!
+SELECT * FROM users WHERE LOWER(email) = 'khang@example.com';
+SELECT * FROM orders WHERE DATE(created_at) = '2025-01-15';
+SELECT * FROM users WHERE EXTRACT(YEAR FROM created_at) = 2025;
+
+-- Fix Option A: store data normalized (always lowercase email at insert time)
+SELECT * FROM users WHERE email = 'khang@example.com';  -- index works!
+
+-- Fix Option B: create functional index
+CREATE INDEX idx_users_email_lower ON users(LOWER(email));
+-- Now LOWER(email) = '...' uses this index
+
+-- Fix Option C: rewrite query
+SELECT * FROM orders
+WHERE created_at >= '2025-01-15'
+  AND created_at < '2025-01-16';   -- range query instead of DATE()!
+SELECT * FROM users
+WHERE created_at >= '2025-01-01'
+  AND created_at < '2026-01-01';   -- range instead of EXTRACT(YEAR)
+
+-- ── PATTERN 3: LIKE with leading wildcard ──
+-- SLOW: leading % means "starts with anything" → can't use B-tree index!
+SELECT * FROM products WHERE name LIKE '%laptop%';
+SELECT * FROM users WHERE email LIKE '%@gmail.com';
+
+-- Fix: full-text search or trigram index
+-- PostgreSQL trigram (pg_trgm extension):
+CREATE EXTENSION pg_trgm;
+CREATE INDEX idx_products_name_trgm ON products USING GIN (name gin_trgm_ops);
+-- Now LIKE '%laptop%' uses this index!
+
+-- Or: full-text search
+CREATE INDEX idx_products_fts ON products
+    USING GIN (to_tsvector('english', name || ' ' || description));
+SELECT * FROM products
+WHERE to_tsvector('english', name || ' ' || description)
+    @@ to_tsquery('english', 'laptop');
+
+-- ── PATTERN 4: Wrong composite index column order ──
+-- Query: WHERE user_id = 5 AND created_at > '2025-01-01'
+-- BAD index (range column first!):
+CREATE INDEX idx_wrong ON orders(created_at, user_id);
+-- Only uses created_at part of index, then scans all those rows for user_id
+
+-- GOOD index (equality columns FIRST, range columns LAST):
+CREATE INDEX idx_correct ON orders(user_id, created_at);
+-- Uses user_id (equality) → then filters by created_at (range)
+
+-- ── PATTERN 5: N+1 Problem in SQL ──
+-- N+1: 1 query to get users + N queries to get their order count
+-- Each extra query = roundtrip to DB = expensive!
+SELECT * FROM users WHERE department_id = 3;
+-- then for EACH user:
+SELECT COUNT(*) FROM orders WHERE user_id = ?;
+-- 50 users = 51 queries!
+
+-- Fix: single JOIN query
+SELECT
+    u.id,
+    u.name,
+    COUNT(o.id) as order_count,
+    COALESCE(SUM(o.total), 0) as total_spent
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE u.department_id = 3
+GROUP BY u.id, u.name;
+-- 1 query for 50 users!
+
+-- ── PATTERN 6: SELECT * preventing index-only scan ──
+-- SELECT *: must read ALL columns → must access actual table rows
+SELECT * FROM orders WHERE user_id = 5;
+
+-- If you only need specific columns → covering index possible:
+CREATE INDEX idx_orders_user_covering ON orders(user_id)
+    INCLUDE (status, total, created_at);
+
+SELECT status, total, created_at FROM orders WHERE user_id = 5;
+-- → Index Only Scan! Never touches the table rows at all!
+
+-- ── DIAGNOSING WITH pg_stat_statements ──
+-- Enable: shared_preload_libraries = 'pg_stat_statements' in postgresql.conf
+SELECT
+    query,
+    calls,
+    ROUND(mean_exec_time::numeric, 2) AS avg_ms,
+    ROUND(total_exec_time::numeric, 2) AS total_ms,
+    rows
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
+LIMIT 20;
+-- THE most useful tool for finding slow queries in production!
+
+-- ── DIAGNOSING WITH auto_explain ──
+-- Log slow query plans automatically:
+-- postgresql.conf:
+-- shared_preload_libraries = 'auto_explain'
+-- auto_explain.log_min_duration = 1000  -- log queries > 1 second
+-- auto_explain.log_analyze = true
+-- auto_explain.log_buffers = true
+```
+
+---
+
+# 16. Normalization vs NoSQL Flexibility — Feature Comparison
+
+## 16.1 Practical Feature Examples
+
+```
+FEATURE: User Profile with Address
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RELATIONAL APPROACH:
+  Table: users  (id, name, email, phone)
+  Table: addresses (id, user_id, type, street, city, country, is_default)
+  
+  Get user with addresses:
+  SELECT u.*, a.street, a.city, a.type
+  FROM users u
+  LEFT JOIN addresses a ON a.user_id = u.id
+  WHERE u.id = 1;
+  
+  PROS: addresses normalized, easy to query "all users in HCMC"
+  CONS: need JOIN for simple profile display
+
+DOCUMENT APPROACH (MongoDB):
+  {
+    _id: "user123",
+    name: "Khang",
+    email: "khang@example.com",
+    addresses: [                      // embedded array!
+      { type: "home", street: "Le Loi", city: "HCMC" },
+      { type: "work", street: "Nguyen Hue", city: "HCMC" }
+    ]
+  }
+  
+  Get user profile: db.users.findOne({_id: "user123"})
+  → one query, no JOIN needed!
+  
+  PROS: natural structure, fast single-doc read
+  CONS: harder to query "all users in HCMC" (need to index nested field)
+  
+  VERDICT: document wins for "show user profile" pattern
+           relational wins for "find all users in city X" analytics
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE: E-commerce Orders
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RELATIONAL APPROACH:
+  orders      (id, user_id, total, status, created_at)
+  order_items (id, order_id, product_id, quantity, unit_price)
+  products    (id, name, current_price, stock)
+  
+  Get order with items:
+  SELECT o.*, oi.quantity, oi.unit_price, p.name
+  FROM orders o
+  JOIN order_items oi ON oi.order_id = o.id
+  JOIN products p ON p.id = oi.product_id
+  WHERE o.id = 42;
+  
+  PROS: unit_price preserved (historical!), stock tracked separately,
+        powerful queries (top products by revenue, etc.)
+  CONS: 3-table JOIN to display one order
+
+DOCUMENT APPROACH:
+  {
+    _id: "order_42",
+    userId: "user_1",
+    status: "CONFIRMED",
+    items: [
+      { name: "Laptop", quantity: 1, unitPrice: 25000000 },
+      { name: "Mouse",  quantity: 2, unitPrice: 500000   }
+    ],
+    total: 26000000,
+    createdAt: ISODate("2025-05-01")
+  }
+  
+  PROS: self-contained document, fast order display
+  CONS: if product name changes → order shows old name (may be desired!)
+         harder to do "total revenue by product" analytics
+
+  VERDICT: relational usually better for orders
+           (financial data + analytics + integrity)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE: Product Catalog with Variable Attributes
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RELATIONAL PROBLEM:
+  Products have very different attributes:
+    Laptop: CPU, RAM, SSD, display_size, weight
+    T-Shirt: size, color, material, fit
+    Book:    author, ISBN, pages, language
+  
+  Solutions in relational (all messy!):
+    Option A: Add ALL possible columns → 90% NULL values
+    Option B: attribute-value table (EAV) → complex, slow queries
+    Option C: JSON column in relational table (hybrid!)
+
+  Actually works in PostgreSQL with JSONB:
+  CREATE TABLE products (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    category VARCHAR(50),
+    price NUMERIC(19,4),
+    attributes JSONB           -- flexible!
+  );
+  CREATE INDEX idx_products_attrs ON products USING GIN(attributes);
+  
+  -- Laptop:
+  INSERT INTO products (name, category, price, attributes)
+  VALUES ('Dell XPS 15', 'laptop', 35000000,
+    '{"cpu":"i7","ram_gb":16,"ssd_gb":512,"display":"15.6 inch"}');
+  
+  -- T-Shirt:
+  INSERT INTO products (name, category, price, attributes)
+  VALUES ('Basic Tee', 'clothing', 200000,
+    '{"sizes":["S","M","L","XL"],"color":"white","material":"cotton"}');
+  
+  -- Query by attribute:
+  SELECT * FROM products
+  WHERE attributes @> '{"ram_gb": 16}';  -- uses GIN index!
+
+DOCUMENT APPROACH (MongoDB) — NATURAL FIT:
+  { name: "Dell XPS 15", cpu: "i7", ram_gb: 16, ssd_gb: 512 }
+  { name: "Basic Tee", sizes: ["S","M","L"], color: "white" }
+  
+  VERDICT: Document DB wins for variable schema products
+           PostgreSQL JSONB is a solid middle ground
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FEATURE: User Activity Feed / Timeline
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RELATIONAL CHALLENGE:
+  A social feed mixes: posts, likes, comments, follows, shares
+  Each event type has different columns
+  High write volume (millions of events/hour)
+  Reading latest 20 events across types = complex query
+
+DOCUMENT WINS:
+  events collection (MongoDB/Cassandra):
+  { type: "post",    userId: "u1", content: "Hello!", ts: ... }
+  { type: "like",    userId: "u2", targetId: "post_1", ts: ... }
+  { type: "follow",  userId: "u3", targetId: "u1", ts: ... }
+  { type: "comment", userId: "u4", postId: "post_1", text: "Nice!" }
+  
+  All in one collection → simple query:
+  db.events.find({ userId: "u1" }).sort({ ts: -1 }).limit(20)
+  
+  VERDICT: Document/wide-column DB (Cassandra) wins for feeds
+           Cassandra specifically designed for time-series append
+```
+
+---
+
+# 17. Data Model Design — Practical Guide
+
+## 17.1 Decision Framework: Relational vs NoSQL
+
+```
+CHOOSE RELATIONAL (PostgreSQL/MySQL) WHEN:
+  ✅ Data has clear relationships (orders → order_items → products → users)
+  ✅ ACID transactions required (finance, inventory, medical records)
+  ✅ Complex queries and reporting needed (JOINs, GROUP BY, aggregations)
+  ✅ Data is structured and consistent (same fields for every row)
+  ✅ Need to enforce constraints (unique email, non-negative balance)
+  ✅ Team knows SQL well
+  ✅ Scale: millions to ~100M rows (with proper indexing + partitioning)
+  
+  Examples: 
+    Banking system, e-commerce orders, HR system,
+    inventory management, any system needing audit trail
+
+CHOOSE DOCUMENT DB (MongoDB) WHEN:
+  ✅ Flexible/varying schema (products with different attributes)
+  ✅ Hierarchical/nested data naturally (user + embedded preferences)
+  ✅ Rapid prototyping (schema changes are easy)
+  ✅ "Document = one screen of data" pattern (no JOINs needed to render UI)
+  ✅ Team works in JavaScript/JSON naturally
+  ✅ High write throughput, eventual consistency OK
+  
+  Examples:
+    Content management, product catalog, user profiles,
+    mobile apps, blogs, event logs
+
+CHOOSE KEY-VALUE (Redis) WHEN:
+  ✅ Caching (store expensive query results)
+  ✅ Session storage
+  ✅ Rate limiting counters
+  ✅ Real-time leaderboards (sorted sets)
+  ✅ Pub/Sub messaging
+  ✅ Need microsecond response time
+  ✅ Data can be rebuilt if lost (cache)
+
+CHOOSE COLUMN-FAMILY (Cassandra) WHEN:
+  ✅ Massive write throughput (millions/sec)
+  ✅ Time-series data (metrics, events, logs)
+  ✅ Need to scale to multiple datacenters easily
+  ✅ Queries always include partition key (no arbitrary queries)
+  ✅ Can accept eventual consistency
+
+CHOOSE GRAPH DB (Neo4j) WHEN:
+  ✅ Relationships ARE the data (social network, recommendation engine)
+  ✅ Variable-depth traversals ("friends of friends of friends")
+  ✅ Pattern matching in connected data
+
+PRACTICAL RULE: "When in doubt, start with PostgreSQL"
+  You can always add a cache layer (Redis) later
+  You can add MongoDB for specific flexible-schema parts
+  PostgreSQL can do more than most teams realize:
+    - JSONB for semi-structured data
+    - Full-text search
+    - Partitioning for scale
+    - Replication for HA
+```
+
+## 17.2 Designing Small-Scale Data Models
+
+```sql
+-- ── EXAMPLE 1: E-COMMERCE MINI (Start Here) ──
+
+-- Step 1: Identify entities
+-- Users, Products, Orders, OrderItems, Categories
+
+-- Step 2: Identify relationships
+-- User places Order (1:many)
+-- Order contains OrderItems (1:many)  
+-- OrderItem is a Product (many:1)
+-- Product belongs to Category (many:1)
+
+-- Step 3: Write the schema
+
+CREATE TABLE categories (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL UNIQUE,
+    slug        VARCHAR(100) NOT NULL UNIQUE,  -- url-friendly name
+    parent_id   INT REFERENCES categories(id)  -- self-reference for subcategories
+);
+
+CREATE TABLE products (
+    id          BIGSERIAL PRIMARY KEY,
+    sku         VARCHAR(50) NOT NULL UNIQUE,
+    name        VARCHAR(255) NOT NULL,
+    description TEXT,
+    price       NUMERIC(19, 4) NOT NULL CHECK (price >= 0),
+    stock       INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
+    category_id INT REFERENCES categories(id) ON DELETE SET NULL,
+    is_active   BOOLEAN NOT NULL DEFAULT true,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE users (
+    id          BIGSERIAL PRIMARY KEY,
+    email       VARCHAR(255) NOT NULL UNIQUE,
+    name        VARCHAR(100) NOT NULL,
+    phone       VARCHAR(20),
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE orders (
+    id          BIGSERIAL PRIMARY KEY,
+    user_id     BIGINT NOT NULL REFERENCES users(id),
+    status      VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+                    CHECK (status IN ('PENDING','CONFIRMED','SHIPPED','DELIVERED','CANCELLED')),
+    subtotal    NUMERIC(19, 4) NOT NULL,
+    discount    NUMERIC(19, 4) NOT NULL DEFAULT 0,
+    total       NUMERIC(19, 4) NOT NULL,
+    address     JSONB NOT NULL,               -- snapshot of delivery address
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE order_items (
+    id          BIGSERIAL PRIMARY KEY,
+    order_id    BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id  BIGINT REFERENCES products(id) ON DELETE SET NULL,
+    product_name VARCHAR(255) NOT NULL,       -- snapshot (product may change later)
+    unit_price  NUMERIC(19, 4) NOT NULL,      -- snapshot of price at time of order!
+    quantity    INT NOT NULL CHECK (quantity > 0),
+    subtotal    NUMERIC(19, 4) NOT NULL       -- unit_price * quantity
+);
+
+-- Step 4: Add indexes for common queries
+CREATE INDEX idx_products_category   ON products(category_id) WHERE is_active = true;
+CREATE INDEX idx_products_search     ON products USING GIN(to_tsvector('english', name));
+CREATE INDEX idx_orders_user         ON orders(user_id, created_at DESC);
+CREATE INDEX idx_orders_status       ON orders(status, created_at DESC);
+CREATE INDEX idx_order_items_order   ON order_items(order_id);
+CREATE INDEX idx_order_items_product ON order_items(product_id);
+
+-- Step 5: Think about common queries and check they use indexes
+-- "Show my orders" → idx_orders_user ✓
+-- "Show orders by status" → idx_orders_status ✓
+-- "Search products" → idx_products_search ✓
+-- "Order detail with items" → idx_order_items_order ✓
+```
+
+```sql
+-- ── EXAMPLE 2: BLOG / CONTENT PLATFORM ──
+
+CREATE TABLE authors (
+    id          BIGSERIAL PRIMARY KEY,
+    username    VARCHAR(50) NOT NULL UNIQUE,
+    display_name VARCHAR(100) NOT NULL,
+    bio         TEXT,
+    avatar_url  TEXT
+);
+
+CREATE TABLE posts (
+    id          BIGSERIAL PRIMARY KEY,
+    author_id   BIGINT NOT NULL REFERENCES authors(id),
+    title       VARCHAR(500) NOT NULL,
+    slug        VARCHAR(500) NOT NULL UNIQUE,
+    content     TEXT,
+    summary     VARCHAR(1000),
+    status      VARCHAR(20) DEFAULT 'DRAFT'
+                    CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
+    published_at TIMESTAMPTZ,
+    tags        TEXT[],                       -- PostgreSQL array for tags!
+    view_count  INT DEFAULT 0,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE comments (
+    id          BIGSERIAL PRIMARY KEY,
+    post_id     BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    author_id   BIGINT REFERENCES authors(id) ON DELETE SET NULL,
+    parent_id   BIGINT REFERENCES comments(id) ON DELETE CASCADE, -- nested comments!
+    content     TEXT NOT NULL,
+    is_approved BOOLEAN DEFAULT false,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes:
+CREATE INDEX idx_posts_author      ON posts(author_id, published_at DESC);
+CREATE INDEX idx_posts_published   ON posts(published_at DESC) WHERE status = 'PUBLISHED';
+CREATE INDEX idx_posts_tags        ON posts USING GIN(tags);          -- array search
+CREATE INDEX idx_posts_fts         ON posts USING GIN(
+    to_tsvector('english', title || ' ' || COALESCE(summary, '')));
+CREATE INDEX idx_comments_post     ON comments(post_id, created_at ASC);
+CREATE INDEX idx_comments_parent   ON comments(parent_id) WHERE parent_id IS NOT NULL;
+
+-- Common queries check:
+-- "Latest published posts" → idx_posts_published ✓
+-- "Posts by author" → idx_posts_author ✓
+-- "Posts with tag 'java'" → idx_posts_tags (WHERE 'java' = ANY(tags)) ✓
+-- "Search posts" → idx_posts_fts ✓
+-- "Comments for post" → idx_comments_post ✓
+-- "Replies to comment" → idx_comments_parent ✓
+```
+
+```javascript
+// ── EXAMPLE 3: SAME BLOG IN MONGODB ──
+// When to choose this over PostgreSQL above?
+// - Content has very different structures per post type
+// - Need to store arbitrary metadata per post
+// - Team prefers working in JSON/JS
+
+// Collection: posts
+{
+  _id: ObjectId("..."),
+  title: "Getting Started with Java Streams",
+  slug: "java-streams-guide",
+  author: {                          // EMBEDDED (not referenced)
+    _id: ObjectId("..."),
+    username: "khang",
+    displayName: "Khang"
+  },
+  content: "...",
+  status: "published",
+  publishedAt: ISODate("2025-05-01"),
+  tags: ["java", "streams", "functional"],
+  metadata: {                        // flexible!
+    readingTimeMinutes: 8,
+    coverImageUrl: "...",
+    series: "Java Deep Dive",
+    seriesPart: 3
+  },
+  viewCount: 1250,
+  commentCount: 23,                  // denormalized counter (avoid COUNT query)
+  updatedAt: ISODate("2025-05-02")
+}
+
+// Indexes:
+db.posts.createIndex({ publishedAt: -1, status: 1 })
+db.posts.createIndex({ tags: 1 })       // array index (automatic in Mongo)
+db.posts.createIndex({ "author._id": 1 })
+db.posts.createIndex(
+  { title: "text", content: "text" },   // full-text search
+  { weights: { title: 10, content: 1 }} // title matches count 10x more
+)
+
+// Collection: comments (separate — comments can be large!)
+{
+  _id: ObjectId("..."),
+  postId: ObjectId("post_id"),          // reference to posts collection
+  parentId: null,                        // null = top-level, or ObjectId for replies
+  author: { _id: ..., username: "alice" },
+  content: "Great article!",
+  isApproved: true,
+  createdAt: ISODate("2025-05-01")
+}
+
+db.comments.createIndex({ postId: 1, createdAt: 1 })
+db.comments.createIndex({ parentId: 1 })
+```
+
+## 17.3 Implementing Indexes Effectively — Checklist
+
+```sql
+-- ── INDEXING STRATEGY CHECKLIST ──
+
+-- STEP 1: Always index foreign keys
+-- JOINs on unindexed FK = full table scan on the FK side!
+CREATE INDEX idx_orders_user_id     ON orders(user_id);
+CREATE INDEX idx_order_items_order  ON order_items(order_id);
+CREATE INDEX idx_order_items_product ON order_items(product_id);
+CREATE INDEX idx_posts_author_id    ON posts(author_id);
+
+-- STEP 2: Index columns in frequent WHERE clauses
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_users_email   ON users(email);   -- login lookup
+CREATE INDEX idx_posts_slug    ON posts(slug);    -- URL routing
+
+-- STEP 3: For filtering + sorting, composite index (filter first, then sort)
+-- "Latest PENDING orders for user X"
+CREATE INDEX idx_orders_user_status_created ON orders(user_id, status, created_at DESC);
+-- Supports: WHERE user_id = ? → O(log n)
+--           WHERE user_id = ? AND status = ? → O(log n)
+-- (created_at DESC for ORDER BY without extra sort step)
+
+-- STEP 4: For analytics queries, consider partial indexes
+-- "Find all PENDING orders" (only 5% of orders are PENDING)
+CREATE INDEX idx_orders_pending ON orders(created_at DESC)
+    WHERE status = 'PENDING';
+-- Much smaller than full status index!
+
+-- STEP 5: Use INCLUDE for covering indexes
+CREATE INDEX idx_orders_user_covering ON orders(user_id, created_at DESC)
+    INCLUDE (status, total);
+-- SELECT status, total FROM orders WHERE user_id = ? ORDER BY created_at
+-- → Index Only Scan! Never reads the actual table rows
+
+-- STEP 6: Unique indexes for business constraints
+CREATE UNIQUE INDEX idx_users_email        ON users(email);
+CREATE UNIQUE INDEX idx_users_username     ON users(username);
+CREATE UNIQUE INDEX idx_order_items_unique ON order_items(order_id, product_id);
+-- Also enforces constraint: one row per product per order
+
+-- STEP 7: Check indexes regularly — remove unused ones
+SELECT
+    schemaname || '.' || relname AS table,
+    indexrelname AS index,
+    idx_scan AS times_used,
+    pg_size_pretty(pg_relation_size(indexrelid)) AS index_size
+FROM pg_stat_user_indexes
+ORDER BY idx_scan ASC, pg_relation_size(indexrelid) DESC;
+-- idx_scan = 0 → index NEVER used → consider dropping (frees space + speeds up writes!)
+
+-- STEP 8: Build indexes concurrently in production (no lock!)
+CREATE INDEX CONCURRENTLY idx_orders_status_created
+    ON orders(status, created_at DESC);
+-- Regular CREATE INDEX locks the table!
+-- CONCURRENTLY: no lock but takes longer
+
+-- ── INDEX ANTI-PATTERNS TO AVOID ──
+
+-- ❌ Indexing every column "just in case"
+-- Each index = overhead on every INSERT/UPDATE/DELETE
+-- 10 indexes on orders table → every new order updates 10 B-trees!
+
+-- ❌ Composite index with wrong column order
+-- For: WHERE user_id = ? AND created_at > ?
+-- ❌ Wrong:   INDEX(created_at, user_id)   -- created_at range kills user_id use
+-- ✅ Correct: INDEX(user_id, created_at)   -- equality first, range second
+
+-- ❌ Index on low-cardinality column (rarely worth it)
+-- gender has 2-3 values → query still reads 33-50% of table
+-- status with 3 values on 10M row table → each status = 3.3M rows
+-- Exception: partial index IS useful here:
+CREATE INDEX idx_orders_pending ON orders(user_id) WHERE status = 'PENDING';
+-- → Only indexes the 5% of orders that are PENDING
+
+-- ❌ Redundant indexes (subset of another)
+CREATE INDEX idx_orders_a     ON orders(user_id, status, created_at);  -- covers:
+CREATE INDEX idx_orders_b     ON orders(user_id, status);              -- ← REDUNDANT
+CREATE INDEX idx_orders_c     ON orders(user_id);                      -- ← REDUNDANT
+-- idx_orders_a already handles queries that idx_b and idx_c would handle!
+-- Keep only idx_orders_a (most specific)
+
+-- ── QUICK REFERENCE: WHAT TO INDEX ──
+-- ✅ Primary keys (automatic in PostgreSQL/MySQL)
+-- ✅ Foreign keys (NOT automatic — add manually!)
+-- ✅ Columns in WHERE clauses (high selectivity)
+-- ✅ Columns in JOIN conditions
+-- ✅ Columns in ORDER BY (if also filtering)
+-- ✅ Unique constraints (email, username, slug)
+-- ❌ Boolean columns alone (low cardinality)
+-- ❌ Columns almost never queried
+-- ❌ Very frequently updated columns (high write overhead)
+-- ❌ Small tables (< ~1000 rows — full scan is fine!)
+```
+
+---
+
 ## 📎 Official Documentation Links
 
 | Topic | Link |
@@ -1698,4 +2798,4 @@ Solution: PgBouncer between app and DB
 
 ---
 
-*Học theo thứ tự: SQL cơ bản → Indexes → Transactions → Query optimization → Partitioning → Replication → Sharding → NoSQL → Redis*
+*Học theo thứ tự: Plain-English Basics (13) → Schema Navigation (14) → Basic SQL (2) → Index Impact (15) → Normalization vs NoSQL (16) → Data Model Design (17) → Transactions/ACID (4) → Query Optimization (5) → Partitioning → Replication → Sharding → Redis*

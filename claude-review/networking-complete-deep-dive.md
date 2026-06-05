@@ -1650,4 +1650,1160 @@ Port   Protocol   Service
 
 ---
 
-*Học theo thứ tự: OSI Model → IP/Subnetting → TCP vs UDP → DNS → TLS → HTTP → HTTPS → Load Balancer → Security*
+# 14. Plain-English Networking — Basics for Every Developer
+
+## 14.1 How Computers Talk to Each Other (Simple)
+
+```
+ANALOGY: Sending a physical letter through the postal system
+
+You write a letter to your friend:
+  Your address:   192.168.1.100  (your IP address)
+  Friend's address: 93.184.216.34 (server IP address)
+  Envelope:       TCP/IP packet
+  Post office:    Router (knows which way to forward your letter)
+  Mailman:        Your router / ISP
+  Contents:       "GET /index.html HTTP/1.1"
+
+WHAT HAPPENS WHEN YOU TYPE A URL:
+  1. You type: https://example.com/products
+
+  2. DNS LOOKUP — "Where is example.com?"
+     Your computer asks: "Hey DNS server, what's the IP of example.com?"
+     DNS server responds: "It's 93.184.216.34"
+     (Like asking directory assistance for a phone number)
+
+  3. TCP CONNECTION — "Knock knock"
+     Your computer calls 93.184.216.34 port 443
+     TCP three-way handshake: SYN → SYN-ACK → ACK
+     (Like picking up the phone and saying hello)
+
+  4. TLS HANDSHAKE — "Let's speak in code"
+     Exchange encryption keys, verify server certificate
+     (Like agreeing on a secret language before discussing private matters)
+
+  5. HTTP REQUEST — "What do you want?"
+     "GET /products HTTP/1.1
+      Host: example.com
+      Accept: text/html"
+
+  6. HTTP RESPONSE — "Here it is"
+     "HTTP/1.1 200 OK
+      Content-Type: text/html
+      <html>Products page...</html>"
+
+  7. RENDER — browser shows the page
+
+  ALL OF THIS takes ~100-300ms on a good connection!
+```
+
+## 14.2 IP Address — Your Computer's Home Address
+
+```
+IP ADDRESS = unique identifier for every device on a network
+  Just like a home address: "Flat 5, 123 Main St, District 1, HCMC"
+
+IPv4: 192.168.1.100 (4 numbers, 0-255, separated by dots)
+IPv6: 2001:db8::1  (newer, more addresses, not yet universal)
+
+TWO TYPES:
+  Private IP (inside your home/office network):
+    192.168.x.x → most home networks
+    10.x.x.x    → enterprise/cloud (AWS VPC, K8s pods)
+    These are NOT reachable from the internet!
+
+  Public IP (internet-facing):
+    Your router has ONE public IP
+    All devices share it via NAT (like an apartment building with one address)
+    When you request google.com: your router tags the request with your device info,
+    sends it out using the public IP, maps the reply back to you
+
+LOCALHOST = 127.0.0.1
+  Your own computer talking to itself
+  "Call yourself" — no network involved
+  http://localhost:8080 → your own app running on port 8080
+
+PORT = which door to knock on
+  IP = building address
+  Port = apartment number
+  192.168.1.100:8080 = knock on port 8080 at that IP
+  Common ports: 80 (HTTP), 443 (HTTPS), 5432 (PostgreSQL), 6379 (Redis)
+```
+
+## 14.3 HTTP vs HTTPS — The Clear Difference
+
+```
+HTTP (port 80) = PLAIN TEXT, like sending a postcard
+  Everyone along the route can READ and MODIFY your message
+  Coffee shop WiFi owner → reads your request and response
+  Your ISP → logs every URL you visit
+  An attacker → injects ads into pages, steals login credentials!
+
+  curl http://example.com
+  → All data visible to anyone on the network
+
+HTTPS (port 443) = ENCRYPTED, like a sealed letter in a safe
+  Only YOU and the server can read the contents
+  Even your ISP only sees: "talked to 93.184.216.34" (not which page)
+  Certificate proves: you're talking to the REAL example.com
+  (not a fake site set up by an attacker)
+
+WHAT HTTPS GUARANTEES:
+  Confidentiality: data is encrypted (AES-256 typically)
+  Integrity:       data can't be modified in transit (HMAC)
+  Authentication:  certificate proves server identity (CA signature)
+
+WHAT HTTPS DOES NOT GUARANTEE:
+  The server is honest (certificate just proves domain ownership)
+  Your data is safe on the server
+  Anonymity (ISP still sees IP address, timing, data volume)
+
+SIMPLE TEST — is my connection secure?
+  Look for 🔒 padlock in browser → HTTPS, certificate valid
+  "Not Secure" warning → HTTP or bad certificate
+  Certificate error (NET::ERR_CERT_INVALID) → possible MITM attack!
+
+DEVELOPER RULE:
+  Always use HTTPS in production. No exceptions.
+  HTTP only acceptable for: localhost development, internal services on trusted network
+```
+
+## 14.4 Latency vs Bandwidth — Two Different Problems
+
+```
+ANALOGY: A highway
+
+BANDWIDTH = width of the highway (how many lanes)
+  More lanes = more cars per hour
+  In networking: how many bits per second can travel
+  Measured in: Mbps (megabits/second), Gbps (gigabits/second)
+  Home internet: 100 Mbps, 1 Gbps
+  Datacenter links: 10 Gbps, 100 Gbps
+
+LATENCY = how far you have to drive (distance, speed of travel)
+  Even if highway is huge, it still takes time to travel
+  In networking: time for ONE bit to travel from A to B
+  Measured in: milliseconds (ms)
+  Same city: 1-5ms
+  Cross-country: 20-80ms
+  Asia ↔ Europe: 150-250ms
+  Speed of light limit → physics, can't be fixed by money!
+
+WHY BOTH MATTER:
+
+  Large file download (1 GB):
+    High bandwidth but high latency:
+      Bandwidth 1 Gbps: 1 GB / 1 Gbps = 8 seconds (fast!)
+      But first packet arrives after 200ms latency
+    Low bandwidth but low latency:
+      Bandwidth 10 Mbps: 1 GB / 10 Mbps = 800 seconds (slow!)
+      First packet arrives after 5ms
+    → For big files: BANDWIDTH is the bottleneck
+
+  Small API call ("GET /user/1" → {"id":1,"name":"Khang"}):
+    Response is only 100 bytes
+    100 bytes at 1 Mbps = 0.0008s = near-instant
+    But with 200ms latency: still takes ~200ms
+    → For many small requests: LATENCY is the bottleneck!
+
+  REAL-WORLD IMPACT:
+    Web page with 80 resources (JS, CSS, images):
+      HTTP/1.1: each resource = new connection = 80 × RTT latency!
+      HTTP/2: ONE connection, multiplex all 80 → only 1 × RTT latency
+      CDN: bring resources closer → reduce latency
+      Gzip: compress files → reduce bandwidth needed
+
+MEASURING LATENCY:
+  ping google.com               # round-trip time (RTT)
+  traceroute google.com         # hops + latency per hop
+  curl -w "@curl-format.txt" https://example.com  # detailed timing breakdown
+```
+
+---
+
+# 15. Practical HTTP — Inspecting Network Interactions
+
+## 15.1 curl — Swiss Army Knife for HTTP
+
+```bash
+# ── BASIC REQUESTS ──
+curl https://api.example.com/users              # GET request
+curl -v https://api.example.com/users           # verbose (show headers!)
+curl -s https://api.example.com/users | jq .    # silent + format JSON
+
+# POST with JSON body:
+curl -X POST https://api.example.com/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-token-here" \
+  -d '{"name":"Khang","email":"khang@example.com"}'
+
+# PUT / PATCH / DELETE:
+curl -X PUT https://api.example.com/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Updated Name"}'
+
+curl -X DELETE https://api.example.com/users/1 \
+  -H "Authorization: Bearer your-token"
+
+# ── SHOWING RESPONSE DETAILS ──
+curl -i https://api.example.com/users           # show response headers + body
+curl -I https://api.example.com/users           # HEAD only (headers, no body)
+curl -D - https://api.example.com/users -o /dev/null  # dump headers to stdout
+
+# ── TIMING BREAKDOWN ──
+curl -w "\n\nTiming:\n  DNS:        %{time_namelookup}s\n  Connect:    %{time_connect}s\n  TLS:        %{time_appconnect}s\n  TTFB:       %{time_starttransfer}s\n  Total:      %{time_total}s\n  Size:       %{size_download} bytes\n  HTTP code:  %{http_code}\n" \
+  -s -o /dev/null https://api.example.com/users
+# Timing:
+#   DNS:        0.003s   ← DNS lookup
+#   Connect:    0.025s   ← TCP handshake
+#   TLS:        0.065s   ← TLS handshake
+#   TTFB:       0.120s   ← Time to First Byte (server processing)
+#   Total:      0.125s   ← Total
+#   Size:       1524 bytes
+#   HTTP code:  200
+
+# ── FOLLOW REDIRECTS ──
+curl -L https://example.com                     # follow 301/302 redirects
+curl -v -L https://example.com 2>&1 | grep "< HTTP"  # see each redirect step
+
+# ── AUTHENTICATION ──
+curl -u username:password https://api.example.com    # Basic Auth
+curl -H "Authorization: Bearer <token>" https://api.example.com
+curl -H "X-API-Key: your-api-key" https://api.example.com
+
+# ── USEFUL FLAGS ──
+curl -k https://self-signed.example.com         # skip cert verification (DEV ONLY!)
+curl --max-time 10 https://api.example.com      # 10 second total timeout
+curl --connect-timeout 5 https://api.example.com  # 5 second connect timeout
+curl -o /tmp/file.zip https://example.com/file.zip  # save to file
+curl -C - -o /tmp/large.zip https://example.com/large.zip  # resume download
+
+# ── DEBUGGING CURL OUTPUT ──
+# Response with verbose (-v):
+# * Trying 93.184.216.34:443...      ← TCP connect
+# * Connected to example.com         ← connected
+# * TLS handshake...                 ← TLS
+# > GET /users HTTP/2                ← your request (> = sent)
+# > Host: example.com
+# > Authorization: Bearer ...
+# >
+# < HTTP/2 200                       ← server response (< = received)
+# < content-type: application/json
+# < cache-control: max-age=300
+```
+
+## 15.2 HTTP Status Codes — Complete Developer Guide
+
+```
+1xx — INFORMATIONAL
+  100 Continue:      server received headers, client should send body
+  101 Switching:     upgrading protocol (WebSocket handshake)
+
+2xx — SUCCESS
+  200 OK:            standard success (GET, POST returning data)
+  201 Created:       resource created (POST → new user/order)
+                     should include Location: /users/123 header
+  202 Accepted:      async processing started (request queued, not done yet)
+  204 No Content:    success, no body (DELETE, PUT with no response needed)
+  206 Partial Content: range request (file download resume, video streaming)
+
+3xx — REDIRECT
+  301 Moved Permanently:  bookmark new URL, cache the redirect
+                          http:// → https:// redirect (permanent)
+  302 Found:              temporary redirect (don't update bookmarks)
+  304 Not Modified:       conditional GET, browser serves from cache
+                          (ETag/If-None-Match matched)
+  307 Temporary Redirect: temporary, preserve HTTP method (POST stays POST)
+  308 Permanent Redirect: permanent, preserve HTTP method
+
+4xx — CLIENT ERROR (your fault!)
+  400 Bad Request:        malformed request, invalid data
+                          → check your JSON body, query params, headers
+  401 Unauthorized:       not authenticated (missing/invalid token)
+                          → send Authorization header or login first
+  403 Forbidden:          authenticated but not authorized
+                          → user doesn't have permission for this resource
+  404 Not Found:          resource doesn't exist
+                          → wrong URL, deleted resource, typo
+  405 Method Not Allowed: wrong HTTP verb (POST to a GET-only endpoint)
+  408 Request Timeout:    server waited too long for client request
+  409 Conflict:           conflict with current state (duplicate email, version mismatch)
+  410 Gone:               resource permanently deleted (use 404 if you don't track this)
+  413 Payload Too Large:  request body too big (file upload limit)
+  415 Unsupported Media:  wrong Content-Type (sent XML, server expects JSON)
+  422 Unprocessable:      valid JSON but business logic validation failed
+                          (e.g., invalid email format, out of range value)
+  429 Too Many Requests:  rate limited → check Retry-After header
+                          → implement backoff in your client
+
+5xx — SERVER ERROR (their fault... or yours on the server side)
+  500 Internal Server Error:  unhandled exception, bug in server code
+                              → check server logs!
+  501 Not Implemented:        endpoint exists but not implemented yet
+  502 Bad Gateway:            reverse proxy got bad response from upstream
+                              → upstream server crashed/overloaded
+  503 Service Unavailable:    server overloaded or in maintenance
+                              → check Retry-After header, implement retry
+  504 Gateway Timeout:        reverse proxy waited too long for upstream
+                              → upstream server too slow (DB query? external API?)
+  507 Insufficient Storage:   disk full!
+
+DEVELOPER QUICK DECISION:
+  "Did my code or data cause it?"  → 4xx
+  "Is the server broken?"          → 5xx
+  "Am I not logged in?"            → 401
+  "Am I logged in but no access?"  → 403
+  "Wrong URL?"                     → 404
+  "Duplicate data?"                → 409
+  "Validation failed?"             → 422
+  "Too fast?"                      → 429
+```
+
+## 15.3 HTTP Headers — Practical Reading Guide
+
+```
+REQUEST HEADERS (what browser/client sends):
+
+Host: api.example.com                    ← which virtual host (REQUIRED in HTTP/1.1)
+Content-Type: application/json           ← format of request body
+Accept: application/json                 ← format client wants in response
+Authorization: Bearer eyJhbGci...        ← authentication token
+User-Agent: Mozilla/5.0 (...)            ← what's making the request
+Accept-Encoding: gzip, br               ← client can handle compressed responses
+Cache-Control: no-cache                  ← "give me fresh, don't use cache"
+X-Request-ID: uuid-here                  ← trace ID for logging/debugging
+If-None-Match: "abc123"                  ← send 304 if ETag unchanged
+Origin: https://app.example.com          ← where the request came from (CORS)
+Referer: https://app.example.com/page   ← page that initiated this request
+
+RESPONSE HEADERS (what server sends back):
+
+Content-Type: application/json; charset=utf-8  ← format of response body
+Content-Length: 1024                            ← body size in bytes
+Content-Encoding: gzip                          ← body is compressed
+Cache-Control: public, max-age=3600             ← caching instructions
+ETag: "abc123def456"                            ← content fingerprint (for conditional requests)
+Location: /users/123                            ← (with 201/301/302) where to find resource
+Set-Cookie: session=xyz; HttpOnly; Secure; SameSite=Strict
+Strict-Transport-Security: max-age=31536000     ← HSTS (use HTTPS only)
+X-Request-ID: uuid-here                         ← echo back trace ID
+Access-Control-Allow-Origin: *                  ← CORS (who can access)
+Retry-After: 60                                 ← (with 429/503) wait this many seconds
+X-RateLimit-Remaining: 47                       ← how many requests left
+
+READING BROWSER DEVTOOLS (Network tab):
+  Name → URL path
+  Status → HTTP status code (color: green=2xx, orange=3xx, red=4xx/5xx)
+  Method → GET/POST/etc
+  Type → document/xhr/fetch/script/image/font/stylesheet
+  Size → transfer size / resource size (e.g., "1.2kB / 5.4kB" = compressed/uncompressed)
+  Time → total request time
+  Waterfall → visual timeline showing DNS, connect, TLS, wait (TTFB), download
+
+Click a request → see:
+  Headers tab → request + response headers
+  Preview tab → formatted response body (JSON, image, etc.)
+  Timing tab → breakdown: Queued, DNS Lookup, Initial connection, SSL, TTFB, Download
+```
+
+## 15.4 Common Networking Issues — Diagnose & Fix
+
+```bash
+# ── ISSUE 1: DNS FAILURE ──
+# Error: "ERR_NAME_NOT_RESOLVED", "NXDOMAIN", "could not resolve host"
+
+# Diagnose:
+dig api.example.com                     # DNS lookup details
+dig api.example.com +trace              # full resolution path (root → TLD → auth)
+nslookup api.example.com                # simpler DNS lookup
+nslookup api.example.com 8.8.8.8       # use Google's DNS to test
+
+# Output to read:
+# NXDOMAIN = domain doesn't exist (typo? DNS not propagated yet?)
+# SERVFAIL = DNS server error (try different resolver)
+# Connection timed out = resolver unreachable
+# ; ANSWER SECTION: api.example.com. 300 IN A 93.184.216.34  ← this is what you want
+
+# Check /etc/hosts first (takes priority over DNS!):
+cat /etc/hosts | grep api.example.com   # any overrides?
+
+# Common causes:
+# → Typo in domain name
+# → DNS record not created/propagated yet (wait up to 24-48h after change)
+# → DNS server unreachable (check VPN, firewall)
+# → Negative cache (old NXDOMAIN cached) → flush DNS cache:
+#   Mac:    sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+#   Linux:  sudo systemd-resolve --flush-caches
+#   Windows: ipconfig /flushdns
+
+
+# ── ISSUE 2: CONNECTION TIMEOUT ──
+# Error: "Connection timed out", "ETIMEDOUT", "ConnectException"
+# Different from response timeout (server received request but didn't respond in time)
+
+# Diagnose:
+ping api.example.com                    # basic reachability (ICMP)
+telnet api.example.com 443              # can you connect to port 443?
+nc -zv api.example.com 443              # cleaner: ncat test port open
+traceroute api.example.com              # where is the packet dying?
+
+# Traceroute output:
+# 1. 192.168.1.1 (your router) - 2ms
+# 2. 10.0.0.1 (ISP) - 5ms
+# 3. * * * (timeout - firewall blocking ICMP)
+# 4. 93.184.216.34 (destination) - 25ms
+# * * * = packet not reaching that hop (firewall, unreachable)
+
+# Common causes:
+# → Server IP is wrong
+# → Server is down
+# → Firewall blocking port (check with nc/telnet)
+# → VPN required (try connecting to VPN first)
+# → Wrong port number
+
+# In code — connect timeout vs read timeout:
+# connect timeout: time to establish TCP connection (usually 3-10s)
+# read timeout: time waiting for server to START responding (10-30s)
+# socket timeout: time between data packets during response
+
+# Java RestTemplate example:
+HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+factory.setConnectTimeout(5_000);     // 5s to connect
+factory.setConnectionRequestTimeout(1_000); // 1s from connection pool
+factory.setReadTimeout(30_000);       // 30s waiting for response
+
+
+# ── ISSUE 3: CORS ERRORS ──
+# Browser error: "Access to fetch at 'https://api.example.com' from origin 
+#   'https://app.example.com' has been blocked by CORS policy"
+# NOTE: CORS is BROWSER enforcement only! curl/Postman don't have CORS.
+
+# Diagnose:
+curl -v -X OPTIONS https://api.example.com/users \
+  -H "Origin: https://app.example.com" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: Content-Type, Authorization"
+# Check response for Access-Control-Allow-* headers
+
+# What you need in response for CORS to work:
+# Access-Control-Allow-Origin: https://app.example.com  (or *)
+# Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+# Access-Control-Allow-Headers: Content-Type, Authorization
+# (If using cookies: Access-Control-Allow-Credentials: true
+#  AND Access-Control-Allow-Origin MUST be specific, not *)
+
+# Spring Boot fix:
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+            .allowedOrigins("https://app.example.com")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600);
+    }
+}
+
+# Common CORS mistakes:
+# → Wildcard (*) with allowCredentials(true) → browser rejects!
+# → Missing OPTIONS preflight handling
+# → Case-sensitive origin mismatch (http vs https, trailing slash)
+# → Only some paths have CORS headers (config not applied globally)
+
+
+# ── ISSUE 4: SSL/TLS ERRORS ──
+# Error: NET::ERR_CERT_INVALID, CERTIFICATE_VERIFY_FAILED, SSL handshake failure
+
+# Diagnose:
+openssl s_client -connect api.example.com:443 -servername api.example.com
+# Shows: certificate chain, expiry, cipher suite used
+# Look for: "Verify return code: 0 (ok)" = valid cert
+#           "Verify return code: 18 (self signed certificate)" = self-signed (dev)
+#           "Verify return code: 20 (unable to get local issuer certificate)" = broken chain
+
+curl -v https://api.example.com 2>&1 | grep -E "SSL|TLS|cert|verify"
+
+# Check cert expiry:
+echo | openssl s_client -connect api.example.com:443 2>/dev/null | openssl x509 -noout -dates
+# notAfter=Apr 15 12:00:00 2025 GMT  ← when cert expires
+
+# Common causes:
+# → Certificate expired (not auto-renewed by certbot)
+# → Domain mismatch (cert for api.example.com, connecting to api2.example.com)
+# → Self-signed cert in production (don't!)
+# → Broken certificate chain (intermediate CA missing)
+# → System clock wrong (cert "not yet valid")
+
+
+# ── ISSUE 5: 502/504 BAD GATEWAY / GATEWAY TIMEOUT ──
+# Your reverse proxy (nginx, load balancer) got bad/no response from backend
+
+# What it means:
+# 502 = backend responded with garbage / crashed
+# 504 = backend didn't respond in time (default nginx timeout: 60s)
+
+# Check nginx error log:
+tail -f /var/log/nginx/error.log | grep -E "502|504|upstream"
+# Common: "upstream prematurely closed connection"
+#         "upstream timed out (110: Connection timed out)"
+
+# Check backend directly (bypassing nginx):
+curl http://localhost:8080/api/health      # direct to app (not through nginx)
+ss -tlnp | grep 8080                      # is app listening?
+
+# Common causes:
+# → App crashed (check: systemctl status myapp, journalctl -u myapp)
+# → App overloaded / GC pause causing timeout
+# → Database query too slow → app can't respond in time → 504
+# → App running but not yet healthy after deploy → readiness probe failing
+```
+
+---
+
+# 16. CDN — Content Delivery Networks
+
+## 16.1 What is a CDN and Why?
+
+```
+PROBLEM without CDN:
+  Your server: Ho Chi Minh City (Vietnam)
+  User in Paris, France: 200ms latency just for physical distance
+  User in São Paulo, Brazil: 300ms latency
+  → Static assets (CSS, JS, images) fetched from HCMC every time → SLOW!
+
+CDN SOLUTION:
+  Distributed network of servers around the world ("edge servers" or "PoPs")
+  Your content COPIED to servers in 50-300 locations worldwide
+  User gets content from NEAREST server → latency drops dramatically
+
+  User in Paris → CDN edge in Paris → 5ms instead of 200ms!
+  User in São Paulo → CDN edge in São Paulo → 8ms instead of 300ms!
+
+CDN PoP (Point of Presence) LOCATIONS:
+  Major CDNs (Cloudflare, Fastly, Akamai, AWS CloudFront, Google Cloud CDN)
+  have edge servers in:
+    Every major city, university, ISP network
+    Cloudflare: 300+ cities, 100+ countries (2024)
+    Akamai: 4,000+ PoPs (largest)
+    AWS CloudFront: 600+ PoPs
+
+HOW CDN WORKS:
+  1. You configure CDN: "cdn.example.com serves content from origin.example.com"
+  2. User requests: https://cdn.example.com/app.js
+  3. DNS resolves cdn.example.com → nearest CDN edge server IP (anycast routing)
+  4. Edge server checks cache:
+     HIT:  returns cached content directly (no origin contact!)
+     MISS: fetches from your origin server, caches it, returns it
+  5. Next user request → HIT → instant from edge!
+```
+
+## 16.2 What CDNs Cache and How
+
+```
+WHAT CDNS CACHE:
+  ✅ Static assets: JavaScript, CSS, images, fonts, PDFs, videos
+  ✅ Cacheable API responses (with proper Cache-Control)
+  ✅ HTML pages (for static sites)
+  ❌ Usually NOT cached: authenticated requests, POST/PUT/DELETE, real-time data
+
+CDN CACHE BEHAVIOR — controlled by HTTP headers:
+
+  Server response header → CDN reads it → decides whether/how to cache
+
+  Cache-Control: public, max-age=31536000, immutable
+  → CDN caches this for 1 year (31536000s), never revalidate
+  → Use for: static assets with hash in filename (app.a1b2c3.js)
+
+  Cache-Control: public, max-age=3600
+  → CDN caches for 1 hour, then re-fetches from origin
+  → Use for: semi-static content that changes occasionally
+
+  Cache-Control: no-store
+  → CDN NEVER caches this
+  → Use for: sensitive data, real-time data, authenticated responses
+
+  Cache-Control: private
+  → Browser can cache but CDN CANNOT (personal user data)
+
+  Vary: Accept-Encoding
+  → CDN keeps separate cache entries per encoding (gzip vs brotli vs none)
+
+CDN CACHE KEY:
+  Default key = URL (scheme + host + path + query string)
+  Different URL = different cache entry
+  
+  Customization:
+  → Ignore certain query params (tracking: ?utm_source=email → same cached content)
+  → Vary by header (Accept-Language → different cache per language)
+  → Vary by Cookie (logged-in vs logged-out content)
+
+CDN INVALIDATION (clearing old cache):
+  1. URL-based purge: "purge /api/products" → removes that URL from all edges
+  2. Tag-based: tag responses with "product-123", purge all tagged
+  3. Versioning: deploy new URL (app.v2.js) → old URL still valid, new URL fresh
+  4. TTL expiry: just wait for max-age to expire (simplest!)
+```
+
+## 16.3 CDN for Performance — Real Impact
+
+```
+MEASURING CDN IMPACT:
+  Without CDN (HCMC server, user in Frankfurt):
+    DNS:        ~2ms
+    TCP connect: ~180ms (physical RTT Asia ↔ Europe)
+    TLS:         ~360ms (2 round trips × 180ms)
+    TTFB:        ~400ms
+    Download:    depends on file size and bandwidth
+    → TOTAL for 100KB JS file: ~600ms just for first byte!
+
+  With CDN (Frankfurt edge, user in Frankfurt):
+    DNS:        ~2ms
+    TCP connect: ~5ms (same city!)
+    TLS:        ~10ms
+    TTFB:       ~15ms (content already at edge)
+    Download:   ~5ms for 100KB at 1Gbps
+    → TOTAL: ~35ms! (17x improvement!)
+
+KEY CDN PERFORMANCE FEATURES:
+  1. Anycast routing: CDN DNS returns nearest PoP IP automatically
+  2. HTTP/2 and HTTP/3: CDN supports modern protocols even if origin doesn't
+  3. TLS offloading: CDN terminates TLS at edge (close to user)
+  4. Compression: CDN compresses before sending (gzip/brotli)
+  5. Connection pooling: CDN maintains persistent connection to origin
+     (many edge requests → one connection to origin = less load on you)
+  6. TCP optimization: CDN uses tuned TCP settings for performance
+
+CDN AS SECURITY SHIELD:
+  DDoS protection: CDN absorbs traffic (100+ Gbps capacity)
+  WAF (Web Application Firewall): filter malicious requests at edge
+  Bot protection: detect and block scraper bots
+  Origin hiding: real server IP is unknown (CDN proxies everything)
+  Rate limiting at edge: 1000 req/s limit before reaching your server
+
+CLOUDFRONT EXAMPLE (AWS):
+  // CloudFormation / Terraform config
+  Distribution:
+    Origins: your S3 bucket or EC2
+    DefaultCacheBehavior:
+      ViewerProtocolPolicy: redirect-to-https
+      CachePolicyId: !Ref MyCachePolicy
+      MinTTL: 0
+      DefaultTTL: 86400    # 1 day
+      MaxTTL: 31536000     # 1 year
+    PriceClass: PriceClass_100  # North America + Europe only (cheapest)
+    PriceClass: PriceClass_All  # Global (most expensive but best coverage)
+    HttpVersion: http2and3
+    IPV6Enabled: true
+```
+
+---
+
+# 17. Retry Logic, Timeouts & Network-Aware Code
+
+## 17.1 Timeout Strategy — Every Network Call Needs One
+
+```java
+// TYPES OF TIMEOUTS:
+
+// 1. CONNECTION TIMEOUT: time to establish TCP connection
+//    Should be short (1-5s) — if server unreachable, fail fast!
+
+// 2. READ/SOCKET TIMEOUT: time waiting for server to START responding
+//    Depends on operation: fast API = 5-10s, heavy report = 60s
+
+// 3. RESPONSE TIMEOUT (total): maximum total time for entire request
+//    Safety net: 30-120s depending on SLA requirements
+
+// Java HTTP Client (Java 11+):
+HttpClient client = HttpClient.newBuilder()
+    .connectTimeout(Duration.ofSeconds(5))     // TCP connect
+    .build();
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/users"))
+    .timeout(Duration.ofSeconds(30))           // total request timeout
+    .GET()
+    .build();
+
+// Spring WebClient (reactive):
+WebClient webClient = WebClient.builder()
+    .baseUrl("https://api.example.com")
+    .clientConnector(new ReactorClientHttpConnector(
+        HttpClient.create()
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5_000)  // connect
+            .responseTimeout(Duration.ofSeconds(30))               // response
+    ))
+    .build();
+
+// Apache HttpClient (RestTemplate backing):
+RequestConfig config = RequestConfig.custom()
+    .setConnectionRequestTimeout(Timeout.ofSeconds(1))   // from pool
+    .setConnectTimeout(Timeout.ofSeconds(5))             // TCP connect
+    .setResponseTimeout(Timeout.ofSeconds(30))           // response
+    .build();
+
+// TIMEOUT VALUES GUIDELINES:
+// Fast health check: 1-3s total
+// Typical REST API: 5-30s (connect: 3s, read: 10s)
+// File upload/download: 60-300s (large data transfer)
+// Database query: depends on query (short: 5s, complex report: 60s)
+// External payment API: 30-60s (high latency acceptable, don't interrupt payment)
+
+// WHAT HAPPENS WHEN TIMEOUT FIRES:
+// Java: SocketTimeoutException (read), ConnectException (connect)
+// Spring: ResourceAccessException wrapping SocketTimeoutException
+// WebClient: WebClientRequestException → TimeoutException
+// → You MUST handle these! Don't let timeout bubble to user as 500 error!
+
+try {
+    User user = userApiClient.getUser(id);
+    return user;
+} catch (ResourceAccessException e) {
+    if (e.getCause() instanceof SocketTimeoutException) {
+        throw new ExternalServiceTimeoutException("User service timed out", e);
+    }
+    throw new ExternalServiceException("User service unavailable", e);
+}
+```
+
+## 17.2 Retry Logic — When and How
+
+```java
+// WHEN TO RETRY:
+// ✅ RETRY: transient failures (network blip, brief unavailability)
+//   5xx errors (server errors — server may recover)
+//   503 Service Unavailable (server overloaded, might recover)
+//   504 Gateway Timeout (backend slow but might succeed next time)
+//   Connection timeout (transient network issue)
+//   SocketTimeoutException (slow server, might be faster next try)
+
+// ❌ DON'T RETRY: permanent failures or non-idempotent failures
+//   4xx errors (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 422)
+//   → These won't change on retry!
+//   409 Conflict (stale data — need fresh data, not retry)
+//   POST that already succeeded (non-idempotent → duplicate!!)
+//   Business logic errors
+
+// ── BASIC RETRY WITH EXPONENTIAL BACKOFF ──
+public <T> T retry(Supplier<T> operation, int maxAttempts) {
+    int attempt = 0;
+    while (attempt < maxAttempts) {
+        try {
+            return operation.get();
+        } catch (TransientException e) {
+            attempt++;
+            if (attempt >= maxAttempts) throw e;
+
+            // Exponential backoff: 1s, 2s, 4s, 8s...
+            long delayMs = (long) Math.pow(2, attempt) * 1000;
+            // + JITTER: random 0-1000ms added (CRITICAL! prevents thundering herd)
+            // Jitter: when many clients all retry at same time → surge of requests
+            long jitter = ThreadLocalRandom.current().nextLong(0, 1000);
+            long sleepMs = delayMs + jitter;
+
+            log.warn("Attempt {} failed, retrying in {}ms: {}", attempt, sleepMs, e.getMessage());
+            Thread.sleep(sleepMs);
+        }
+    }
+    throw new MaxRetriesExceededException();
+}
+
+// USAGE:
+User user = retry(() -> userApiClient.getUser(id), 3);
+
+// ── SPRING RETRY (@Retryable) ──
+@Service
+public class PaymentService {
+
+    @Retryable(
+        value = {RestClientException.class, ResourceAccessException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2, random = true)
+        // delay=1s, multiplier=2: 1s → 2s → 4s (with random jitter)
+    )
+    public PaymentResult charge(ChargeRequest req) {
+        return paymentGateway.post("/charge", req);
+    }
+
+    @Recover
+    public PaymentResult handlePaymentFailure(RestClientException e, ChargeRequest req) {
+        log.error("Payment failed after retries: {}", req.getOrderId());
+        // Queue for manual processing or return failure
+        return PaymentResult.failed("Service temporarily unavailable");
+    }
+}
+
+// ── RESILIENCE4J (more control) ──
+RetryConfig retryConfig = RetryConfig.custom()
+    .maxAttempts(3)
+    .waitDuration(Duration.ofSeconds(1))
+    .intervalFunction(IntervalFunction.ofExponentialBackoff(1000, 2))
+    .retryOnException(e -> e instanceof TimeoutException)
+    .retryOnResult(response -> ((HttpResponse)response).getStatusCode() == 503)
+    .ignoreExceptions(IllegalArgumentException.class)
+    .build();
+
+Retry retry = Retry.of("userService", retryConfig);
+Supplier<User> decorated = Retry.decorateSupplier(retry, () -> userApi.getUser(id));
+User user2 = Try.ofSupplier(decorated).recover(e -> User.anonymous()).get();
+
+// ── IDEMPOTENCY KEY — safe retrying of non-idempotent operations ──
+// POST /orders is not naturally idempotent (creates duplicate orders on retry!)
+// Add idempotency key: server deduplicates by key
+String idempotencyKey = UUID.randomUUID().toString(); // generate once per logical operation
+OrderResponse response = orderClient.createOrder(request,
+    Headers.of("Idempotency-Key", idempotencyKey));
+// If request fails, retry with SAME idempotency key
+// Server: if key seen before → return original response (don't create again)
+// Result: safe to retry even POST requests!
+```
+
+## 17.3 HTTP Verb Best Practices
+
+```
+HTTP VERBS — when to use which:
+
+GET:
+  Purpose: retrieve resource (READ)
+  Body: never (use query params instead)
+  Safe: YES (no side effects)
+  Idempotent: YES (same result every time)
+  Cacheable: YES (by default)
+  Examples:
+    GET /users           → list all users
+    GET /users/123       → get user 123
+    GET /orders?status=pending&page=1  → filtered list
+
+POST:
+  Purpose: create resource or submit data (CREATE / ACTION)
+  Body: YES (new resource data)
+  Safe: NO (creates data)
+  Idempotent: NO (calling twice creates two resources!)
+  Cacheable: NO
+  Examples:
+    POST /users          → create new user
+    POST /orders         → place new order
+    POST /login          → submit login credentials
+    POST /payments/process → trigger payment
+
+PUT:
+  Purpose: replace resource entirely (UPDATE/REPLACE)
+  Body: YES (complete representation)
+  Safe: NO
+  Idempotent: YES (same result each time)
+  Cacheable: NO
+  Examples:
+    PUT /users/123       → replace user 123 completely
+    PUT /settings        → replace all settings
+
+PATCH:
+  Purpose: partial update (UPDATE/PARTIAL)
+  Body: YES (only changed fields)
+  Safe: NO
+  Idempotent: depends on implementation
+  Examples:
+    PATCH /users/123 {"name": "New Name"}  → update only name
+    PATCH /orders/456 {"status": "SHIPPED"}
+
+DELETE:
+  Purpose: remove resource (DELETE)
+  Body: avoid (some servers ignore it)
+  Safe: NO
+  Idempotent: YES (deleting already-deleted = still not there)
+  Examples:
+    DELETE /users/123    → delete user 123
+    DELETE /sessions/abc → logout
+
+HEAD:
+  Purpose: GET without body (metadata check)
+  Use for: checking if resource exists, checking cache validity
+  Examples:
+    HEAD /files/large.pdf  → check file size (Content-Length) before downloading
+
+OPTIONS:
+  Purpose: check what methods are supported; CORS preflight
+  Sent automatically by browser for CORS
+
+COMMON MISTAKES:
+  ❌ POST /users/123/delete   → use DELETE /users/123
+  ❌ GET /users?action=delete → GET should NEVER have side effects!
+  ❌ POST /getUser            → use GET /users/123
+  ❌ POST /updateUser         → use PUT or PATCH /users/123
+  ❌ Using POST for everything → breaks caching, RESTful conventions
+
+REST RESOURCE NAMING:
+  /users              collection
+  /users/123          specific resource (use nouns, not verbs!)
+  /users/123/orders   nested resource (user's orders)
+  /orders?userId=123  filtered collection (alternative)
+  
+  Actions that don't fit CRUD:
+  POST /payments/123/refund   ← action on resource (OK!)
+  POST /users/123/activate    ← action on resource (OK!)
+  POST /search                ← when GET has too many params (OK!)
+```
+
+## 17.4 Efficient Request Patterns & Caching Headers
+
+```java
+// ── CACHING HEADERS — getting this right ──
+
+// For STATIC ASSETS (JS, CSS, images with hash in filename):
+// app.a1b2c3.js, logo-v2.png
+response.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+// max-age=31536000 = 1 year in seconds
+// immutable = browser/CDN: don't even revalidate, ever (unless URL changes)
+
+// For FREQUENTLY UPDATED API responses:
+response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+// max-age=60: fresh for 60s
+// stale-while-revalidate=300: serve stale for up to 5 min while fetching fresh in background
+
+// For SENSITIVE/USER-SPECIFIC data:
+response.setHeader("Cache-Control", "private, no-store");
+// private: only browser cache (not CDN/proxies)
+// no-store: don't cache at all (most paranoid — for auth tokens, sensitive data)
+
+// For HTML PAGES:
+response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+// Don't cache the HTML itself (it references versioned JS/CSS)
+// But DO cache the JS/CSS files referenced within it!
+
+// ETAG — conditional requests (bandwidth saving):
+// First request:
+// Response: ETag: "v3-abc123"
+// Browser caches + stores ETag
+//
+// Next request:
+// Request: If-None-Match: "v3-abc123"
+// Server: compares hash → if unchanged: 304 Not Modified (0 bytes body!)
+//                       → if changed: 200 OK + new body + new ETag
+
+// Spring Boot ETag filter (automatic!):
+@Bean
+public FilterRegistrationBean<ShallowEtagHeaderFilter> eTagFilter() {
+    FilterRegistrationBean<ShallowEtagHeaderFilter> bean = new FilterRegistrationBean<>();
+    bean.setFilter(new ShallowEtagHeaderFilter());
+    bean.addUrlPatterns("/api/*");
+    return bean;
+}
+// Spring auto-computes MD5 of response body → adds ETag header
+// On conditional request → automatically returns 304 if unchanged
+
+// ── CONNECTION POOLING (critical for performance!) ──
+// Creating new TCP+TLS connection = 100-300ms overhead
+// Reuse connections via connection pool!
+
+// Apache HttpClient pool (used by Spring RestTemplate):
+PoolingHttpClientConnectionManager connectionManager =
+    new PoolingHttpClientConnectionManager();
+connectionManager.setMaxTotal(200);          // max 200 total connections
+connectionManager.setDefaultMaxPerRoute(20); // max 20 per host
+
+CloseableHttpClient httpClient = HttpClients.custom()
+    .setConnectionManager(connectionManager)
+    .setKeepAliveStrategy((response, context) -> 30_000) // keep 30s
+    .build();
+
+// HTTP/2 — automatic multiplexing (even better than pooling!):
+// HTTP/1.1: one request per connection (need pool of connections)
+// HTTP/2:   multiple requests on SAME connection (multiplexing!)
+// → With HTTP/2: fewer connections needed, less overhead
+// WebClient uses HTTP/2 automatically when available:
+HttpClient http2Client = HttpClient.create()
+    .protocol(HttpProtocol.H2, HttpProtocol.HTTP11);  // prefer H2, fall back to HTTP/1.1
+
+// ── REQUEST BATCHING (reduce round trips) ──
+// BAD: 100 individual requests
+for (Long userId : userIds) {
+    User user = userApi.getUser(userId);  // 100 × RTT latency!
+}
+
+// GOOD: batch API (if server supports it)
+List<User> users = userApi.getUsers(userIds);  // 1 request!
+
+// GOOD: GraphQL (if available)
+// { users(ids: [1,2,3,...,100]) { id name email } }  // 1 request!
+
+// ── API PAGINATION — efficient large dataset ──
+// Offset pagination (simpler, worse performance for large offsets):
+GET /orders?page=5&size=20
+// Server: SELECT * FROM orders OFFSET 100 LIMIT 20 (OFFSET scans 100 rows!)
+
+// Cursor pagination (better for large data, infinite scroll):
+GET /orders?after=order_id_last_seen&size=20
+// Server: SELECT * FROM orders WHERE id > :cursor LIMIT 20 (uses index!)
+// Response includes: { data: [...], nextCursor: "order_id_xyz", hasMore: true }
+```
+
+## 17.5 Resilience Patterns for Network Calls
+
+```java
+// ── CIRCUIT BREAKER — fail fast when service is down ──
+// Without circuit breaker:
+// All requests queue up waiting for timeout → your service degraded!
+// With circuit breaker: after N failures → open circuit → fail immediately
+// → Other services get fast failure, can use fallback
+
+@Service
+public class UserService {
+
+    @CircuitBreaker(name = "userApi", fallbackMethod = "getUserFallback")
+    @TimeLimiter(name = "userApi")  // timeout as circuit breaker
+    public CompletableFuture<User> getUser(Long id) {
+        return CompletableFuture.supplyAsync(() -> userApiClient.getUser(id));
+    }
+
+    public CompletableFuture<User> getUserFallback(Long id, Throwable ex) {
+        log.warn("User service unavailable, using cached/default: {}", ex.getMessage());
+        // Options:
+        return CompletableFuture.completedFuture(
+            cache.get(id)                    // 1. return stale cached value
+            .orElse(User.anonymous())        // 2. return safe default
+        );
+        // 3. throw ServiceUnavailableException (let caller decide)
+        // 4. queue for later (async)
+    }
+}
+
+# Resilience4j config (application.yml):
+resilience4j:
+  circuitbreaker:
+    instances:
+      userApi:
+        slidingWindowSize: 10        # last 10 calls
+        failureRateThreshold: 50     # 50% failure → OPEN
+        waitDurationInOpenState: 30s # stay OPEN for 30s, then HALF_OPEN
+        permittedNumberOfCallsInHalfOpenState: 3
+  timelimiter:
+    instances:
+      userApi:
+        timeoutDuration: 5s
+
+// ── BULKHEAD — limit concurrent calls to external service ──
+// Without bulkhead: slow external service captures ALL your threads
+// With bulkhead: limit threads used for one service
+@Bulkhead(name = "userApi", type = Bulkhead.Type.THREADPOOL)
+public User getUser(Long id) {
+    return userApiClient.getUser(id);
+}
+
+resilience4j:
+  bulkhead:
+    instances:
+      userApi:
+        maxConcurrentCalls: 10    # max 10 concurrent calls to user API
+        maxWaitDuration: 500ms    # wait 500ms for slot, else reject
+
+// ── FALLBACK STRATEGIES (ranked by preference) ──
+
+// 1. CACHE: return stale data (often good enough!)
+User user3 = cache.getIfPresent(userId);
+if (user3 != null) return user3;  // stale but functional
+
+// 2. DEFAULT VALUE: safe empty/anonymous state
+return User.builder().id(userId).name("Unknown").anonymous(true).build();
+
+// 3. QUEUE: defer non-critical work
+notificationQueue.add(new DeferredNotification(userId, message));
+return Response.accepted("Notification queued");
+
+// 4. DEGRADE GRACEFULLY: return partial data
+OrderResponse order = new OrderResponse(orderId, status);
+// user details failed → return order without user details
+// (better than failing the entire request!)
+
+// 5. FAIL FAST: throw clear exception
+throw new ServiceUnavailableException("User service is currently unavailable. Try again later.");
+// → API gateway returns 503 with Retry-After header
+
+// ── GRACEFUL DEGRADATION EXAMPLE ──
+public ProductPageResponse getProductPage(String productId, String userId) {
+    ProductPageResponse response = new ProductPageResponse();
+
+    // CRITICAL: must have product data
+    response.setProduct(productService.getProduct(productId)); // throws if fails
+
+    // NON-CRITICAL: enhance if available
+    try {
+        response.setRecommendations(recommendationService.get(userId, productId));
+    } catch (Exception e) {
+        log.warn("Recommendations unavailable: {}", e.getMessage());
+        response.setRecommendations(List.of()); // empty = graceful
+    }
+
+    try {
+        response.setReviews(reviewService.getTopReviews(productId, 5));
+    } catch (Exception e) {
+        log.warn("Reviews unavailable: {}", e.getMessage());
+        response.setReviews(List.of()); // empty = graceful
+    }
+
+    return response; // returns with what we have, not all-or-nothing!
+}
+```
+
+---
+
+## 📎 Updated Quick Reference — Developer Focus
+
+```
+BASIC CONCEPTS:
+  IP address:     your device's unique address on the network
+  Port:           which door to knock (80=HTTP, 443=HTTPS, 5432=PostgreSQL)
+  DNS:            translates example.com → 93.184.216.34
+  HTTP:           text-based request/response protocol (readable by anyone!)
+  HTTPS:          HTTP + TLS = encrypted (only you and server can read)
+  Latency:        time for data to travel (physics-limited by distance)
+  Bandwidth:      how much data per second (improvable by hardware)
+
+INSPECT HTTP:
+  curl -v URL              see all headers + timing
+  curl -w "..." URL        detailed timing breakdown
+  Browser DevTools         Network tab: status, headers, timing waterfall
+  dig domain               DNS lookup
+  traceroute domain        path packets take
+
+STATUS CODES:
+  2xx: success (200 OK, 201 Created, 204 No Content)
+  3xx: redirect (301 permanent, 302 temporary, 304 not modified)
+  4xx: YOUR error (400 bad request, 401 not authenticated, 403 forbidden,
+                   404 not found, 429 rate limited)
+  5xx: SERVER error (500 crash, 502 bad gateway, 503 unavailable, 504 timeout)
+
+COMMON ISSUES:
+  NXDOMAIN/DNS failure:   domain not found → check DNS record, flush cache
+  Connection timeout:      can't reach server → firewall? wrong IP? server down?
+  CORS:                   browser blocks cross-origin → add CORS headers to API
+  SSL error:              bad/expired certificate → check cert, check system clock
+  502/504:                reverse proxy got bad/no response → check app logs
+
+CDN:
+  Caches static assets at edge (near user) → dramatically lower latency
+  Cache-Control: public, max-age=31536000  → CDN caches for 1 year
+  Cache-Control: no-store                  → never cache (sensitive data)
+  Cache-Control: private                   → browser only, not CDN
+  CDN invalidation: purge by URL, or change filename (cache-busting)
+
+RESILIENT CODE:
+  Timeout:        always set connect + read timeouts (never infinite!)
+  Retry:          5xx + timeouts → retry with exponential backoff + jitter
+  No retry:       4xx errors (won't change), successful POST (duplicate!)
+  Idempotency:    use Idempotency-Key header for safe POST retries
+  Circuit breaker: after N failures → fail fast → use fallback
+  Graceful degrade: return partial data when optional services fail
+  Caching:        cache GET responses, validate with ETag/If-None-Match
+
+HTTP VERBS:
+  GET:    read, safe, idempotent, cacheable → no body
+  POST:   create/action, NOT idempotent, NOT cacheable
+  PUT:    replace entirely, idempotent
+  PATCH:  partial update
+  DELETE: remove, idempotent
+```
+
+---
+
+*Học theo thứ tự: Plain English (14) → HTTP Status + Headers (15) → DNS + TLS → CDN (16) → Timeouts + Retry (17) → OSI Model → IP/Subnetting → TCP/UDP → Load Balancers → Security*
