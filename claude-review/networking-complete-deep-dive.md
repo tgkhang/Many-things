@@ -1,24 +1,24 @@
-# 🌐 Computer Networking — Complete Deep Dive
+# 🌐 Mạng máy tính — Tài liệu đào sâu toàn diện
 >
-> TCP/IP, HTTP/HTTPS, UDP, OSI Model, Subnetting, DNS, TLS, Routing và hơn nữa
+> TCP/IP, HTTP/HTTPS, UDP, OSI Model, Subnetting, DNS, TLS, Routing và nhiều hơn nữa
 
 ---
 
-## 📚 Table of Contents
+## 📚 Mục lục
 
 1. [OSI Model & TCP/IP Stack](#1-osi-model--tcpip-stack)
-2. [IP Addressing](#2-ip-addressing)
+2. [Địa chỉ IP](#2-địa-chỉ-ip)
 3. [Subnetting](#3-subnetting)
 4. [Routing](#4-routing)
 5. [UDP — User Datagram Protocol](#5-udp--user-datagram-protocol)
 6. [TCP — Transmission Control Protocol](#6-tcp--transmission-control-protocol)
-7. [DNS — Domain Name System](#7-dns--domain-name-system)
-8. [TLS/SSL — Transport Layer Security](#8-tlsssl--transport-layer-security)
-9. [HTTP — HyperText Transfer Protocol](#9-http--hypertext-transfer-protocol)
+7. [DNS — Hệ thống tên miền](#7-dns--hệ-thống-tên-miền-domain-name-system)
+8. [TLS/SSL — Bảo mật tầng truyền tải](#8-tlsssl--bảo-mật-tầng-truyền-tải-transport-layer-security)
+9. [HTTP — Giao thức truyền tải siêu văn bản](#9-http--giao-thức-truyền-tải-siêu-văn-bản-hypertext-transfer-protocol)
 10. [HTTPS](#10-https)
 11. [WebSocket & Long Polling](#11-websocket--long-polling)
 12. [Load Balancer & Reverse Proxy](#12-load-balancer--reverse-proxy)
-13. [Network Security](#13-network-security)
+13. [Bảo mật mạng](#13-bảo-mật-mạng)
 
 ---
 
@@ -76,7 +76,7 @@ Receiver (Physical → Application):
 → Application reads "GET /index.html"
 ```
 
-## 1.4 Key Protocols Per Layer
+## 1.4 Các protocol chính theo từng layer
 
 ```
 LAYER 7 — APPLICATION
@@ -118,7 +118,7 @@ LAYER 1 — PHYSICAL
 
 ---
 
-# 2. IP Addressing
+# 2. Địa chỉ IP
 
 > 📖 <https://www.rfc-editor.org/rfc/rfc791> (IPv4)
 > 📖 <https://www.rfc-editor.org/rfc/rfc8200> (IPv6)
@@ -146,7 +146,7 @@ Network: 192.168.1.0
 Host:    100
 ```
 
-## 2.2 IP Address Classes (truyền thống, CIDR thay thế rồi)
+## 2.2 IP Address Classes (kiểu truyền thống, CIDR đã thay thế)
 
 ```
 Class A:  1.0.0.0   – 126.255.255.255   /8   127 networks × 16M hosts
@@ -155,7 +155,7 @@ Class C:  192.0.0.0 – 223.255.255.255   /24  2M networks × 254 hosts
 Class D:  224.0.0.0 – 239.255.255.255        Multicast
 Class E:  240.0.0.0 – 255.255.255.255        Reserved/Research
 
-Special addresses:
+Địa chỉ đặc biệt:
 127.0.0.1           Loopback (localhost) — stays on this machine
 0.0.0.0             Unspecified / "any" address
 255.255.255.255     Broadcast (all hosts on local network)
@@ -171,7 +171,7 @@ Range                       CIDR          Usage
 172.16.0.0 – 172.31.255.255 172.16.0.0/12 Medium networks
 192.168.0.0 – 192.168.255.255 192.168.0.0/16 Home/small office
 
-Private IPs KHÔNG route trên Internet → dùng NAT để ra ngoài
+Private IPs KHÔNG route trên Internet → dùng NAT để đi ra ngoài
 
 NAT (Network Address Translation):
 Private: 192.168.1.100:54321 ──→ NAT ──→ Public: 203.1.2.3:54321
@@ -181,7 +181,7 @@ Private: 192.168.1.100:54321 ──→ NAT ──→ Public: 203.1.2.3:54321
 ## 2.4 IPv6
 
 ```
-IPv6 = 128-bit address, viết dưới dạng 8 groups × 16 bits hex
+IPv6 = địa chỉ 128-bit, viết dưới dạng 8 groups × 16 bits hex
 
 Full:    2001:0db8:0000:0000:0000:ff00:0042:8329
 Short:   2001:db8::ff00:42:8329     (leading zeros dropped, :: = consecutive zeros)
@@ -189,7 +189,7 @@ Short:   2001:db8::ff00:42:8329     (leading zeros dropped, :: = consecutive zer
 Total:   2^128 = 3.4 × 10^38 addresses
 → Enough for 670 quadrillion addresses per mm² of Earth's surface!
 
-Special:
+Đặc biệt:
 ::1              Loopback (like 127.0.0.1 in IPv4)
 ::               Unspecified
 fe80::/10        Link-local (auto-configured)
@@ -198,14 +198,14 @@ ff00::/8         Multicast
 2001:db8::/32    Documentation/examples
 
 IPv6 Header:
-- Simpler than IPv4 (fixed 40 bytes)
-- No checksum (handled by upper layers)
-- No fragmentation at routers (done at source only)
-- Built-in IPSec support
-- Flow label for QoS
+- Đơn giản hơn IPv4 (fixed 40 bytes)
+- Không có checksum (do upper layers xử lý)
+- Router không fragmentation (chỉ source làm)
+- Có hỗ trợ IPSec sẵn
+- Flow label cho QoS
 
-Dual Stack: server runs IPv4 AND IPv6 simultaneously
-Tunneling: IPv6 packet wrapped in IPv4 for transit
+Dual Stack: server chạy IPv4 VÀ IPv6 cùng lúc
+Tunneling: IPv6 packet được bọc trong IPv4 để truyền qua mạng
 ```
 
 ---
@@ -233,10 +233,10 @@ Number of hosts = 2^(32 - prefix) - 2
 /32 → 2^0 - 2 = 0 hosts  (single host — loopback, route to one IP)
 ```
 
-## 3.2 Subnet Calculation — Step by Step
+## 3.2 Tính subnet — từng bước
 
 ```
-Given: 192.168.10.0/24 → chia thành 4 equal subnets
+Given: 192.168.10.0/24 → chia thành 4 subnet bằng nhau
 
 Step 1: Cần bao nhiêu bits để tạo 4 subnets?
   2^n >= 4 → n = 2 bits
@@ -247,7 +247,7 @@ Step 2: Subnet mask mới
 
 Step 3: Block size = 2^(32-26) = 2^6 = 64
 
-Step 4: List subnets
+Step 4: Danh sách subnet
   Subnet 1: 192.168.10.0/26
     Network:   192.168.10.0
     First host: 192.168.10.1
@@ -274,7 +274,7 @@ Step 4: List subnets
     Broadcast:  192.168.10.255
 ```
 
-## 3.3 CIDR Quick Reference Table
+## 3.3 Bảng tham chiếu nhanh CIDR
 
 ```
 Prefix  Mask              Hosts    Subnets from /24
@@ -298,7 +298,7 @@ Prefix  Mask        Hosts
 /24     255.255.255.0   254
 ```
 
-## 3.4 Tìm Subnet của một IP
+## 3.4 Tìm subnet của một IP
 
 ```
 Ví dụ: IP = 172.16.45.200/20
@@ -326,7 +326,7 @@ Cách nhanh: block size = 256 - 240 = 16
 
 ```
 Chia subnet có kích thước khác nhau từ 1 block
-Efficient hơn — không lãng phí IPs
+Hiệu quả hơn — không lãng phí IPs
 
 Ví dụ: Công ty cần:
   - Network A: 100 hosts
@@ -337,7 +337,7 @@ Ví dụ: Công ty cần:
 
 Starting block: 192.168.1.0/24
 
-Sắp xếp lớn nhất trước:
+Sắp xếp từ lớn đến nhỏ:
 
 Network A (cần 100 hosts → /25 = 126 hosts):
   192.168.1.0/25  (192.168.1.0 - 192.168.1.127)
@@ -361,7 +361,7 @@ Remaining: 192.168.1.232 - 192.168.1.255 (for future use)
 
 # 4. Routing
 
-## 4.1 How Routing Works
+## 4.1 Routing hoạt động như thế nào
 
 ```
 Router = thiết bị chuyển tiếp packets giữa các networks
@@ -705,11 +705,11 @@ Broadcasting      No                   Yes
 
 ---
 
-# 7. DNS — Domain Name System
+# 7. DNS — Hệ thống tên miền (Domain Name System)
 
 > 📖 <https://www.rfc-editor.org/rfc/rfc1035>
 
-## 7.1 DNS Hierarchy
+## 7.1 Cấu trúc phân cấp DNS
 
 ```
 Root (.)
@@ -740,7 +740,7 @@ DNS Servers:
   → Caches results
 ```
 
-## 7.2 DNS Resolution Process
+## 7.2 Quy trình phân giải DNS
 
 ```
 User types: www.example.com
@@ -785,7 +785,7 @@ Browser → OS Cache → DNS Cache → Resolver Cache
 ──────────────────────────────────────────────────────
 ```
 
-## 7.3 DNS Record Types
+## 7.3 Các loại DNS record
 
 ```
 A Record — hostname → IPv4 address
@@ -840,7 +840,7 @@ TTL (Time To Live):
   Before DNS migration: lower TTL → after: raise again
 ```
 
-## 7.4 DNS Security
+## 7.4 Bảo mật DNS
 
 ```
 DNS Spoofing / Cache Poisoning:
@@ -870,11 +870,11 @@ Split-horizon DNS:
 
 ---
 
-# 8. TLS/SSL — Transport Layer Security
+# 8. TLS/SSL — Bảo mật tầng truyền tải (Transport Layer Security)
 
 > 📖 <https://www.rfc-editor.org/rfc/rfc8446> (TLS 1.3)
 
-## 8.1 TLS Overview
+## 8.1 Tổng quan TLS
 
 ```
 TLS = protocol cung cấp:
@@ -933,7 +933,7 @@ CLIENT                                           SERVER
 TLS 1.2: 2 round trips (2 × RTT) before data
 ```
 
-## 8.3 TLS 1.3 Handshake (Much Faster)
+## 8.3 TLS 1.3 Handshake (Nhanh hơn nhiều)
 
 ```
 CLIENT                                           SERVER
@@ -1003,7 +1003,7 @@ Let's Encrypt — free automated DV certificates:
   certbot client automates renewal
 ```
 
-## 8.5 Cryptography in TLS
+## 8.5 Mật mã học trong TLS
 
 ```
 ── KEY EXCHANGE (Asymmetric — slow, used only for handshake) ──
@@ -1037,7 +1037,7 @@ TLS 1.3: TLS_AES_256_GCM_SHA384 (simpler, all must use ECDHE)
 
 ---
 
-# 9. HTTP — HyperText Transfer Protocol
+# 9. HTTP — Giao thức truyền tải siêu văn bản (HyperText Transfer Protocol)
 
 > 📖 <https://developer.mozilla.org/en-US/docs/Web/HTTP>
 > 📖 <https://www.rfc-editor.org/rfc/rfc9110> (HTTP Semantics)
@@ -1181,7 +1181,7 @@ Cache-busting for static assets:
   → Cache indefinitely (immutable) + new name when content changes
 ```
 
-## 9.4 HTTP Headers Deep Dive
+## 9.4 Phân tích sâu HTTP Headers
 
 ```
 ── AUTHENTICATION ──
@@ -1341,7 +1341,7 @@ WebSocket Frame:
 
 # 12. Load Balancer & Reverse Proxy
 
-## 12.1 Load Balancing Algorithms
+## 12.1 Các thuật toán Load Balancing
 
 ```
 Round Robin:
@@ -1396,7 +1396,7 @@ Layer 7 (Application):
   Example: Nginx, AWS ALB, HAProxy HTTP mode
 ```
 
-## 12.2 Nginx as Reverse Proxy & Load Balancer
+## 12.2 Nginx như Reverse Proxy & Load Balancer
 
 ```nginx
 # /etc/nginx/nginx.conf
@@ -1491,9 +1491,9 @@ Nginx (active health check — nginx plus or ngx_http_upstream_hc_module):
 
 ---
 
-# 13. Network Security
+# 13. Bảo mật mạng
 
-## 13.1 Common Attacks
+## 13.1 Các cuộc tấn công thường gặp
 
 ```
 ── MAN IN THE MIDDLE (MITM) ──
@@ -1650,9 +1650,9 @@ Port   Protocol   Service
 
 ---
 
-# 14. Plain-English Networking — Basics for Every Developer
+# 14. Networking bằng ngôn ngữ dễ hiểu — Nền tảng cho mọi developer
 
-## 14.1 How Computers Talk to Each Other (Simple)
+## 14.1 Máy tính nói chuyện với nhau như thế nào (đơn giản)
 
 ```
 ANALOGY: Sending a physical letter through the postal system
@@ -1697,7 +1697,7 @@ WHAT HAPPENS WHEN YOU TYPE A URL:
   ALL OF THIS takes ~100-300ms on a good connection!
 ```
 
-## 14.2 IP Address — Your Computer's Home Address
+## 14.2 IP Address — Địa chỉ nhà của máy tính
 
 ```
 IP ADDRESS = unique identifier for every device on a network
@@ -1730,7 +1730,7 @@ PORT = which door to knock on
   Common ports: 80 (HTTP), 443 (HTTPS), 5432 (PostgreSQL), 6379 (Redis)
 ```
 
-## 14.3 HTTP vs HTTPS — The Clear Difference
+## 14.3 HTTP vs HTTPS — Sự khác biệt rõ ràng
 
 ```
 HTTP (port 80) = PLAIN TEXT, like sending a postcard
@@ -1768,7 +1768,7 @@ DEVELOPER RULE:
   HTTP only acceptable for: localhost development, internal services on trusted network
 ```
 
-## 14.4 Latency vs Bandwidth — Two Different Problems
+## 14.4 Latency vs Bandwidth — Hai vấn đề khác nhau
 
 ```
 ANALOGY: A highway
@@ -1821,9 +1821,9 @@ MEASURING LATENCY:
 
 ---
 
-# 15. Practical HTTP — Inspecting Network Interactions
+# 15. HTTP thực hành — Quan sát các tương tác mạng
 
-## 15.1 curl — Swiss Army Knife for HTTP
+## 15.1 curl — Dao đa năng cho HTTP
 
 ```bash
 # ── BASIC REQUESTS ──
@@ -1892,7 +1892,7 @@ curl -C - -o /tmp/large.zip https://example.com/large.zip  # resume download
 # < cache-control: max-age=300
 ```
 
-## 15.2 HTTP Status Codes — Complete Developer Guide
+## 15.2 HTTP Status Codes — Cẩm nang đầy đủ cho developer
 
 ```
 1xx — INFORMATIONAL
@@ -1959,7 +1959,7 @@ DEVELOPER QUICK DECISION:
   "Too fast?"                      → 429
 ```
 
-## 15.3 HTTP Headers — Practical Reading Guide
+## 15.3 HTTP Headers — Hướng dẫn đọc thực tế
 
 ```
 REQUEST HEADERS (what browser/client sends):
@@ -2006,7 +2006,7 @@ Click a request → see:
   Timing tab → breakdown: Queued, DNS Lookup, Initial connection, SSL, TTFB, Download
 ```
 
-## 15.4 Common Networking Issues — Diagnose & Fix
+## 15.4 Lỗi mạng thường gặp — Chẩn đoán & sửa
 
 ```bash
 # ── ISSUE 1: DNS FAILURE ──
@@ -2162,9 +2162,9 @@ ss -tlnp | grep 8080                      # is app listening?
 
 ---
 
-# 16. CDN — Content Delivery Networks
+# 16. CDN — Mạng phân phối nội dung
 
-## 16.1 What is a CDN and Why?
+## 16.1 CDN là gì và vì sao cần?
 
 ```
 PROBLEM without CDN:
@@ -2199,7 +2199,7 @@ HOW CDN WORKS:
   5. Next user request → HIT → instant from edge!
 ```
 
-## 16.2 What CDNs Cache and How
+## 16.2 CDN cache gì và bằng cách nào
 
 ```
 WHAT CDNS CACHE:
@@ -2246,7 +2246,7 @@ CDN INVALIDATION (clearing old cache):
   4. TTL expiry: just wait for max-age to expire (simplest!)
 ```
 
-## 16.3 CDN for Performance — Real Impact
+## 16.3 CDN cho hiệu năng — Tác động thực tế
 
 ```
 MEASURING CDN IMPACT:
@@ -2300,9 +2300,9 @@ CLOUDFRONT EXAMPLE (AWS):
 
 ---
 
-# 17. Retry Logic, Timeouts & Network-Aware Code
+# 17. Retry Logic, Timeout & Code hiểu mạng
 
-## 17.1 Timeout Strategy — Every Network Call Needs One
+## 17.1 Chiến lược timeout — Mỗi network call đều cần
 
 ```java
 // TYPES OF TIMEOUTS:
@@ -2368,7 +2368,7 @@ try {
 }
 ```
 
-## 17.2 Retry Logic — When and How
+## 17.2 Retry Logic — Khi nào và như thế nào
 
 ```java
 // WHEN TO RETRY:
@@ -2460,7 +2460,7 @@ OrderResponse response = orderClient.createOrder(request,
 // Result: safe to retry even POST requests!
 ```
 
-## 17.3 HTTP Verb Best Practices
+## 17.3 Best practices cho HTTP verb
 
 ```
 HTTP VERBS — when to use which:
@@ -2545,7 +2545,7 @@ REST RESOURCE NAMING:
   POST /search                ← when GET has too many params (OK!)
 ```
 
-## 17.4 Efficient Request Patterns & Caching Headers
+## 17.4 Mẫu request hiệu quả & caching headers
 
 ```java
 // ── CACHING HEADERS — getting this right ──
@@ -2638,7 +2638,7 @@ GET /orders?after=order_id_last_seen&size=20
 // Response includes: { data: [...], nextCursor: "order_id_xyz", hasMore: true }
 ```
 
-## 17.5 Resilience Patterns for Network Calls
+## 17.5 Resilience patterns cho network calls
 
 ```java
 // ── CIRCUIT BREAKER — fail fast when service is down ──
@@ -2747,7 +2747,7 @@ public ProductPageResponse getProductPage(String productId, String userId) {
 
 ---
 
-## 📎 Updated Quick Reference — Developer Focus
+## 📎 Tham chiếu nhanh cập nhật — Góc nhìn cho developer
 
 ```
 BASIC CONCEPTS:

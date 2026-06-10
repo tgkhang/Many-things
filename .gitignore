@@ -151,3 +151,4 @@ vite.config.ts.timestamp-*
 out/
 .idea_modules/
 atlassian-ide-plugin.xml
+/claude-review/java
