@@ -86,6 +86,8 @@ Bảng quy đổi SLA nên nhớ:
 
 👉 **RTO/RPO quyết định chiến lược DR và ngân sách.** RPO 24h → backup hằng ngày là đủ. RPO ~0 → phải replicate liên tục (tốn tiền gấp nhiều lần). Đừng bao giờ chọn chiến lược DR trước khi chốt RTO/RPO với business.
 
+> 🔎 RTO/RPO chỉ là 2 trong số **rất nhiều loại "thời gian"** được nhắc trong họp DR (còn MTD, WRT, TTL, drill window, cutover window...). Xem **mục 2.6 — Từ điển thời gian trong DR** để giải mã đầy đủ.
+
 ---
 
 # 2. Disaster Recovery (DR)
@@ -182,6 +184,110 @@ Bước thực hiện:
 7. Smoke test end-to-end qua domain chính
 8. Thông báo stakeholder; mở incident timeline để viết postmortem
 ```
+
+## 2.6. ⏱️ TỪ ĐIỂN THỜI GIAN TRONG DR — nghe họp hiểu ngay ⭐⭐
+
+> **Bối cảnh thực tế:** trong các buổi họp DR, người ta gần như chỉ nói chuyện bằng... các con số thời gian. Câu kiểu *"30 phút ít quá, tăng lên 60 phút đi"* có thể đang nói về **rất nhiều loại thời gian khác nhau** — và mỗi loại kéo theo hệ quả kỹ thuật + chi phí hoàn toàn khác nhau. Phần này giúp bạn "giải mã" đang nói về con số nào.
+
+### 2.6.1. Bản đồ đầy đủ các mốc thời gian
+
+Trước tiên, nhìn timeline của một disaster để thấy các con số nằm ở đâu:
+
+```
+────────●───────────────✖──────────●─────────────●──────────────●──────→ thời gian
+     backup/          DISASTER   phát hiện    hệ thống       nghiệp vụ
+     replication       xảy ra    (detect)     chạy lại       hoạt động lại
+     cuối cùng                                (recover)      bình thường
+        │                 │          │            │               │
+        └────── RPO ──────┘          │            │               │
+        (data mất tối đa)            │            │               │
+                          └─ MTTD ───┘            │               │
+                          (time to detect)        │               │
+                          └──────── RTO ──────────┘               │
+                          (downtime cho phép để khôi phục)        │
+                                                  └───── WRT ─────┘
+                                                  (Work Recovery Time:
+                                                   verify data, chạy lại
+                                                   batch job, nhập bù...)
+                          └──────────────── MTD/MTPD ─────────────┘
+                          (Maximum Tolerable Downtime — business chết
+                           thật sự nếu vượt quá con số này)
+```
+
+⭐ Quan hệ phải nhớ: **RTO + WRT ≤ MTD**. RTO là con số *kỹ thuật* (hệ thống up), MTD là con số *business* (quá mốc này thì mất khách hàng/vi phạm quy định/bị phạt). Nhiều buổi họp DR thực chất là đàm phán: business đưa MTD, kỹ thuật báo giá RTO khả thi.
+
+### 2.6.2. Vậy "tăng 30 phút lên 60 phút" trong họp là đang nói cái gì?
+
+Đây là các "nghi phạm" phổ biến nhất, kèm dấu hiệu nhận biết theo ngữ cảnh câu nói:
+
+| Nếu ngữ cảnh là... | Con số đó khả năng cao là | Ý nghĩa của việc TĂNG nó |
+|---|---|---|
+| "Team không kịp khôi phục trong 30p" / bàn về cam kết với business | **RTO** | **Nới lỏng cam kết** → đội vận hành dễ thở hơn, có thể chọn chiến lược DR rẻ hơn (vd warm standby → pilot light). Ngược lại *giảm* RTO = tốn tiền hơn |
+| "Backup/replication 30p một lần thưa quá" | **RPO / tần suất backup** | Chú ý chiều: *tăng tần suất* (backup dày hơn) = **giảm RPO** = tốn hơn. Còn *tăng RPO* (chấp nhận mất 60p data) = rẻ hơn |
+| "Buổi diễn tập 30p không đủ làm gì" | **DR drill / GameDay window** | Kéo dài thời lượng diễn tập failover — rất phổ biến vì lần drill đầu hầu như luôn vỡ kế hoạch thời gian |
+| "Cutover 30p sợ không kịp, xin 60p" | **Cutover / change window** | Khung giờ được phép thực hiện failover/migration có kế hoạch (thường đêm/cuối tuần), phải đăng ký qua change management |
+| "Đợi 30p mới được tuyên bố disaster" | **Declaration time / escalation timer** | Thời gian chờ xác nhận trước khi kích hoạt DR plan (tránh failover oan vì alarm chập chờn) — tăng lên = thận trọng hơn nhưng **ăn thẳng vào RTO!** |
+| "Health check 30 giây/lần" (đơn vị nhỏ hơn) | **Health check interval + failure threshold** | Quyết định *bao lâu thì hệ thống nhận ra mình chết* (MTTD). Interval 30s × 3 lần fail = ~90s mới bắt đầu failover |
+| "DNS mất 30p mới trỏ hết sang DR" | **DNS TTL** | Thời gian client còn cache IP cũ. Muốn failover nhanh phải **hạ TTL từ trước** ít nhất 1 chu kỳ TTL cũ (TTL đang 24h → phải hạ trước 24h) |
+| "Giữ backup 30 ngày ít quá" (đơn vị ngày) | **Retention period** | RDS automated backup giữ tối đa **35 ngày**; lâu hơn phải dùng snapshot thủ công/AWS Backup. Tăng retention = tăng chi phí lưu trữ; trong banking một số data phải giữ đến **7 năm** theo luật |
+
+👉 **Tip đi họp:** nếu không chắc, hỏi một câu rất "senior": *"Con số 60 phút này là RTO cam kết với business, hay là thời lượng của bài test?"* — câu này vừa giúp bạn hiểu, vừa buộc cả phòng làm rõ (rất nhiều meeting mơ hồ đúng chỗ này, mỗi người hiểu một kiểu).
+
+### 2.6.3. Các con số thời gian "cứng" của AWS nên thuộc ⭐
+
+Đây là giới hạn/đặc tính có thật của dịch vụ — dùng để phản biện trong họp (vd: *"RPO 1 phút mà dùng RDS snapshot là bất khả thi, phải chuyển sang Aurora Global"*):
+
+| Dịch vụ / cơ chế | Con số thời gian | Ghi chú |
+|---|---|---|
+| RDS automated backup | Transaction log upload **~5 phút/lần** → PITR restore được đến từng giây, nhưng **RPO thực tế tối đa ~5 phút** | Retention 0–**35 ngày** |
+| RDS Multi-AZ failover | Thường **60–120 giây**; Multi-AZ **DB cluster** (2 readable standby) nhanh hơn, thường **~35 giây** | Đây là HA, không phải DR |
+| Aurora Global Database | Replication lag điển hình **< 1 giây**; RTO promote secondary region **< 1 phút** | Vũ khí cho RPO/RTO khắt khe |
+| Cross-region read replica (RDS) | Async → lag từ **vài giây đến vài phút** tuỳ tải | Lag tại thời điểm promote = data loss thực |
+| AWS Elastic DRS | RPO **tính bằng giây**, RTO **5–20 phút** (launch instance từ replica) | Block-level continuous replication |
+| EBS Snapshot (qua Data Lifecycle Manager) | Lịch tối thiểu **mỗi 1 giờ**; snapshot incremental | RPO tốt nhất theo cơ chế này ≈ 1h |
+| S3 CRR / SRR | Đa số object replicate trong vòng **15 phút** (bật S3 RTC để có cam kết 99.99% trong 15p) | **Không phải tức thời!** |
+| Route 53 health check | Interval **30s (standard)** hoặc **10s (fast)** + failure threshold (mặc định 3 lần) | Quyết định tốc độ phát hiện chết |
+| DNS TTL | Tuỳ bạn đặt; thực chiến hay để **60s** cho failover record | TTL cao = failover chậm |
+| DynamoDB PITR | Restore về bất kỳ giây nào trong **35 ngày** gần nhất | |
+| AWS Backup | Lịch backup dày nhất **mỗi 1 giờ**; cross-region copy tốn thêm thời gian truyền | Backup xong ≠ bản copy ở region khác đã sẵn sàng |
+
+📖 RDS backup & PITR: <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html>
+📖 Aurora Global Database: <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html>
+📖 S3 Replication Time Control: <https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication-time-control.html>
+📖 Route 53 health check: <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html>
+📖 Data Lifecycle Manager: <https://docs.aws.amazon.com/ebs/latest/userguide/snapshot-lifecycle.html>
+
+### 2.6.4. RTO "trên giấy" vs RTO "thực tế" — vì sao con số 30 phút hay bị vỡ ⭐⭐
+
+Lý do phổ biến nhất khiến meeting phải "tăng 30p lên 60p": RTO trên slide chỉ tính thời gian chạy lệnh, còn RTO thực tế là **tổng của cả chuỗi**:
+
+```
+RTO thực = detect   (5–10p : alarm nổ + con người nhìn thấy)
+         + declare  (5–15p : xác nhận disaster, gọi đúng người, approve)
+         + execute  (10–30p: promote DB, scale compute, đổi DNS)
+         + DNS/TTL  (1–30p : client hết cache IP cũ)
+         + verify   (5–15p : smoke test, business xác nhận OK)
+```
+
+Cộng lại, một failover "30 phút" trên giấy dễ dàng thành **60–90 phút** ngoài đời. Các yếu tố hay bị bỏ quên:
+
+- **Con người là phần chậm nhất**: 3h sáng, người có quyền approve đang ngủ → runbook phải ghi rõ ai được quyết, backup approver là ai, và escalation tự động sau X phút không phản hồi.
+- **Warm-up time**: DR site vừa scale lên chưa có cache/connection pool ấm → hệ thống "up" nhưng chậm; "chạy lại" ≠ "hoạt động bình thường" (đây chính là khoảng WRT).
+- **Quota & capacity ở region DR**: xin nâng quota lúc khẩn cấp mất hàng giờ đến hàng ngày → phải nâng sẵn từ trước (xem Scenario 7).
+- **Thứ tự phụ thuộc**: DB lên trước app, app trước batch job... một mắt xích kẹt là cả chuỗi đứng chờ.
+
+👉 Cách duy nhất để biết RTO thực: **đo bằng đồng hồ trong DR drill**. Con số đo được từ drill mới là con số mang đi cam kết — và đó chính là lý do sau mỗi lần diễn tập, meeting lại ngồi chỉnh các con số.
+
+### 2.6.5. Tips về thời gian khi tham gia họp / vận hành DR
+
+1. **Luôn hỏi rõ loại thời gian và đơn vị** — "60 phút" là RTO, drill window hay cutover window? Ghi vào meeting minutes bằng đúng thuật ngữ để lần sau không cãi nhau lại từ đầu.
+2. **Mọi con số thời gian đều là trade-off tiền ↔ rủi ro**: giảm RTO/RPO một nửa thường không tăng chi phí gấp đôi mà gấp nhiều lần (vì phải đổi cả kiến trúc, vd backup → replication). Khi ai đó đòi giảm, câu hỏi đúng là *"budget có đi theo không?"*
+3. **Không phải hệ thống nào cũng chung một RTO**: phân tier (Tier 0: payment, RTO 15p / Tier 1: internet banking, RTO 1h / Tier 2: báo cáo nội bộ, RTO 24h). Họp DR trưởng thành là họp về *tier*, không phải một con số áp cho tất cả.
+4. **Ghi timestamp mọi bước trong drill lẫn incident thật** (lúc detect, lúc declare, promote xong, DNS xong, verify xong) — đây là dữ liệu vàng để lần họp sau tranh luận bằng số liệu thay vì cảm giác.
+5. **TTL là việc chuẩn bị trước, không phải việc làm trong lúc failover** — hạ TTL trước sự kiện ít nhất một chu kỳ TTL cũ.
+6. **Đồng hồ RTO đếm từ lúc disaster xảy ra, không phải từ lúc bạn bắt đầu gõ lệnh** — MTTD ăn thẳng vào RTO, nên đầu tư monitoring/alerting cũng chính là đầu tư giảm RTO.
+7. **Kiểm tra con số AWS cam kết trước khi hứa với business** (bảng 2.6.3) — đừng hứa RPO 30 giây khi cơ chế bên dưới là backup mỗi giờ.
+8. **Drill có "time-box" và tiêu chí abort**: quy định trước "nếu sau 60p chưa xong bước X thì dừng drill, rollback" — tránh diễn tập biến thành incident thật.
 
 ---
 
@@ -605,6 +711,10 @@ failover, scale, feature flag off) → Root cause SAU → Resolve → Blameless 
 - [ ] Giải thích vì sao Multi-AZ ≠ DR; khi nào cần cross-region
 - [ ] Biết AWS Backup Vault Lock để chống ransomware
 - [ ] Nêu được quy trình DR test/GameDay
+- [ ] Phân biệt được RTO / MTD / WRT / MTTD và vẽ được timeline (mục 2.6.1)
+- [ ] Nghe "tăng 30p lên 60p" trong họp là xác định được đang nói về loại thời gian nào (mục 2.6.2)
+- [ ] Thuộc các con số thời gian "cứng" của AWS: RDS log 5p, retention max 35 ngày, Multi-AZ failover 60–120s, Aurora Global lag <1s, S3 RTC 15p (mục 2.6.3)
+- [ ] Giải thích được vì sao RTO trên giấy luôn nhỏ hơn RTO thực tế (mục 2.6.4)
 
 **Patching**
 
@@ -655,5 +765,3 @@ failover, scale, feature flag off) → Root cause SAU → Resolve → Blameless 
 | Google SRE Book (free) | <https://sre.google/sre-book/table-of-contents/> |
 
 ---
-
-*Gợi ý lộ trình học file này: đọc mục 1 + 2 + 3 trước (nền tảng + 2 task phổ biến nhất), thực hành SSM Patch Manager và AWS Backup trên free tier/sandbox, sau đó mới sang 4 + 5. Mục 7 dùng để tự kiểm tra định kỳ.*
