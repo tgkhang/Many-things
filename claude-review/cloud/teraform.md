@@ -1,305 +1,362 @@
 # 🏗️ Terraform — Toàn Tập
->
-> Infrastructure as Code từ nền tảng đến thực hành production
+
+## Infrastructure as Code từ nền tảng đến thực hành production
 
 ---
 
 ## Mục Lục
 
-1. [Terraform Giải Quyết Vấn Đề Gì](#1-terraform-giải-quyết-vấn-đề-gì)
-2. [Kiến Trúc Terraform — Cách Hoạt Động Bên Trong](#2-kiến-trúc-terraform--cách-hoạt-động-bên-trong)
-3. [HCL — Ngôn Ngữ Cấu Hình](#3-hcl--ngôn-ngữ-cấu-hình)
-4. [Provider — Cầu Nối Đến Hạ Tầng Thực](#4-provider--cầu-nối-đến-hạ-tầng-thực)
-5. [Resource — Đơn Vị Cơ Bản](#5-resource--đơn-vị-cơ-bản)
-6. [State — Trái Tim Của Terraform](#6-state--trái-tim-của-terraform)
-7. [Remote State và State Locking](#7-remote-state-và-state-locking)
-8. [Vòng Đời Lệnh Terraform](#8-vòng-đời-lệnh-terraform)
-9. [Variables — Tham Số Hóa Cấu Hình](#9-variables--tham-số-hóa-cấu-hình)
-10. [Output — Lấy Giá Trị Ra Ngoài](#10-output--lấy-giá-trị-ra-ngoài)
-11. [Data Source — Đọc Tài Nguyên Có Sẵn](#11-data-source--đọc-tài-nguyên-có-sẵn)
-12. [Dependency Graph — Terraform Biết Thứ Tự Làm Gì](#12-dependency-graph--terraform-biết-thứ-tự-làm-gì)
-13. [Module — Tái Sử Dụng Cấu Hình](#13-module--tái-sử-dụng-cấu-hình)
-14. [Meta-Arguments — count, for_each, depends_on](#14-meta-arguments--count-foreach-dependson)
-15. [Workspace — Quản Lý Nhiều Môi Trường](#15-workspace--quản-lý-nhiều-môi-trường)
-16. [Provisioner — Khi Nào Thực Sự Cần](#16-provisioner--khi-nào-thực-sự-cần)
-17. [Import — Đưa Tài Nguyên Có Sẵn Vào Terraform](#17-import--đưa-tài-nguyên-có-sẵn-vào-terraform)
-18. [Terraform Trong Team — Quy Trình Thực Tế](#18-terraform-trong-team--quy-trình-thực-tế)
-19. [Các Sai Lầm Thường Gặp](#19-các-sai-lầm-thường-gặp)
-20. [Terraform Best Practices](#20-terraform-best-practices)
+- [🏗️ Terraform — Toàn Tập](#️-terraform--toàn-tập)
+  - [Infrastructure as Code từ nền tảng đến thực hành production](#infrastructure-as-code-từ-nền-tảng-đến-thực-hành-production)
+  - [Mục Lục](#mục-lục)
+- [1. Terraform Giải Quyết Vấn Đề Gì](#1-terraform-giải-quyết-vấn-đề-gì)
+  - [1.1. Vấn Đề Trước Khi Có Terraform](#11-vấn-đề-trước-khi-có-terraform)
+  - [1.2. Terraform Giải Quyết Vấn Đề Bằng Cách Nào](#12-terraform-giải-quyết-vấn-đề-bằng-cách-nào)
+  - [1.3. Tại Sao Cách Tiếp Cận Này Mạnh Mẽ](#13-tại-sao-cách-tiếp-cận-này-mạnh-mẽ)
+  - [1.4. Terraform Không Phải Là Gì](#14-terraform-không-phải-là-gì)
+- [2. Kiến Trúc Terraform — Cách Hoạt Động Bên Trong](#2-kiến-trúc-terraform--cách-hoạt-động-bên-trong)
+  - [2.1. Hai Thành Phần Chính](#21-hai-thành-phần-chính)
+  - [2.2. Hai Giai Đoạn Tách Biệt: Plan và Apply](#22-hai-giai-đoạn-tách-biệt-plan-và-apply)
+- [3. HCL — Ngôn Ngữ Cấu Hình](#3-hcl--ngôn-ngữ-cấu-hình)
+  - [3.1. Cấu Trúc Block Cơ Bản](#31-cấu-trúc-block-cơ-bản)
+  - [3.2. Kiểu Dữ Liệu Trong HCL](#32-kiểu-dữ-liệu-trong-hcl)
+  - [3.3. Expressions — Biểu Thức Động](#33-expressions--biểu-thức-động)
+  - [3.4. Comments — Chú Thích Code](#34-comments--chú-thích-code)
+- [4. Provider — Cầu Nối Đến Hạ Tầng Thực](#4-provider--cầu-nối-đến-hạ-tầng-thực)
+  - [4.1. Khai Báo Provider](#41-khai-báo-provider)
+  - [4.2. Version Constraints — Tại Sao Phải Ghim Phiên Bản?](#42-version-constraints--tại-sao-phải-ghim-phiên-bản)
+  - [4.3. Provider Alias — Dùng Nhiều Cấu Hình Cho Cùng Một Provider](#43-provider-alias--dùng-nhiều-cấu-hình-cho-cùng-một-provider)
+- [5. Resource — Đơn Vị Cơ Bản Nhất](#5-resource--đơn-vị-cơ-bản-nhất)
+  - [5.1. Giải Phẫu Của Một Resource](#51-giải-phẫu-của-một-resource)
+  - [5.2. Vòng Đời Của Một Resource (CRUD)](#52-vòng-đời-của-một-resource-crud)
+  - [5.3. `lifecycle` Block — Kiểm Soát Đặc Biệt Vòng Đời](#53-lifecycle-block--kiểm-soát-đặc-biệt-vòng-đời)
+  - [5.2. Vòng Đời Của Một Resource (CRUD)](#52-vòng-đời-của-một-resource-crud-1)
+  - [5.3. `lifecycle` Block — Kiểm Soát Đặc Biệt Vòng Đời](#53-lifecycle-block--kiểm-soát-đặc-biệt-vòng-đời-1)
+- [6. State — Trái Tim Của Terraform](#6-state--trái-tim-của-terraform)
+  - [6.1. State Là Gì Và Tại Sao Nó Tối Quan Trọng?](#61-state-là-gì-và-tại-sao-nó-tối-quan-trọng)
+  - [6.2. Refresh — Đồng Bộ State Với Thực Tế](#62-refresh--đồng-bộ-state-với-thực-tế)
+  - [6.3. Tại Sao Không Bao Giờ Sửa State File Bằng Tay?](#63-tại-sao-không-bao-giờ-sửa-state-file-bằng-tay)
+- [7. Remote State và State Locking](#7-remote-state-và-state-locking)
+  - [7.1. Vấn Đề Với Local State](#71-vấn-đề-với-local-state)
+  - [7.2. Remote State — Lưu Trữ Tập Trung Và An Toàn](#72-remote-state--lưu-trữ-tập-trung-và-an-toàn)
+  - [7.3. State Locking — Tránh Xung Đột Đồng Thời](#73-state-locking--tránh-xung-đột-đồng-thời)
+  - [7.4. Tổ Chức State — Một State Lớn Hay Nhiều State Nhỏ?](#74-tổ-chức-state--một-state-lớn-hay-nhiều-state-nhỏ)
+- [8. Vòng Đời Lệnh Terraform](#8-vòng-đời-lệnh-terraform)
+  - [8.1. Các Lệnh Cốt Lõi](#81-các-lệnh-cốt-lõi)
+  - [8.2. Đọc Output Của `terraform plan` Như Một Chuyên Gia](#82-đọc-output-của-terraform-plan-như-một-chuyên-gia)
+- [9. Variables — Tham Số Hóa Cấu Hình](#9-variables--tham-số-hóa-cấu-hình)
+  - [9.1. Khai Báo Variable](#91-khai-báo-variable)
+  - [9.2. Các Cách Cung Cấp Giá Trị Cho Variable](#92-các-cách-cung-cấp-giá-trị-cho-variable)
+  - [9.3. Type Constraints — Kiểm Tra Kiểu Dữ Liệu Nâng Cao](#93-type-constraints--kiểm-tra-kiểu-dữ-liệu-nâng-cao)
+- [10. Output — Lấy Giá Trị Ra Ngoài](#10-output--lấy-giá-trị-ra-ngoài)
+  - [10.1. Khai Báo và Sử Dụng Output](#101-khai-báo-và-sử-dụng-output)
+  - [10.2. Các Use Case Quan Trọng Của Output](#102-các-use-case-quan-trọng-của-output)
+- [11. Data Source — Đọc Tài Nguyên Có Sẵn](#11-data-source--đọc-tài-nguyên-có-sẵn)
+  - [11.1. Sự Khác Biệt Giữa `resource` và `data`](#111-sự-khác-biệt-giữa-resource-và-data)
+  - [11.2. Các Use Case Phổ Biến](#112-các-use-case-phổ-biến)
+  - [11.3. `terraform_remote_state` — Cầu Nối Giữa Các State](#113-terraform_remote_state--cầu-nối-giữa-các-state)
+- [12. Dependency Graph — Terraform Biết Thứ Tự Làm Gì](#12-dependency-graph--terraform-biết-thứ-tự-làm-gì)
+  - [12.1. Implicit Dependency (Phụ thuộc ngầm)](#121-implicit-dependency-phụ-thuộc-ngầm)
+  - [12.2. Parallel Execution (Thực thi song song)](#122-parallel-execution-thực-thi-song-song)
+  - [12.3. Explicit Dependency (`depends_on`)](#123-explicit-dependency-depends_on)
+- [13. Module — Tái Sử Dụng Cấu Hình](#13-module--tái-sử-dụng-cấu-hình)
+  - [13.1. Tại Sao Cần Module?](#131-tại-sao-cần-module)
+  - [13.2. Cấu Trúc Của Một Module](#132-cấu-trúc-của-một-module)
+  - [13.3. Gọi Module Từ Root Module](#133-gọi-module-từ-root-module)
+  - [13.4. Các Nguồn (Source) Của Module](#134-các-nguồn-source-của-module)
+- [14. Meta-Arguments — `count`, `for_each`, `depends_on`](#14-meta-arguments--count-for_each-depends_on)
+  - [14.1. `count` — Tạo Nhiều Bản Sao Theo Số Lượng](#141-count--tạo-nhiều-bản-sao-theo-số-lượng)
+  - [14.2. `for_each` — Tạo Nhiều Bản Sao Với Danh Tính Rõ Ràng](#142-for_each--tạo-nhiều-bản-sao-với-danh-tính-rõ-ràng)
+  - [14.3. `depends_on` (Đã giải thích chi tiết ở phần 12.3)](#143-depends_on-đã-giải-thích-chi-tiết-ở-phần-123)
+- [15. Workspace — Quản Lý Nhiều Môi Trường](#15-workspace--quản-lý-nhiều-môi-trường)
+  - [15.1. Ưu và Nhược Điểm Của Workspace](#151-ưu-và-nhược-điểm-của-workspace)
+  - [15.2. Giải Pháp Thay Thế Cho Production](#152-giải-pháp-thay-thế-cho-production)
+- [16. Provisioner — Khi Nào Thực Sự Cần](#16-provisioner--khi-nào-thực-sự-cần)
+  - [16.1. Tại Sao Provisioner Là "Giải Pháp Cuối Cùng"?](#161-tại-sao-provisioner-là-giải-pháp-cuối-cùng)
+  - [16.2. Các Giải Pháp Thay Thế Tốt Hơn Provisioner](#162-các-giải-pháp-thay-thế-tốt-hơn-provisioner)
+- [17. Import — Đưa Tài Nguyên Có Sẵn Vào Terraform](#17-import--đưa-tài-nguyên-có-sẵn-vào-terraform)
+  - [17.1. Quy Trình Import Chuẩn (Sử Dụng `import` Block - TF \>= 1.5.0)](#171-quy-trình-import-chuẩn-sử-dụng-import-block---tf--150)
+- [18. Terraform Trong Team — Quy Trình Thực Tế](#18-terraform-trong-team--quy-trình-thực-tế)
+  - [18.1. Quy Trình GitOps cho Infrastructure](#181-quy-trình-gitops-cho-infrastructure)
+  - [18.2. Phân Quyền và Bảo Mật](#182-phân-quyền-và-bảo-mật)
+- [19. Các Sai Lầm Thường Gặp](#19-các-sai-lầm-thường-gặp)
+- [20. Terraform Best Practices](#20-terraform-best-practices)
+  - [📎 Tóm Tắt và Tài Liệu Tham Khảo](#-tóm-tắt-và-tài-liệu-tham-khảo)
+    - [Tóm tắt các nguyên lý cốt lõi](#tóm-tắt-các-nguyên-lý-cốt-lõi)
+    - [Tài Liệu Tham Khảo Chính Thức](#tài-liệu-tham-khảo-chính-thức)
 
 ---
 
 # 1. Terraform Giải Quyết Vấn Đề Gì
 
-## Vấn Đề Trước Khi Có Terraform
+## 1.1. Vấn Đề Trước Khi Có Terraform
 
-Hãy tưởng tượng một công ty quản lý hạ tầng theo cách thủ công.
+Để hiểu giá trị của Terraform, chúng ta cần nhìn vào cách quản lý hạ tầng thủ công truyền thống. Hãy tưởng tượng một công ty đang vận hành ứng dụng của họ trên cloud. Khi cần một máy chủ mới, một kỹ sư (Engineer A) sẽ thực hiện các bước sau:
 
-```
-Engineer A muốn tạo một server:
-  Đăng nhập vào web console của cloud provider
-  Click "Create Instance"
-  Chọn loại máy, network, security group
-  Click "Launch"
-  Ghi chú lại (hoặc quên ghi) những gì vừa làm
+1. Mở trình duyệt, đăng nhập vào giao diện web (console) của nhà cung cấp cloud (AWS, Azure, GCP,...).
+2. Điều hướng qua các menu để đến phần quản lý máy chủ ảo (ví dụ: EC2 trên AWS).
+3. Nhấn nút "Launch Instance" hoặc "Create VM".
+4. Điền vào một form dài với nhiều lựa chọn: loại máy chủ (CPU, RAM), hệ điều hành (AMI/Image), cấu hình mạng (VPC, Subnet), tường lửa (Security Group), tên máy, v.v.
+5. Nhấn "Launch" và chờ máy chủ được tạo.
+6. Ghi lại các bước vừa làm vào một file tài liệu (hoặc thường là không ghi lại gì cả).
 
-Sáu tháng sau, Engineer B cần tạo một server tương tự:
-  Không biết Engineer A đã cấu hình thế nào
-  Đoán mò, hoặc hỏi Engineer A (nếu còn nhớ, nếu còn ở công ty)
-  Tạo ra một server "gần giống" nhưng có vài khác biệt nhỏ
+Sáu tháng sau, một kỹ sư khác (Engineer B) cần tạo một máy chủ tương tự cho một dự án mới. Lúc này, vấn đề phát sinh:
 
-Một năm sau, không ai nhớ chính xác hạ tầng trông như thế nào
-  Production có 47 server, không server nào giống hệt nhau
-  Đây gọi là "snowflake infrastructure" — mỗi server là một bông tuyết độc nhất
-  Không ai dám động vào vì không biết nó sẽ ảnh hưởng gì
-```
+- Engineer B không biết Engineer A đã cấu hình chính xác như thế nào.
+- Engineer B phải đoán, hoặc hỏi Engineer A (nếu người đó còn nhớ, và còn làm việc ở công ty).
+- Kết quả là Engineer B tạo ra một máy chủ "gần giống", nhưng có một vài khác biệt nhỏ (ví dụ: quên mở một cổng, chọn sai phiên bản hệ điều hành, cấu hình bảo mật không đồng nhất).
 
-Vấn đề cốt lõi: hạ tầng được tạo ra qua **hành động** (click, gõ lệnh) chứ không phải qua **mô tả**. Hành động không để lại dấu vết, không thể review, không thể lặp lại chính xác.
+Một năm sau, công ty có 47 máy chủ đang chạy production. Không một máy chủ nào giống hệt máy nào. Mỗi máy là một "bông tuyết" (snowflake server) độc nhất vô nhị. Việc sửa lỗi, nâng cấp, hay mở rộng hệ thống trở thành cơn ác mộng vì không ai dám động vào bất cứ thứ gì, sợ làm hỏng cả hệ thống.
 
-## Terraform Giải Quyết Bằng Cách Nào
+**Vấn đề cốt lõi:** Hạ tầng được tạo ra qua các **hành động** (click chuột, gõ lệnh) chứ không phải qua một **bản mô tả**. Hành động thì không để lại dấu vết rõ ràng, không thể kiểm tra (review), và quan trọng nhất là **không thể lặp lại một cách chính xác**.
 
-Terraform là công cụ Infrastructure as Code — bạn **mô tả** hạ tầng mong muốn bằng văn bản, Terraform tự tính toán cách đạt được điều đó.
+## 1.2. Terraform Giải Quyết Vấn Đề Bằng Cách Nào
+
+Terraform là một công cụ "Hạ tầng dưới dạng Mã" (Infrastructure as Code - IaC). Triết lý của nó rất đơn giản: thay vì thực hiện các hành động thủ công, bạn sẽ **mô tả** hạ tầng mong muốn của mình trong các file văn bản. Terraform sẽ đọc bản mô tả đó và tự động thực hiện mọi API call cần thiết để đạt được trạng thái đó.
 
 ```
-Thay vì: "Click vào đây, gõ lệnh kia, chờ rồi click tiếp"
+Cách làm cũ (Imperative - Mệnh lệnh):
+  "Nhấn vào đây, gõ lệnh kia, chờ 5 phút, rồi nhấn tiếp..."
 
-Bạn viết:
-  "Tôi muốn có 3 server, mỗi server 4GB RAM,
-   nằm trong network X, mở port 80 và 443"
+Cách làm mới với Terraform (Declarative - Khai báo):
+  Bạn viết vào một file tên là main.tf:
+  "Tôi muốn có 3 máy chủ ảo, mỗi máy loại t3.medium,
+   nằm trong mạng có địa chỉ 10.0.0.0/16, và mở cổng 443."
 
-Terraform:
-  Đọc mô tả này
-  So sánh với hạ tầng thực tế đang có
-  Tính toán: cần tạo gì, sửa gì, xóa gì
-  Thực thi các thay đổi đó qua API của cloud provider
+  Terraform nhận file này và tự động:
+  1. Phân tích yêu cầu.
+  2. So sánh với hạ tầng thực tế đang có (nếu có).
+  3. Tính toán xem cần tạo mới, sửa, hay xóa những gì.
+  4. Thực thi các lệnh gọi API đến cloud provider để thực hiện.
 ```
 
-Đây gọi là **declarative** — bạn khai báo trạng thái mong muốn (desired state), không khai báo các bước thực hiện (steps). Khác với một script bash tuần tự "làm A rồi làm B rồi làm C", Terraform tự suy luận ra A, B, C cần làm theo thứ tự nào.
+Đây gọi là mô hình **Declarative** (Khai báo). Bạn chỉ cần khai báo **trạng thái mong muốn cuối cùng** (desired state), còn việc phải làm những bước gì để đạt được trạng thái đó là việc của Terraform. Điều này hoàn toàn khác với việc viết một script bash tuần tự, nơi bạn phải tự định nghĩa từng bước một ("làm A, rồi làm B, rồi làm C").
 
-## Tại Sao Đây Là Cách Tiếp Cận Mạnh
+## 1.3. Tại Sao Cách Tiếp Cận Này Mạnh Mẽ
 
-```
-Văn bản mô tả hạ tầng → có thể lưu vào Git
-  → Có lịch sử: ai thay đổi gì, lúc nào, tại sao (qua commit message)
-  → Có thể review: Pull Request trước khi áp dụng vào production
-  → Có thể rollback: quay lại commit cũ nếu có vấn đề
+Sức mạnh của IaC với Terraform đến từ khả năng áp dụng các quy trình phát triển phần mềm tiêu chuẩn vào việc quản lý hạ tầng.
 
-Mô tả là duy nhất nguồn sự thật (single source of truth)
-  → Không còn "snowflake infrastructure"
-  → Server mới giống hệt server cũ vì cùng được tạo từ cùng đoạn code
+- **Lịch sử thay đổi (Versioning):** Vì bản mô tả hạ tầng chỉ là các file văn bản, bạn có thể lưu chúng vào Git. Điều này có nghĩa là bạn có toàn bộ lịch sử thay đổi: ai đã sửa gì, sửa khi nào, và tại sao lại sửa (qua nội dung commit message).
+- **Khả năng kiểm tra (Review):** Trước khi bất kỳ thay đổi nào được áp dụng vào production, bạn có thể tạo một Pull Request. Các thành viên khác trong nhóm sẽ xem xét, thảo luận và phê duyệt những thay đổi đó, giống như họ làm với code của ứng dụng.
+- **Khả năng quay lại (Rollback):** Nếu một thay đổi gây ra lỗi, bạn có thể dễ dàng quay về một commit cũ trong Git và áp dụng lại hạ tầng ở trạng thái ổn định trước đó.
+- **Nguồn sự thật duy nhất (Single Source of Truth):** File code không chỉ là hướng dẫn, nó chính là định nghĩa thực tế của hạ tầng. Không còn tình trạng "snowflake infrastructure". Mọi máy chủ mới được tạo ra từ cùng một đoạn code sẽ giống hệt nhau.
+- **Tự động hóa hoàn toàn (Automation):** Toàn bộ quy trình từ lập kế hoạch thay đổi đến thực thi có thể được tích hợp vào một CI/CD pipeline, loại bỏ hoàn toàn sự can thiệp thủ công và nguy cơ sai sót của con người.
 
-Terraform tự tính dependency
-  → Bạn không cần nhớ "phải tạo network trước, rồi mới tạo server"
-  → Terraform tự hiểu server phụ thuộc vào network và làm đúng thứ tự
-```
+## 1.4. Terraform Không Phải Là Gì
 
-## Terraform Không Phải Là Gì
+Để tránh những hiểu lầm phổ biến, hãy làm rõ Terraform không phải là:
 
-Cần làm rõ vài hiểu lầm phổ biến.
-
-```
-Terraform không phải là configuration management tool
-  Ansible, Chef, Puppet — quản lý CẤU HÌNH BÊN TRONG server đã tồn tại
-  Terraform — quản lý sự TỒN TẠI của hạ tầng (tạo, sửa, xóa server)
-  Nhiều team dùng cả hai: Terraform tạo server, Ansible cấu hình bên trong
-
-Terraform không phải dành riêng cho một cloud provider
-  Terraform là engine, provider là plugin
-  Cùng workflow dùng được cho AWS, Azure, GCP, Kubernetes,
-  thậm chí cả các dịch vụ không phải cloud (GitHub, Datadog, Cloudflare)
-
-Terraform không tự động hoá toàn bộ vòng đời ứng dụng
-  Terraform tạo HẠ TẦNG (server, network, database instance)
-  Việc deploy CODE lên hạ tầng đó thường là việc của CI/CD pipeline riêng
-```
+- **Công cụ quản lý cấu hình (Configuration Management):** Các công cụ như Ansible, Chef, Puppet được thiết kế để quản lý cấu hình **bên trong** một máy chủ đã tồn tại (cài đặt phần mềm, chỉnh sửa file, quản lý service). Terraform tập trung vào việc quản lý **sự tồn tại** của chính hạ tầng đó (tạo máy chủ, mạng, database). Một kiến trúc rất phổ biến là dùng Terraform để tạo máy chủ, sau đó dùng Ansible để cấu hình bên trong máy chủ đó. Chúng bổ trợ cho nhau, không thay thế nhau.
+- **Công cụ dành riêng cho một nền tảng cloud:** Bản thân Terraform Core không biết gì về AWS, Azure hay GCP. Nó là một engine đa năng. Khả năng tương tác với từng nền tảng được thực hiện qua các **plugin** gọi là Provider. Điều này có nghĩa là bạn có thể dùng cùng một ngôn ngữ, cùng một quy trình làm việc để quản lý hạ tầng trên AWS, Kubernetes, GitHub, Datadog, Cloudflare, và hàng trăm dịch vụ khác.
+- **Công cụ tự động hóa toàn bộ vòng đời ứng dụng:** Terraform quản lý lớp **hạ tầng** (tạo sân chơi). Việc **deploy code ứng dụng** lên hạ tầng đó (thả bóng vào sân) là một bước riêng biệt, thường được thực hiện bởi các công cụ CI/CD khác. Terraform tạo ra Kubernetes cluster, một pipeline khác sẽ deploy ứng dụng của bạn lên cluster đó.
 
 ---
 
 # 2. Kiến Trúc Terraform — Cách Hoạt Động Bên Trong
 
-Hiểu kiến trúc bên trong giúp bạn debug khi có vấn đề và hiểu tại sao Terraform hoạt động theo cách nó hoạt động.
+Hiểu biết về kiến trúc bên trong giúp bạn không chỉ dùng Terraform một cách máy móc mà còn hiểu được tại sao nó hoạt động như vậy, từ đó dễ dàng debug khi có sự cố và đưa ra các quyết định thiết kế đúng đắn.
 
-## Ba Thành Phần Chính
+## 2.1. Hai Thành Phần Chính
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                  Terraform Core                          │
-│  - Đọc file .tf (cấu hình của bạn)                       │
-│  - Đọc state file (trạng thái đã biết)                   │
-│  - Tính toán dependency graph                             │
-│  - Quyết định: cần làm gì để đạt desired state           │
-└────────────────────┬──────────────────────────────────────┘
-                     │ giao tiếp qua RPC (gRPC)
-        ┌─────────────┼─────────────┐
-        ▼             ▼             ▼
-┌──────────────┐┌──────────────┐┌──────────────┐
-│  Provider A  ││  Provider B  ││  Provider C  │
-│  (vd: cloud  ││  (vd:        ││  (vd:        │
-│  provider)   ││  Kubernetes) ││  GitHub)     │
-└──────┬───────┘└──────┬───────┘└──────┬───────┘
-       │                │                │
-       ▼                ▼                ▼
-   API thật của     API thật của     API thật của
-   Cloud Provider    Kubernetes        GitHub
-```
-
-**Terraform Core** là engine chính — không biết gì về cloud provider cụ thể nào. Nó chỉ biết cách đọc cấu hình, quản lý state, và tính dependency graph.
-
-**Provider** là plugin riêng biệt, biết cách giao tiếp với một dịch vụ cụ thể. Provider dịch các resource block của bạn thành API calls thực tế.
+Kiến trúc của Terraform được chia thành hai phần tách biệt một cách rõ ràng.
 
 ```
+┌─────────────────────────────────────────────────────────────┐
+│                    Terraform Core                            │
+│  (Engine - Bộ não)                                          │
+│  - Đọc và phân tích các file cấu hình .tf của bạn.           │
+│  - Đọc file state (trạng thái hiện tại đã lưu).              │
+│  - Xây dựng một "đồ thị phụ thuộc" (dependency graph)        │
+│    giữa các tài nguyên.                                     │
+│  - So sánh cấu hình mong muốn và state hiện tại để tạo ra    │
+│    một kế hoạch thay đổi (plan).                             │
+└────────────────────────┬────────────────────────────────────┘
+                         │ Giao tiếp qua gRPC (giao thức RPC)
+                         │
+            ┌────────────┼────────────┐
+            ▼            ▼            ▼
+   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+   │  Provider    │ │  Provider    │ │  Provider    │
+   │  AWS         │ │  Kubernetes  │ │  GitHub      │
+   │  (Plugin)    │ │  (Plugin)    │ │  (Plugin)    │
+   └──────┬───────┘ └──────┬───────┘ └──────┬───────┘
+          │                │                │
+          ▼                ▼                ▼
+     API của AWS      API của K8s      API của GitHub
+```
+
+- **Terraform Core:** Đây là engine cốt lõi, là "bộ não" của Terraform. Nhiệm vụ của Core là đọc hiểu ngôn ngữ HCL, quản lý state, và tính toán đồ thị phụ thuộc. **Điều quan trọng là Core không hề biết cách giao tiếp với AWS, Azure hay bất kỳ dịch vụ nào khác.** Nó hoàn toàn "mù" về các nền tảng cụ thể.
+- **Provider:** Provider là các plugin nhị phân riêng biệt. Chúng đóng vai trò như một "cầu nối" hoặc "trình biên dịch", chuyển đổi các khai báo resource chung chung của bạn thành các lệnh gọi API cụ thể của một dịch vụ. Mỗi provider (AWS, GCP, Kubernetes,...) là một plugin độc lập, được phát triển và duy trì bởi HashiCorp hoặc chính cộng đồng.
+
+**Ví dụ để hiểu rõ hơn:**
 Khi bạn viết:
-  resource "compute_instance" "web" {
-    machine_type = "e2-medium"
-  }
 
-Terraform Core không biết "compute_instance" nghĩa là gì
-Nó hỏi Provider: "đây là loại resource gì, làm sao tạo nó?"
-Provider biết cách gọi đúng API, đúng field, đúng format
+```hcl
+resource "aws_instance" "web_server" {
+  instance_type = "t3.medium"
+}
 ```
 
-Đây là lý do tại sao Terraform hỗ trợ được hàng nghìn loại dịch vụ khác nhau — mỗi dịch vụ chỉ cần viết một provider, không cần sửa Terraform Core.
+Terraform Core không hiểu `aws_instance` là gì. Nó sẽ hỏi AWS Provider: "Tôi có một resource loại `aws_instance`, tên là `web_server`, với tham số `instance_type = "t3.medium"`. Làm ơn hãy kiểm tra xem nó đã tồn tại chưa, và nếu chưa, hãy cho tôi biết cần gọi những API gì để tạo ra nó." AWS Provider, với hiểu biết sâu sắc về AWS, sẽ thực hiện chính xác yêu cầu đó.
 
-## Plan và Apply — Hai Giai Đoạn Tách Biệt
+Sự phân tách này là lý do Terraform có thể hỗ trợ hàng nghìn dịch vụ. Để thêm một dịch vụ mới, chỉ cần viết một provider mới, không cần đụng chạm gì đến Terraform Core.
 
-Terraform tách biệt rõ ràng giữa **tính toán thay đổi** và **thực hiện thay đổi**. Đây là một trong những thiết kế quan trọng nhất.
+## 2.2. Hai Giai Đoạn Tách Biệt: Plan và Apply
 
-```
-terraform plan:
-  Đọc cấu hình hiện tại trong file .tf
-  Đọc state (trạng thái Terraform biết được lần cuối)
-  Gọi provider để refresh — kiểm tra thực tế có khớp với state không
-  So sánh ba thứ: Config mong muốn / State đã biết / Thực tế hiện tại
-  In ra: "đây là những gì sẽ thay đổi nếu bạn apply"
-  KHÔNG thay đổi gì cả — chỉ là dry-run
+Đây là một trong những tính năng thiết kế quan trọng và hữu ích nhất của Terraform, mang lại sự an toàn và khả năng dự đoán.
 
-terraform apply:
-  Chạy lại plan (hoặc dùng plan đã lưu)
-  Hỏi xác nhận (yes/no)
-  Thực sự gọi API để tạo/sửa/xóa resource
-  Cập nhật state file sau khi thành công
-```
+- **`terraform plan` (Lập kế hoạch - Chỉ phân tích):**
+    1. Terraform đọc tất cả các file cấu hình `.tf` trong thư mục hiện tại để xác định "trạng thái mong muốn".
+    2. Nó đọc file state (có thể là local hoặc remote) để biết "trạng thái thực tế đã biết".
+    3. Nó làm mới state bằng cách yêu cầu các provider gọi API để lấy thông tin mới nhất của các tài nguyên đang quản lý.
+    4. Nó so sánh "trạng thái mong muốn" với "trạng thái thực tế đã được làm mới".
+    5. Cuối cùng, nó in ra màn hình một bản kế hoạch chi tiết về những gì nó **sẽ làm** (thêm, sửa, xóa) nếu bạn cho phép.
+    6. **Quan trọng: `terraform plan` không hề thay đổi bất cứ thứ gì trên hạ tầng thực tế.**
 
-Sự tách biệt này quan trọng vì nó cho phép review trước khi thay đổi production — giống như code review trước khi merge.
+- **`terraform apply` (Áp dụng thay đổi - Thực thi):**
+    1. Về cơ bản, `apply` sẽ chạy lại `plan` một lần nữa.
+    2. Nó hiển thị kế hoạch và yêu cầu bạn xác nhận bằng cách gõ `yes`.
+    3. Sau khi có xác nhận, nó sẽ thực sự gọi các API cần thiết để tạo, sửa, hoặc xóa tài nguyên.
+    4. Sau khi mọi thứ thành công, nó sẽ cập nhật file state để phản ánh trạng thái mới.
+
+Sự tách biệt này cũng giống như lệnh `git diff` và `git commit`. Bạn xem trước sự thay đổi (`git diff`), kiểm tra kỹ lưỡng, rồi mới lưu lại (`git commit`). Việc xem trước `plan` trước khi `apply` là lớp bảo vệ quan trọng nhất để tránh những thảm họa do thay đổi nhầm lẫn gây ra.
 
 ---
 
 # 3. HCL — Ngôn Ngữ Cấu Hình
 
-HCL (HashiCorp Configuration Language) là ngôn ngữ Terraform dùng để viết cấu hình. Nó được thiết kế để vừa dễ đọc cho con người, vừa dễ máy tính xử lý.
+HCL (HashiCorp Configuration Language) là ngôn ngữ mà bạn dùng để "nói chuyện" với Terraform. Nó được thiết kế để vừa dễ đọc, dễ viết cho con người, vừa dễ dàng cho máy tính phân tích và xử lý. Cú pháp của nó trực quan, dựa trên các khối (block) và cặp khóa-giá trị (key-value).
 
-## Cấu Trúc Block Cơ Bản
+## 3.1. Cấu Trúc Block Cơ Bản
+
+Mọi thứ trong Terraform đều được xây dựng xung quanh các block. Một block có cấu trúc tổng quát như sau:
 
 ```hcl
-# Cấu trúc chung của một block:
 <block_type> "<label_1>" "<label_2>" {
   <argument_name> = <value>
   <nested_block> {
-    <argument_name> = <value>
+    <nested_argument> = <value>
   }
 }
+```
 
-# Ví dụ thực tế:
-resource "aws_instance" "web_server" {
+Hãy cùng mổ xẻ một ví dụ cụ thể và quan trọng nhất: block `resource`.
+
+```hcl
+resource "aws_instance" "my_web_server" {
   ami           = "ami-0c55b159cbfafe1f0"
   instance_type = "t3.micro"
 
   tags = {
-    Name        = "web-server"
-    Environment = "production"
+    Name        = "Web Server"
+    Environment = "Production"
   }
 }
 ```
 
-```
-Giải thích từng phần:
-  resource          → block type (loại block: resource, variable, output...)
-  "aws_instance"    → label thứ nhất, thường là loại resource cụ thể
-  "web_server"      → label thứ hai, tên bạn đặt để tham chiếu sau này
-  { ... }           → body, chứa các argument cấu hình resource đó
+- **`resource`**: Đây là `block_type`. Nó nói với Terraform rằng chúng ta đang khai báo một tài nguyên hạ tầng cần quản lý.
+- **`"aws_instance"`**: Đây là `label_1`, còn được gọi là **resource type**. Nó xác định chính xác loại tài nguyên của một provider cụ thể. `aws_instance` là tên mà AWS Provider dùng để chỉ một máy chủ ảo EC2.
+- **`"my_web_server"`**: Đây là `label_2`, còn được gọi là **local name**. Đây là tên do **bạn tự đặt**, có ý nghĩa trong phạm vi module của bạn. Bạn sẽ dùng tên này để tham chiếu đến tài nguyên này ở những nơi khác trong code. Tên này không hề xuất hiện trên AWS.
+- **`{ ... }`**: Phần body của block, chứa các **argument** (đối số) để cấu hình cho tài nguyên.
+  - `ami` và `instance_type` là các argument bắt buộc của `aws_instance`.
+  - `tags` là một nested block, cho phép bạn gán metadata cho tài nguyên dưới dạng key-value.
 
-  Để tham chiếu resource này ở nơi khác trong code:
-  aws_instance.web_server.id
-  <resource_type>.<local_name>.<attribute>
-```
+Để tham chiếu đến một thuộc tính của tài nguyên này ở chỗ khác, bạn dùng cú pháp:
+`<resource_type>.<local_name>.<attribute>`
+Ví dụ: `aws_instance.my_web_server.id` sẽ trả về ID thực tế của máy chủ EC2 sau khi nó được tạo.
 
-## Kiểu Dữ Liệu Trong HCL
+## 3.2. Kiểu Dữ Liệu Trong HCL
+
+HCL hỗ trợ các kiểu dữ liệu cơ bản và phức tạp, giúp bạn mô hình hóa cấu hình một cách chính xác.
 
 ```hcl
-# String
-name = "my-server"
+# String (Chuỗi ký tự)
+name        = "my-server"
+description = "Đây là máy chủ web chính"
 
-# Number
-port = 8080
-cpu_count = 2.5
+# Number (Số)
+port       = 443
+cpu_cores  = 2.5
 
-# Bool
-enabled = true
+# Bool (Boolean - Đúng/Sai)
+enabled   = true
+backup    = false
 
-# List (array) — thứ tự quan trọng, có thể trùng giá trị
+# List (Danh sách) - Tương tự như mảng, thứ tự quan trọng
+# Mỗi phần tử được xác định bởi vị trí của nó (bắt đầu từ 0)
 availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
-# Map (object) — key-value pairs
-tags = {
-  Environment = "production"
-  Team        = "platform"
+# Map (Ánh xạ) - Tập hợp các cặp key-value, thứ tự không quan trọng
+# Mỗi phần tử được xác định bởi key của nó
+common_tags = {
+  Project     = "Alpha"
+  Environment = "Production"
+  ManagedBy   = "Terraform"
 }
 
-# Set — giống list nhưng không có thứ tự, không trùng giá trị
-allowed_ports = toset([80, 443, 22])
+# Set (Tập hợp) - Giống list nhưng không có thứ tự và các giá trị là duy nhất
+# Rất hữu ích cho các cấu hình như security group rules
+allowed_ports = toset([80, 443])
 
-# Null — không có giá trị (khác với chuỗi rỗng "")
+# null - Đại diện cho việc không có giá trị, khác với chuỗi rỗng "" hay số 0
+# Thường dùng để bỏ qua một argument không bắt buộc
 optional_field = null
 ```
 
-## Expressions — Biểu Thức Động
+## 3.3. Expressions — Biểu Thức Động
 
-HCL cho phép viết biểu thức thay vì chỉ giá trị tĩnh.
+Sức mạnh thực sự của HCL đến từ khả năng sử dụng các biểu thức để tạo ra các giá trị động, thay vì chỉ dùng giá trị tĩnh.
 
 ```hcl
-# Tham chiếu đến resource khác
+# 1. Tham chiếu đến thuộc tính của resource khác
+# Đây là cách tạo ra dependency ngầm (implicit dependency)
 resource "aws_instance" "web" {
-  subnet_id = aws_subnet.public.id
-  # Lấy attribute "id" từ resource "aws_subnet.public" đã định nghĩa ở nơi khác
+  subnet_id = aws_subnet.public.id # Lấy thuộc tính 'id' của tài nguyên 'aws_subnet.public'
 }
 
-# Tham chiếu đến variable
+# 2. Sử dụng giá trị của variable
+# Giúp code linh hoạt, có thể tái sử dụng cho nhiều môi trường
 resource "aws_instance" "web" {
   instance_type = var.instance_type
 }
 
-# String interpolation — chèn biến vào trong chuỗi
+# 3. String interpolation (Nội suy chuỗi)
+# Cho phép chèn giá trị của biến hoặc biểu thức vào trong chuỗi
 resource "aws_instance" "web" {
   tags = {
-    Name = "web-server-${var.environment}"
-    # Nếu var.environment = "prod" → "web-server-prod"
+    Name = "web-server-${var.environment}" # Nếu var.environment = "staging", kết quả là "web-server-staging"
   }
 }
 
-# Conditional expression (ternary)
+# 4. Conditional expression (Biểu thức điều kiện - Ternary)
+# Cho phép chọn giữa hai giá trị dựa trên một điều kiện boolean
 resource "aws_instance" "web" {
   instance_type = var.environment == "production" ? "t3.large" : "t3.micro"
-  # Nếu production → t3.large, ngược lại → t3.micro
+  # Cú pháp: <ĐIỀU KIỆN> ? <GIÁ TRỊ NẾU ĐÚNG> : <GIÁ TRỊ NẾU SAI>
 }
 
-# Function calls
+# 5. Gọi các hàm built-in (Function calls)
+# Terraform cung cấp rất nhiều hàm có sẵn để xử lý chuỗi, số, list, map...
 resource "aws_instance" "web" {
   tags = {
-    Name = upper(var.environment)
-    # Chuyển thành chữ hoa: "production" → "PRODUCTION"
+    Name = upper(var.environment) # Hàm upper() chuyển chuỗi thành chữ in hoa
   }
 }
 ```
 
-## Comments — Chú Thích
+## 3.4. Comments — Chú Thích Code
+
+Giải thích code của bạn là một thói quen cực kỳ tốt.
 
 ```hcl
-# Đây là comment một dòng (dùng dấu #)
-// Đây cũng là comment một dòng (dùng dấu //, ít phổ biến hơn)
+# Đây là comment một dòng, thường dùng nhất
+
+// Đây cũng là comment một dòng, ít phổ biến hơn
 
 /*
-  Đây là comment nhiều dòng
-  Dùng khi cần giải thích dài
+  Đây là comment nhiều dòng.
+  Dùng khi bạn cần giải thích một logic phức tạp
+  hoặc một đoạn cấu hình dài.
 */
 ```
 
@@ -307,19 +364,23 @@ resource "aws_instance" "web" {
 
 # 4. Provider — Cầu Nối Đến Hạ Tầng Thực
 
-## Khai Báo Provider
+Provider là thành phần giúp Terraform "đa ngôn ngữ". Nó là plugin dịch các khai báo HCL của bạn thành các lệnh gọi API đặc thù cho từng nền tảng (AWS, Azure, GCP, Kubernetes, v.v.). Bạn không thể làm gì nếu không có provider.
 
-Mỗi project Terraform cần khai báo provider nào sẽ dùng và phiên bản nào.
+## 4.1. Khai Báo Provider
+
+Để sử dụng một provider, bạn cần khai báo nó trong một block `terraform {}` đặc biệt, thường đặt trong file `versions.tf`.
 
 ```hcl
 terraform {
-  required_version = ">= 1.6.0"  # phiên bản Terraform tối thiểu
+  required_version = ">= 1.6.0" # Đảm bảo mọi người dùng phiên bản Terraform CLI từ 1.6.0 trở lên
 
   required_providers {
+    # Khai báo AWS Provider
     aws = {
-      source  = "hashicorp/aws"   # nguồn của provider
-      version = "~> 5.0"           # phiên bản provider, cho phép 5.x nhưng không 6.x
+      source  = "hashicorp/aws"   # Địa chỉ provider trên Terraform Registry
+      version = "~> 5.0"           # Ràng buộc phiên bản (xem giải thích bên dưới)
     }
+    # Khai báo Kubernetes Provider
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.25"
@@ -327,154 +388,125 @@ terraform {
   }
 }
 
-# Cấu hình cụ thể cho provider
+# Cấu hình cụ thể cho provider (khu vực, credentials...)
+# Phần này thường được đặt trong file providers.tf
 provider "aws" {
-  region = "ap-southeast-1"
-  # Credentials thường KHÔNG nên hard-code ở đây
-  # Terraform tự đọc từ environment variables hoặc credentials file
+  region = "ap-southeast-1" # Chọn khu vực Singapore
+  # Cách tốt nhất để cấp quyền là KHÔNG hard-code ở đây,
+  # mà thông qua biến môi trường ($AWS_ACCESS_KEY_ID, $AWS_SECRET_ACCESS_KEY)
+  # hoặc file credentials dùng chung.
 }
 ```
 
-## Version Constraints — Tại Sao Phải Ghim Phiên Bản
+## 4.2. Version Constraints — Tại Sao Phải Ghim Phiên Bản?
+
+Đây là một thực hành bắt buộc. Việc không ghim phiên bản provider có thể dẫn đến tình huống code đang chạy ngon lành hôm nay, ngày mai tự nhiên lỗi vì provider tự động cập nhật lên phiên bản mới có breaking change.
 
 ```hcl
-version = "= 5.31.0"   # chính xác phiên bản này, không hơn không kém
-version = "~> 5.31"    # >= 5.31.0 và < 5.32.0 (chỉ patch version được thay đổi)
-version = "~> 5.0"     # >= 5.0.0 và < 6.0.0 (minor version được thay đổi)
-version = ">= 5.0"     # từ 5.0.0 trở lên, không giới hạn trên
+# Các loại ràng buộc phiên bản:
+version = "= 5.31.0"   # Chính xác phiên bản 5.31.0
+version = "~> 5.31"    # Lớn hơn hoặc bằng 5.31.0 và nhỏ hơn 5.32.0 (chỉ cho phép thay đổi bản vá - patch)
+version = "~> 5.0"     # Lớn hơn hoặc bằng 5.0.0 và nhỏ hơn 6.0.0 (cho phép thay đổi bản phụ - minor)
+version = ">= 5.0, < 6.0" # Tương tự như trên nhưng viết tường minh hơn
 ```
 
-```
-Tại sao quan trọng:
-  Không ghim version → provider tự update → behavior có thể thay đổi
-  đột ngột mà bạn không biết, có thể breaking change
+**Nguyên tắc vàng:** Luôn commit file `.terraform.lock.hcl` (được tạo bởi `terraform init`) vào Git. File này ghi lại chính xác version và checksum của các provider đã tải về, đảm bảo mọi thành viên trong team và cả CI/CD pipeline đều dùng cùng một phiên bản provider y hệt nhau. Nó giống như `package-lock.json` trong thế giới Node.js.
 
-Đội ngũ làm việc cùng project cần dùng CÙNG version provider
-  → tránh tình trạng "trên máy tôi chạy được" do khác version
+## 4.3. Provider Alias — Dùng Nhiều Cấu Hình Cho Cùng Một Provider
 
-Thực hành tốt: dùng "~> X.Y" để cho phép patch updates (bug fixes)
-  nhưng khóa minor/major version (tránh breaking changes)
-```
-
-## Provider Alias — Nhiều Cấu Hình Cùng Một Provider
-
-Đôi khi bạn cần dùng cùng một provider với cấu hình khác nhau — ví dụ deploy tài nguyên vào nhiều region.
+Trong thực tế, bạn thường cần tương tác với cùng một provider nhưng ở các khu vực (region) hoặc tài khoản (account) khác nhau. Provider alias cho phép bạn làm điều này.
 
 ```hcl
+# Khai báo AWS Provider cho region Singapore với alias là "singapore"
 provider "aws" {
   region = "ap-southeast-1"
   alias  = "singapore"
 }
 
+# Khai báo một instance khác của AWS Provider cho region Bắc Virginia
 provider "aws" {
   region = "us-east-1"
   alias  = "virginia"
 }
 
+# Khi tạo resource, bạn chỉ định nó sẽ dùng provider nào qua tham số `provider`
 resource "aws_instance" "asia_server" {
-  provider = aws.singapore
-  # ... cấu hình khác
+  provider = aws.singapore # Sử dụng provider có alias "singapore"
+  ami           = "ami-xxx"
+  instance_type = "t3.micro"
 }
 
 resource "aws_instance" "us_server" {
-  provider = aws.virginia
-  # ... cấu hình khác
+  provider = aws.virginia # Sử dụng provider có alias "virginia"
+  ami           = "ami-yyy"
+  instance_type = "t3.micro"
 }
 ```
 
 ---
 
-# 5. Resource — Đơn Vị Cơ Bản
+# 5. Resource — Đơn Vị Cơ Bản Nhất
 
-Resource là khối xây dựng cơ bản nhất trong Terraform — mỗi resource đại diện cho một thành phần hạ tầng cụ thể: một máy chủ, một mạng, một bản ghi DNS, một database.
+`resource` là khối xây dựng nền tảng và quan trọng nhất trong Terraform. Mỗi block `resource` đại diện cho một "vật thể" hạ tầng cụ thể mà bạn muốn quản lý: một máy chủ ảo, một mạng con, một bản ghi DNS, một database, hay thậm chí là một repository trên GitHub.
 
-## Anatomy Của Một Resource
+## 5.1. Giải Phẫu Của Một Resource
+
+Cấu trúc của một resource block đã được đề cập ở phần HCL, nhưng hãy nhấn mạnh lại ý nghĩa của nó.
 
 ```hcl
-resource "<provider>_<resource_type>" "<local_name>" {
-  argument_1 = value_1
-  argument_2 = value_2
+resource "aws_instance" "web_server" {
+  ami           = "ami-0c55b159cbfafe1f0" # Argument: Image ID của máy ảo
+  instance_type = "t3.micro"            # Argument: Loại phần cứng
 
-  nested_block {
-    nested_argument = value
+  tags = {                              # Nested Block: Gán nhãn cho máy ảo
+    Name = "My Main Web Server"
   }
 }
 ```
 
-```
-provider_resourcetype: loại resource cụ thể, được định nghĩa bởi provider
-  Mỗi provider có hàng trăm loại resource khác nhau
-  Tên resource type luôn bắt đầu bằng tên provider (vd: aws_, google_, azurerm_)
-
-local_name: tên BẠN đặt, chỉ tồn tại trong code Terraform
-  Không liên quan gì đến tên thực tế của resource trên cloud
-  Dùng để tham chiếu resource này ở chỗ khác trong code
-```
-
-## Resource Attributes — Hai Loại
+- **`"aws_instance"` (Resource Type):** Là định danh của loại tài nguyên, do provider định nghĩa. Mỗi provider có hàng trăm loại resource khác nhau, luôn bắt đầu bằng tiền tố của provider (vd: `aws_`, `google_`, `azurerm_`).
+- **`"web_server"` (Local Name):** Là tên do bạn tự đặt, có ý nghĩa duy nhất trong module của bạn. Bạn sẽ dùng nó để tham chiếu đến resource này ở chỗ khác. Nó không liên quan gì đến tên thực tế của máy ảo trên AWS.
+- **Arguments vs. Computed Attributes:**
+  - **Arguments (Đối số):** Là những giá trị bạn **thiết lập** để định nghĩa trạng thái mong muốn (`ami`, `instance_type`, `tags`...).
+  - **Computed Attributes (Thuộc tính được tính toán):** Là những giá trị được provider trả về **sau khi** tài nguyên đã được tạo. Bạn không thể thiết lập chúng. Ví dụ: `id` (định danh duy nhất), `private_ip` (địa chỉ IP nội bộ), `arn` (Amazon Resource Name). Bạn chỉ có thể đọc chúng.
 
 ```hcl
-resource "aws_instance" "web" {
-  # ARGUMENTS: bạn set, Terraform dùng để tạo resource
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.micro"
-
-  # Sau khi resource được tạo, nó có thêm
-  # COMPUTED ATTRIBUTES: do provider trả về, bạn KHÔNG set
-  # Ví dụ: id, private_ip, public_ip, arn
+# Ví dụ về việc sử dụng ComputedAttribute ở nơi khác trong code:
+output "server_public_ip" {
+  value = aws_instance.web_server.public_ip
 }
-
-# Tham chiếu computed attribute ở nơi khác:
-output "server_ip" {
-  value = aws_instance.web.public_ip
-  # public_ip không phải thứ bạn gõ vào, mà là kết quả AWS trả về
-  # sau khi resource được tạo
-}
+#'public_ip' là một Computed Attribute, chỉ tồn tại sau khi máy ảo được tạo.
 ```
 
-## Lifecycle Của Một Resource
+## 5.2. Vòng Đời Của Một Resource (CRUD)
 
-```
-1. terraform apply chạy lần đầu
-   → Resource chưa tồn tại trong state
-   → Terraform CREATE resource mới
-   → Lưu thông tin vào state
+Terraform quản lý vòng đời của một resource từ khi nó được sinh ra cho đến khi bị hủy bỏ.
 
-2. Sửa argument trong code, terraform apply lại
-   → Resource đã tồn tại trong state
-   → Terraform so sánh config mới với state cũ
-   → Nếu khác → UPDATE (hoặc REPLACE tùy loại thay đổi)
+1. **Create (Tạo mới):**
+    - Lần đầu tiên bạn chạy `terraform apply`, Terraform thấy resource `web_server` trong code nhưng không có trong file state.
+    - Nó gọi API `CreateInstance` của AWS để tạo một máy ảo EC2 mới với các đối số bạn đã cung cấp.
+    - Sau khi tạo thành công, nó lưu tất cả thông tin của máy ảo (bao gồm cả ID mới và các computed attributes) vào file state.
 
-3. Xóa resource block khỏi code, terraform apply
-   → Resource có trong state nhưng không có trong code
-   → Terraform DESTROY resource đó
-```
+2. **Update (Cập nhật tại chỗ - In-place Update):**
+    - Bạn sửa `instance_type` từ `"t3.micro"` thành `"t3.small"` trong code và chạy `terraform apply` lại.
+    - Terraform nhận thấy sự khác biệt giữa code (mong muốn) và state (thực tế).
+    - Nó kiểm tra với AWS Provider và biết rằng có thể thay đổi `instance_type` mà không cần phá hủy máy ảo. Nó gọi API `ModifyInstanceAttribute` của AWS.
+    - Sau khi cập nhật thành công, nó sửa thông tin `instance_type` trong file state.
 
-## Update vs Replace — Khác Biệt Quan Trọng
+3. **Replace (Phá hủy và Tạo mới - Destroy then Create):**
+    - Bạn sửa `ami` (Image ID) sang một phiên bản hệ điều hành mới.
+    - Terraform kiểm tra và biết rằng AWS không cho phép thay đổi AMI của một máy ảo đang chạy. Cách duy nhất là phá hủy máy ảo cũ và tạo một máy ảo mới.
+    - Trong kế hoạch `plan`, bạn sẽ thấy ký hiệu `-/+` ở đầu dòng resource đó, nghĩa là "phá hủy cái này, rồi tạo cái mới".
+    - **Đây là lý do tối quan trọng bạn phải đọc kỹ `terraform plan`.** Một thay đổi tưởng chừng nhỏ (đổi AMI) có thể dẫn đến việc xóa toàn bộ máy chủ production và tạo lại, gây mất dữ liệu nếu bạn chưa backup.
 
-Không phải mọi thay đổi đều update tại chỗ được — một số thay đổi buộc Terraform phải xóa và tạo lại resource.
+4. **Delete (Xóa bỏ):**
+    - Bạn xóa toàn bộ block `resource "aws_instance" "web_server"` khỏi code, hoặc chạy lệnh `terraform destroy`.
+    - Terraform thấy resource còn trong state nhưng không còn trong code. Nó hiểu rằng bạn muốn xóa tài nguyên này.
+    - Nó gọi API `TerminateInstances` của AWS để xóa máy ảo, và sau đó xóa thông tin của nó khỏi file state.
 
-```
-Update tại chỗ (in-place update):
-  Thay đổi không ảnh hưởng đến identity cơ bản của resource
-  Ví dụ: đổi tags, đổi security group attached vào
+## 5.3. `lifecycle` Block — Kiểm Soát Đặc Biệt Vòng Đời
 
-Replace (destroy rồi create):
-  Thay đổi thuộc tính không thể sửa được sau khi tạo
-  Ví dụ: đổi availability_zone của một instance
-  (Cloud provider không cho phép "di chuyển" instance giữa các AZ)
-
-  Terraform sẽ hiển thị trong plan:
-  -/+ resource "aws_instance" "web" {
-      ~ availability_zone = "us-east-1a" -> "us-east-1b" # forces replacement
-      }
-
-Đây là lý do TẠI SAO phải đọc kỹ terraform plan trước khi apply
-Một thay đổi tưởng chừng nhỏ có thể gây ra việc xóa và tạo lại
-toàn bộ database production!
-```
-
-## Lifecycle Block — Kiểm Soát Hành Vi
+Có những tình huống bạn cần can thiệp vào hành vi mặc định của vòng đời. Meta-argument `lifecycle` cho phép bạn làm điều đó.
 
 ```hcl
 resource "aws_instance" "web" {
@@ -482,18 +514,91 @@ resource "aws_instance" "web" {
   instance_type = "t3.micro"
 
   lifecycle {
-    # Tạo resource mới TRƯỚC khi xóa resource cũ
-    # Tránh downtime khi phải replace
+    # 1. Tạo mới trước khi phá hủy (cho trường hợp Replace)
+    # Hữu ích để tránh downtime. Terraform sẽ tạo máy ảo mới,
+    # chờ nó sẵn sàng, rồi mới phá hủy máy ảo cũ.
     create_before_destroy = true
 
-    # Ngăn không cho terraform destroy resource này
-    # Bảo vệ database production khỏi việc xóa nhầm
+    # 2. Ngăn chặn việc vô tình phá hủy tài nguyên quan trọng
+    # Nếu ai đó cố tình xóa resource này khỏi code hoặc chạy destroy,
+    # Terraform sẽ báo lỗi và dừng lại ngay lập tức.
+    # Dùng cho database, dữ liệu quan trọng.
     prevent_destroy = true
 
-    # Bỏ qua thay đổi ở những field này khi so sánh
-    # (vd: tags được hệ thống khác tự động thêm vào,
-    # không muốn Terraform coi đó là "drift")
-    ignore_changes = [tags["LastModifiedBy"]]
+    # 3. Bỏ qua sự thay đổi của một số thuộc tính nhất định
+    # Ví dụ: tag "LastModifiedBy" được một hệ thống tự động khác cập nhật.
+    # Bạn không muốn Terraform coi đó là "sai lệch" (drift) và
+    # liên tục ghi đè hoặc báo có thay đổi trong mỗi lần plan.
+    ignore_changes = [
+      tags["LastModifiedBy"],
+      # Thường dùng để bỏ qua các thay đổi do external system gây ra
+    ]
+  }
+}
+
+
+Attribute ở nơi khác trong code:
+output "server_public_ip" {
+  value = aws_instance.web_server.public_ip
+  # 'public_ip' là một Computed Attribute, chỉ tồn tại sau khi máy ảo được tạo.
+}
+```
+
+## 5.2. Vòng Đời Của Một Resource (CRUD)
+
+Terraform quản lý vòng đời của một resource từ khi nó được sinh ra cho đến khi bị hủy bỏ.
+
+1. **Create (Tạo mới):**
+    - Lần đầu tiên bạn chạy `terraform apply`, Terraform thấy resource `web_server` trong code nhưng không có trong file state.
+    - Nó gọi API `CreateInstance` của AWS để tạo một máy ảo EC2 mới với các đối số bạn đã cung cấp.
+    - Sau khi tạo thành công, nó lưu tất cả thông tin của máy ảo (bao gồm cả ID mới và các computed attributes) vào file state.
+
+2. **Update (Cập nhật tại chỗ - In-place Update):**
+    - Bạn sửa `instance_type` từ `"t3.micro"` thành `"t3.small"` trong code và chạy `terraform apply` lại.
+    - Terraform nhận thấy sự khác biệt giữa code (mong muốn) và state (thực tế).
+    - Nó kiểm tra với AWS Provider và biết rằng có thể thay đổi `instance_type` mà không cần phá hủy máy ảo. Nó gọi API `ModifyInstanceAttribute` của AWS.
+    - Sau khi cập nhật thành công, nó sửa thông tin `instance_type` trong file state.
+
+3. **Replace (Phá hủy và Tạo mới - Destroy then Create):**
+    - Bạn sửa `ami` (Image ID) sang một phiên bản hệ điều hành mới.
+    - Terraform kiểm tra và biết rằng AWS không cho phép thay đổi AMI của một máy ảo đang chạy. Cách duy nhất là phá hủy máy ảo cũ và tạo một máy ảo mới.
+    - Trong kế hoạch `plan`, bạn sẽ thấy ký hiệu `-/+` ở đầu dòng resource đó, nghĩa là "phá hủy cái này, rồi tạo cái mới".
+    - **Đây là lý do tối quan trọng bạn phải đọc kỹ `terraform plan`.** Một thay đổi tưởng chừng nhỏ (đổi AMI) có thể dẫn đến việc xóa toàn bộ máy chủ production và tạo lại, gây mất dữ liệu nếu bạn chưa backup.
+
+4. **Delete (Xóa bỏ):**
+    - Bạn xóa toàn bộ block `resource "aws_instance" "web_server"` khỏi code, hoặc chạy lệnh `terraform destroy`.
+    - Terraform thấy resource còn trong state nhưng không còn trong code. Nó hiểu rằng bạn muốn xóa tài nguyên này.
+    - Nó gọi API `TerminateInstances` của AWS để xóa máy ảo, và sau đó xóa thông tin của nó khỏi file state.
+
+## 5.3. `lifecycle` Block — Kiểm Soát Đặc Biệt Vòng Đời
+
+Có những tình huống bạn cần can thiệp vào hành vi mặc định của vòng đời. Meta-argument `lifecycle` cho phép bạn làm điều đó.
+
+```hcl
+resource "aws_instance" "web" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+
+  lifecycle {
+    # 1. Tạo mới trước khi phá hủy (cho trường hợp Replace)
+    # Hữu ích để tránh downtime. Terraform sẽ tạo máy ảo mới,
+    # chờ nó sẵn sàng, rồi mới phá hủy máy ảo cũ.
+    create_before_destroy = true
+
+    # 2. Ngăn chặn việc vô tình phá hủy tài nguyên quan trọng
+    # Nếu ai đó cố tình xóa resource này khỏi code hoặc chạy destroy,
+    # Terraform sẽ báo lỗi và dừng lại ngay lập tức.
+    # Dùng cho database, dữ liệu quan trọng.
+    prevent_destroy = true
+
+    # 3. Bỏ qua sự thay đổi của một số thuộc tính nhất định
+    # Ví dụ: tag "LastModifiedBy" được một hệ thống tự động khác cập nhật.
+    # Bạn không muốn Terraform coi đó là "sai lệch" (drift) và
+    # liên tục ghi đè hoặc báo có thay đổi trong mỗi lần plan.
+    ignore_changes = [
+      tags["LastModifiedBy"],
+      # Thường dùng để bỏ qua các thay đổi do external system gây ra
+    ]
   }
 }
 ```
@@ -502,33 +607,22 @@ resource "aws_instance" "web" {
 
 # 6. State — Trái Tim Của Terraform
 
-Đây là khái niệm quan trọng nhất để hiểu Terraform thực sự hoạt động như thế nào.
+Nếu không hiểu về state, bạn sẽ không thực sự hiểu Terraform. File state là thành phần quan trọng nhất, đóng vai trò như bộ não lưu trữ mọi ký ức của Terraform về hạ tầng nó đang quản lý.
 
-## State Là Gì
+## 6.1. State Là Gì Và Tại Sao Nó Tối Quan Trọng?
 
-State là file (mặc định tên `terraform.tfstate`) ghi lại Terraform **biết** những gì về hạ tầng nó đang quản lý. Đây là bộ nhớ của Terraform.
+File state (mặc định là `terraform.tfstate`) là một file JSON ghi lại ánh xạ giữa các resource bạn khai báo trong code `.tf` và các đối tượng thực tế đang tồn tại trên thế giới bên ngoài (ví dụ: trên AWS).
 
-```
-Tại sao cần state?
+**Tại sao cần state?**
+Hãy tưởng tượng bạn có một team 5 người cùng quản lý hạ tầng. Nếu không có state, mỗi khi bạn chạy `terraform apply`, Terraform sẽ không biết resource `web_server` trong code của bạn tương ứng với máy ảo EC2 nào trong số hàng trăm máy ảo đang chạy. Nó có thể sẽ tạo ra một máy ảo mới mỗi lần bạn chạy lệnh, hoặc không thể biết máy ảo nào cần sửa, cần xóa.
 
-Khi bạn viết:
-  resource "aws_instance" "web" {
-    instance_type = "t3.medium"
-  }
+**State giải quyết vấn đề này bằng cách:**
 
-Và chạy terraform apply lần thứ hai, Terraform cần biết:
-  Resource "web" đã tồn tại chưa?
-  Nếu có, ID thực tế của nó trên AWS là gì?
-  Giá trị hiện tại của nó là gì để so sánh với config?
+- **Lưu trữ ID:** Nó ghi nhớ ID thực tế của mọi tài nguyên mà nó đã tạo (vd: `i-0abc123def456789`). Nhờ đó, lần sau nó biết chính xác cần gọi API nào để cập nhật hay xóa.
+- **Lưu trữ toàn bộ thuộc tính:** Nó lưu một bản sao của tất cả các thuộc tính của tài nguyên. Khi bạn chạy `plan`, Terraform so sánh cấu hình mong muốn trong code với bản sao trong state để tìm ra sự khác biệt.
+- **Tăng hiệu năng:** Đối với hạ tầng lớn, việc gọi API để lấy thông tin của mọi tài nguyên mỗi lần chạy `plan` là rất chậm. State hoạt động như một bộ nhớ cache cục bộ, giúp quá trình này nhanh hơn rất nhiều. Terraform chỉ cần làm mới (refresh) state bằng cách gọi API, nhưng việc tính toán sự khác biệt thì dựa trên dữ liệu đã có trong state.
 
-Không có state, Terraform sẽ KHÔNG biết
-"aws_instance.web" này tương ứng với server nào trên AWS
-→ Có thể tạo nhầm thêm một server mới thay vì update server đã có!
-```
-
-## Cấu Trúc State File
-
-State file là JSON, chứa mapping giữa resource trong code và resource thực tế.
+**Ví dụ cấu trúc state file:**
 
 ```json
 {
@@ -537,15 +631,18 @@ State file là JSON, chứa mapping giữa resource trong code và resource th�
   "resources": [
     {
       "type": "aws_instance",
-      "name": "web",
+      "name": "web_server",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
           "attributes": {
             "id": "i-0abc123def456789",
             "instance_type": "t3.medium",
             "private_ip": "10.0.1.15",
-            "public_ip": "54.123.45.67"
-            // ... tất cả attributes khác của resource thực tế
+            "public_ip": "54.123.45.67",
+            "tags": {
+              "Name": "My Main Web Server"
+            }
           }
         }
       ]
@@ -554,482 +651,344 @@ State file là JSON, chứa mapping giữa resource trong code và resource th�
 }
 ```
 
-State không chỉ lưu config bạn viết — nó lưu TOÀN BỘ thông tin về resource thực tế, kể cả những computed attributes mà bạn không hề set.
+Như bạn thấy, state không chỉ lưu những gì bạn viết trong code (`instance_type`, `tags`), mà còn lưu cả những thông tin bạn không hề định nghĩa như `id` hay `public_ip`.
 
-## Refresh — Đồng Bộ State Với Thực Tế
+## 6.2. Refresh — Đồng Bộ State Với Thực Tế
 
-```
-Trước mỗi plan/apply, Terraform (mặc định) refresh state:
-  Gọi API thực tế để lấy trạng thái hiện tại của mỗi resource
-  Cập nhật state nếu có khác biệt
+Trước mỗi lần chạy `terraform plan` hoặc `apply`, Terraform thực hiện một bước gọi là **refresh**. Trong bước này, nó sử dụng provider để gọi API thực tế và kiểm tra trạng thái của từng tài nguyên có trong state.
 
-Tại sao cần refresh?
-  Có thể ai đó đã thay đổi resource thủ công qua console
-  (đây gọi là "configuration drift" — trạng thái thực tế
-  trôi dạt khỏi những gì Terraform nghĩ là đúng)
+**Mục đích của refresh là để phát hiện "Configuration Drift":**
+Drift xảy ra khi có ai đó thay đổi hạ tầng thủ công bên ngoài Terraform (ví dụ: một admin SSH vào máy chủ và sửa cấu hình, hoặc dùng AWS Console để thay đổi Security Group). Lúc này, trạng thái thực tế đã khác với những gì được lưu trong state. Refresh giúp Terraform cập nhật state để khớp với thực tế. Nhờ đó, ở bước `plan` tiếp theo, Terraform sẽ phát hiện ra sự khác biệt và đề xuất sửa hạ tầng thực tế về đúng với cấu hình trong code của bạn.
 
-  Refresh giúp Terraform phát hiện drift này
-  trước khi tính toán plan tiếp theo
-```
+## 6.3. Tại Sao Không Bao Giờ Sửa State File Bằng Tay?
 
-## Tại Sao Không Bao Giờ Sửa State File Bằng Tay
+- **Nguy cơ hỏng dữ liệu:** State file là một file JSON có cấu trúc chặt chẽ. Chỉ một lỗi nhỏ như thừa dấu phẩy cũng có thể khiến toàn bộ file không đọc được, và Terraform sẽ mất khả năng quản lý mọi tài nguyên.
+- **Chứa dữ liệu nhạy cảm:** State file có thể chứa mật khẩu database, private key, hoặc bất kỳ secret nào bạn đặt làm argument cho resource. Do đó, state file **phải được bảo vệ như một bí mật tối mật**. Tuyệt đối không được commit file `terraform.tfstate` lên Git (trừ khi bạn dùng backend hỗ trợ mã hóa như S3 và có cấu hình riêng).
 
-```
-State file chứa thông tin nhạy cảm:
-  Database password (nếu là argument của resource)
-  Private keys
-  Bất kỳ secret nào được set làm argument
+Nếu cần chỉnh sửa state (ví dụ: đổi tên resource, di chuyển resource sang module khác), bạn phải dùng các lệnh chuyên dụng của Terraform CLI:
 
-  → State file PHẢI được bảo vệ giống như bí mật quan trọng nhất
-  → Không bao giờ commit state file vào Git (trừ khi đã mã hóa kỹ)
-
-Sửa tay state file dễ làm hỏng cấu trúc JSON
-  → Terraform không đọc được state nữa
-  → Mất khả năng quản lý toàn bộ hạ tầng đã tạo
-
-Nếu cần sửa state, dùng lệnh chuyên dụng:
-  terraform state mv    — di chuyển resource trong state (đổi tên, refactor)
-  terraform state rm    — xóa resource khỏi state (không xóa resource thật)
-  terraform import      — đưa resource có sẵn vào state
-  terraform state list  — liệt kê resource trong state
-  terraform state show  — xem chi tiết một resource trong state
-```
+- `terraform state mv`: Di chuyển một resource trong state (đổi tên, đổi địa chỉ).
+- `terraform state rm`: Xóa một resource khỏi state mà không phá hủy tài nguyên thực tế.
+- `terraform import`: Đưa một tài nguyên có sẵn vào state.
+- `terraform state list`: Liệt kê tất cả resource trong state.
+- `terraform state show <địa chỉ>`: Xem chi tiết thuộc tính của một resource trong state.
 
 ---
 
 # 7. Remote State và State Locking
 
-## Vấn Đề Với Local State
+Đây là hai khái niệm nâng tầm Terraform từ một công cụ cá nhân thành một công cụ cho cả team.
 
-Mặc định, Terraform lưu state file ngay trên máy bạn đang chạy lệnh (local state). Điều này hoạt động tốt khi học, nhưng có vấn đề nghiêm trọng khi làm việc theo team.
+## 7.1. Vấn Đề Với Local State
 
-```
-Engineer A chạy terraform apply trên máy mình
-  → state được cập nhật, lưu ở local máy A
+Khi làm việc một mình, việc lưu state ở máy cá nhân (`terraform.tfstate`) là chấp nhận được. Nhưng khi làm việc nhóm, mô hình này sụp đổ hoàn toàn.
 
-Engineer B chạy terraform apply trên máy mình (state khác, cũ hơn)
-  → Terraform B không biết về thay đổi A vừa làm
-  → Có thể tạo trùng resource, hoặc xóa nhầm resource A vừa tạo
+- **Xung đột dữ liệu:** Kỹ sư A chạy `apply` và cập nhật state trên máy mình. Kỹ sư B, với một bản state cũ hơn trên máy, cũng chạy `apply`. Terraform của B không biết về những thay đổi của A. Kết quả là B có thể ghi đè lên thay đổi của A, tạo ra tài nguyên trùng lặp, hoặc gây ra những lỗi không thể đoán trước.
+- **Rủi ro mất mát:** State file nằm trên laptop cá nhân. Nếu laptop bị hỏng hoặc mất, bạn sẽ mất toàn bộ khả năng quản lý hạ tầng bằng Terraform. Bạn vẫn có thể dùng `import` để lấy lại, nhưng đó là một quá trình thủ công, tốn thời gian và dễ sai sót.
 
-Hai người không bao giờ nên có hai bản state riêng biệt
-của CÙNG một hạ tầng
-```
+## 7.2. Remote State — Lưu Trữ Tập Trung Và An Toàn
 
-## Remote State — Lưu Trữ Tập Trung
-
-Giải pháp là lưu state ở một nơi tập trung, tất cả mọi người trong team đọc/ghi vào cùng một state.
+Giải pháp là lưu state file vào một vị trí tập trung, có độ bền cao và bảo mật mà tất cả thành viên trong team đều có thể truy cập. Đây được gọi là **Remote State**. Terraform sử dụng khái niệm **Backend** để cấu hình nơi lưu trữ state.
 
 ```hcl
+# Ví dụ: Cấu hình backend là Amazon S3
 terraform {
   backend "s3" {
-    bucket         = "my-company-terraform-state"
-    key            = "production/networking/terraform.tfstate"
+    bucket         = "my-company-terraform-state" # Tên S3 bucket
+    key            = "production/networking/terraform.tfstate" # Đường dẫn đến file state trong bucket
     region         = "ap-southeast-1"
-    encrypt        = true
-    dynamodb_table = "terraform-state-lock"  # cho state locking
+    encrypt        = true                        # Bật mã hóa dữ liệu ở phía server
+    dynamodb_table = "terraform-state-lock"      # Tên bảng DynamoDB dùng cho State Locking
   }
 }
 ```
 
-```
-Backend là khái niệm chung — nơi Terraform lưu state
-Có nhiều loại backend: object storage (S3-compatible),
-HTTP backend, Terraform Cloud, Consul, etc.
+**Lợi ích của Remote State:**
 
-Lợi ích của remote state:
-  Tất cả team member đọc cùng một state — luôn đồng bộ
-  Có thể mã hóa state khi lưu trữ (encrypt at rest)
-  Có thể versioning — rollback nếu state bị hỏng
-  Tách biệt khỏi máy cá nhân — không sợ mất khi đổi máy
-```
+- **Nguồn sự thật duy nhất:** Mọi người đều đọc và ghi vào cùng một file state, đảm bảo tính nhất quán.
+- **Bảo mật:** Hầu hết các backend (S3, GCS, Azure Storage) đều hỗ trợ mã hóa dữ liệu khi lưu trữ (encryption at rest) và trong quá trình truyền tải (encryption in transit).
+- **Độ bền cao:** State được lưu trên các dịch vụ lưu trữ có độ sẵn sàng và độ bền rất cao (99.999999999%).
+- **Versioning:** Khi bật versioning trên S3 bucket, mỗi lần state được cập nhật, một phiên bản mới sẽ được lưu lại. Nếu chẳng may state bị hỏng, bạn có thể dễ dàng khôi phục lại một phiên bản cũ.
 
-## State Locking — Tránh Xung Đột Đồng Thời
+## 7.3. State Locking — Tránh Xung Đột Đồng Thời
 
-```
-Vấn đề: Engineer A và Engineer B CÙNG LÚC chạy terraform apply
-  Cả hai đọc cùng state ban đầu
-  Cả hai tính toán thay đổi riêng
-  Cả hai cùng ghi vào state
-  → State bị corrupt, hoặc thay đổi của một người bị mất
+Khi đã có remote state, vẫn còn một vấn đề nan giải: chuyện gì xảy ra nếu hai người cùng chạy `terraform apply` một lúc?
 
-Giải pháp: State Locking
-  Khi terraform apply bắt đầu, nó tạo một "lock"
-  (thường lưu trong một bảng database riêng, hoặc cơ chế lock
-  có sẵn của backend)
+- Cả hai cùng đọc state phiên bản 1.
+- Người A thực hiện thay đổi và ghi lại thành phiên bản 2.
+- Người B cũng thực hiện thay đổi và ghi đè lên, tạo ra phiên bản 3.
+- Thay đổi của người A đã bị "nuốt" mất một cách âm thầm.
 
-  Engineer B cố apply trong khi A đang chạy
-  → Terraform B nhận lỗi: "state đang bị lock bởi process khác"
-  → B phải đợi A xong (lock được giải phóng tự động)
+**State Locking** ngăn chặn kịch bản này. Cơ chế hoạt động như sau:
 
-Nếu Terraform process bị kill đột ngột (không giải phóng lock)
-  → Cần dùng: terraform force-unlock <lock-id>
-  → Cẩn thận: chỉ dùng khi chắc chắn không có process nào khác đang chạy
-```
+1. Khi một tiến trình `terraform apply` bắt đầu, nó sẽ cố gắng tạo một "khóa" (lock) trên state. Trong ví dụ S3 ở trên, khóa này được lưu trong một bảng DynamoDB.
+2. Nếu một tiến trình khác cũng cố gắng `apply`, nó sẽ thấy state đã bị khóa và ngay lập tức bị từ chối với một thông báo lỗi rõ ràng (không phải lỗi âm thầm). Tiến trình thứ hai phải chờ cho đến khi tiến trình thứ nhất hoàn thành và tự động giải phóng khóa.
+3. Điều này đảm bảo tại một thời điểm, chỉ có một người duy nhất có thể thay đổi hạ tầng, loại bỏ hoàn toàn nguy cơ xung đột.
 
-## Tổ Chức State — Một State Lớn Hay Nhiều State Nhỏ
+**Quan trọng:** Nếu tiến trình `terraform apply` bị crash hoặc bị kill giữa chừng, khóa có thể không được giải phóng. Lúc này, bạn cần dùng lệnh `terraform force-unlock <lock-id>` để mở khóa thủ công. **Phải cực kỳ chắc chắn rằng không có tiến trình apply nào khác đang thực sự chạy** trước khi force-unlock.
 
-```
-Cách 1: Một state cho TOÀN BỘ hạ tầng
-  Ưu: đơn giản, dependency giữa resource luôn resolve được
-  Nhược: state lớn → plan/apply chậm
-         Một lỗi nhỏ ảnh hưởng risk đến toàn bộ hạ tầng
-         Lock conflict thường xuyên khi nhiều người làm việc
+## 7.4. Tổ Chức State — Một State Lớn Hay Nhiều State Nhỏ?
 
-Cách 2: Nhiều state nhỏ, chia theo layer hoặc team
-  networking/terraform.tfstate     — VPC, subnet, routing
-  database/terraform.tfstate       — RDS instances
-  application/terraform.tfstate    — App servers, load balancer
+Đây là một câu hỏi thiết kế quan trọng. Không có câu trả lời đúng tuyệt đối, nhưng có những mô hình phổ biến.
 
-  Ưu: Mỗi state nhỏ hơn, apply nhanh hơn
-      Team khác nhau quản lý state khác nhau, ít conflict
-      Lỗi ở một layer không ảnh hưởng layer khác
-  Nhược: Cần data source hoặc remote state data source
-         để layer này tham chiếu output của layer khác
+- **Mô hình 1: Monolithic State (Tệp state khổng lồ)**
+  - **Mô tả:** Tất cả hạ tầng của bạn (networking, databases, applications) được quản lý trong cùng một thư mục và có chung một file state.
+  - **Ưu điểm:** Đơn giản, dễ bắt đầu. Mọi dependency giữa các resource đều có thể được giải quyết dễ dàng.
+  - **Nhược điểm:** Rất chậm khi hạ tầng lớn. Rủi ro cao (một lỗi nhỏ có thể ảnh hưởng đến toàn bộ hệ thống). Thường xuyên bị lock conflict khi team đông người.
 
-Thực tế: hầu hết tổ chức trưởng thành dùng Cách 2,
-chia theo blast radius — phần nào càng quan trọng,
-càng nên tách biệt để giảm rủi ro khi thay đổi
-```
+- **Mô hình 2: Micro States (Chia nhỏ state)**
+  - **Mô tả:** Chia hạ tầng thành các state nhỏ, độc lập dựa trên chức năng hoặc team sở hữu.
+  - **Ví dụ:**
+    - `production/networking/terraform.tfstate` (VPC, Subnets, Routes)
+    - `production/database/terraform.tfstate` (RDS instances)
+    - `production/application-a/terraform.tfstate` (App servers, Load Balancer của service A)
+  - **Ưu điểm:** Mỗi state nhỏ, apply nhanh. Team khác nhau quản lý state khác nhau, giảm thiểu xung đột. Lỗi ở layer networking sẽ không làm hỏng database.
+  - **Nhược điểm:** Phức tạp hơn khi cần chia sẻ thông tin giữa các state (ví dụ: ứng dụng cần biết VPC ID từ state networking). Cần dùng Data Source `terraform_remote_state` để giải quyết việc này.
+
+**Lời khuyên cho production:** Hầu hết các tổ chức trưởng thành đều áp dụng mô hình Micro States, chia theo nguyên tắc "blast radius" (bán kính ảnh hưởng). Những thành phần càng quan trọng, càng nên được tách biệt để giảm thiểu rủi ro khi có thay đổi.
 
 ---
 
 # 8. Vòng Đời Lệnh Terraform
 
-## Các Lệnh Cốt Lõi
+Hiểu rõ từng lệnh và mục đích của nó giúp bạn làm việc với Terraform một cách tự tin và hiệu quả.
 
-```bash
-# Khởi tạo working directory
-# Tải provider plugins, cấu hình backend
-terraform init
+## 8.1. Các Lệnh Cốt Lõi
 
-# Kiểm tra cú pháp HCL có hợp lệ không
-terraform validate
+Chuỗi lệnh bạn sẽ chạy hàng ngày:
 
-# Format code theo chuẩn (giống prettier cho code thường)
-terraform fmt
+1. **`terraform init` (Khởi tạo):**
+    - **Mục đích:** Chuẩn bị một thư mục làm việc cho Terraform.
+    - **Khi nào cần chạy:** Lần đầu tiên trong một dự án; sau khi thêm/chỉnh sửa `required_providers` hoặc `backend`; sau khi pull code mới về có thêm module.
+    - **Thực hiện:** Tải provider plugins về thư mục `.terraform/`; cấu hình backend (kết nối đến remote state); tải source code của module; tạo file `.terraform.lock.hcl`.
 
-# Tính toán những gì sẽ thay đổi (KHÔNG thực thi)
-terraform plan
+2. **`terraform fmt` (Định dạng code):**
+    - **Mục đích:** Tự động định dạng lại code HCL theo chuẩn chính thức.
+    - **Cách dùng:** `terraform fmt -recursive` (định dạng tất cả file `.tf` trong thư mục hiện tại và các thư mục con). Nên chạy trước mỗi lần commit.
 
-# Lưu plan ra file để dùng lại chính xác plan đó khi apply
-terraform plan -out=tfplan
+3. **`terraform validate` (Kiểm tra cú pháp):**
+    - **Mục đích:** Kiểm tra xem cấu hình HCL có đúng cú pháp và logic nội bộ không (ví dụ: tham chiếu đến resource không tồn tại, sai kiểu dữ liệu của variable...).
+    - **Khác với `plan`:** `validate` chỉ kiểm tra code, không kết nối đến bất kỳ provider hay backend nào, do đó chạy rất nhanh. Đây là bước kiểm tra tĩnh đầu tiên.
 
-# Thực thi thay đổi
-terraform apply
+4. **`terraform plan` (Lập kế hoạch - Dry Run):**
+    - **Mục đích:** Tính toán và hiển thị những thay đổi Terraform sẽ thực hiện để đạt được trạng thái mong muốn. **Đây là bước quan trọng nhất, không bao giờ được bỏ qua.**
+    - **Cách dùng:**
+        - `terraform plan`: Chạy plan và in kết quả ra màn hình.
+        - `terraform plan -out=tfplan`: Lưu kế hoạch vào một file nhị phân tên là `tfplan`.
 
-# Apply chính xác plan đã lưu trước đó (đảm bảo không có gì thay đổi
-# giữa lúc review plan và lúc thực sự apply)
-terraform apply tfplan
+5. **`terraform apply` (Áp dụng thay đổi):**
+    - **Mục đích:** Thực thi những thay đổi đã được lên kế hoạch.
+    - **Cách dùng:**
+        - `terraform apply`: Chạy lại plan, hiển thị kết quả, yêu cầu xác nhận `yes`.
+        - `terraform apply tfplan`: Áp dụng chính xác kế hoạch đã lưu trong file `tfplan`. **Đây là cách an toàn nhất** vì nó đảm bảo bạn apply đúng những gì đã được review, không bị ảnh hưởng bởi bất kỳ thay đổi nào xảy ra giữa lúc plan và apply.
 
-# Xóa TẤT CẢ resource được quản lý bởi state này
-terraform destroy
+6. **`terraform destroy` (Phá hủy):**
+    - **Mục đích:** Xóa tất cả tài nguyên được quản lý bởi state hiện tại. Dùng để dọn dẹp môi trường dev/staging. Cực kỳ nguy hiểm với production.
 
-# Xem trạng thái hiện tại
-terraform show
+7. **`terraform show` (Xem trạng thái):**
+    - **Mục đích:** Hiển thị state hiện tại hoặc một file plan một cách dễ đọc.
 
-# Liệt kê resource trong state
-terraform state list
+8. **`terraform output` (Xem output):**
+    - **Mục đích:** In ra giá trị của các biến output đã định nghĩa. Rất hữu ích để lấy thông tin (IP, URL) sau khi apply hoặc cho script khác sử dụng (`terraform output -json`).
 
-# Output values
-terraform output
-```
+## 8.2. Đọc Output Của `terraform plan` Như Một Chuyên Gia
 
-## terraform init — Bước Đầu Tiên Luôn Cần
+Dòng đầu tiên của mỗi resource trong plan cho bạn biết hành động sẽ xảy ra:
 
-```
-Khi nào cần chạy lại init:
-  Lần đầu tiên trong một thư mục mới
-  Sau khi thêm provider mới vào required_providers
-  Sau khi thay đổi cấu hình backend
-  Sau khi pull code có thay đổi module source
+| Ký hiệu | Ý nghĩa                                                                    | Mức độ nguy hiểm |
+| :------ | :------------------------------------------------------------------------- | :--------------- |
+| `+`     | **Create:** Tạo mới tài nguyên.                                            | Thấp             |
+| `-`     | **Destroy:** Xóa tài nguyên.                                               | **Rất Cao**      |
+| `~`     | **Update in-place:** Cập nhật tài nguyên tại chỗ, không cần tạo lại.       | Trung bình       |
+| `-/+`   | **Replace (Destroy then Create):** Phá hủy tài nguyên cũ và tạo tài nguyên mới. | **Cao**          |
 
-init làm gì:
-  Tải provider plugin xuống .terraform/ folder
-  Cấu hình backend (kết nối đến remote state)
-  Tải module nếu có khai báo source bên ngoài
-  Tạo file .terraform.lock.hcl (khóa chính xác version provider)
-```
+**Ví dụ thực tế:**
 
-## .terraform.lock.hcl — Tại Sao Phải Commit File Này
+```text
+Terraform will perform the following actions:
 
-```
-File này ghi lại CHÍNH XÁC phiên bản và checksum
-của mỗi provider được dùng
-
-Tương tự package-lock.json (npm) hay pom.xml dependencies (Maven)
-nhưng cho Terraform providers
-
-Phải commit vào Git:
-  Đảm bảo mọi người trong team, và CI/CD pipeline,
-  dùng CHÍNH XÁC cùng version provider
-  → Tránh tình huống "chạy được trên máy tôi"
-```
-
-## Đọc Output Của terraform plan
-
-```
-Terraform sẽ làm gì với mỗi resource được ký hiệu bằng dấu:
-
-  + create        resource mới sẽ được tạo
-  - destroy       resource sẽ bị xóa
-  ~ update in-place  resource sẽ được sửa, không cần xóa tạo lại
-  -/+ replace     resource sẽ bị xóa rồi tạo lại (CẨN THẬN!)
-
-Ví dụ output thực tế:
-
-  Terraform will perform the following actions:
-
-  # aws_instance.web will be updated in-place
-  ~ resource "aws_instance" "web" {
+  # aws_instance.web_server will be updated in-place
+  ~ resource "aws_instance" "web_server" {
         id            = "i-0abc123"
-      ~ instance_type = "t3.micro" -> "t3.medium"
+      ~ instance_type = "t3.micro" -> "t3.medium" # Thay đổi không gây nguy hiểm
         tags          = {
             "Name" = "web-server"
         }
     }
 
-  # aws_security_group.old will be destroyed
-  - resource "aws_security_group" "old" {
+  # aws_security_group.old_group will be destroyed
+  - resource "aws_security_group" "old_group" { # CẢNH BÁO ĐỎ: Một resource sẽ bị xóa
       - id   = "sg-0xyz789" -> null
+        name = "old-sg"
     }
 
-  Plan: 0 to add, 1 to change, 1 to destroy.
-
-Luôn đọc kỹ dòng cuối: "X to add, Y to change, Z to destroy"
-Nếu thấy "destroy" cho resource quan trọng (database, production data)
-→ DỪNG LẠI, kiểm tra kỹ tại sao trước khi apply
+Plan: 0 to add, 1 to change, 1 to destroy.
 ```
+
+Hãy tập trung vào dòng cuối cùng: `Plan: X to add, Y to change, Z to destroy.`
+Nếu `Z` (destroy) lớn hơn 0 đối với các tài nguyên quan trọng (database, production server), hãy dừng lại ngay lập tức, kiểm tra lại code của bạn, và tìm hiểu lý do tại sao chúng lại bị xóa trước khi gõ `yes`.
 
 ---
 
 # 9. Variables — Tham Số Hóa Cấu Hình
 
-## Tại Sao Cần Variables
+Variables (biến) giúp code Terraform của bạn trở nên linh hoạt, có thể tái sử dụng cho nhiều môi trường và team khác nhau mà không cần phải sửa code cứng.
 
-Nếu hard-code mọi giá trị trực tiếp vào resource, code không thể tái sử dụng cho môi trường khác (dev, staging, production).
+## 9.1. Khai Báo Variable
 
-```hcl
-# Không tốt — hard-code, không linh hoạt
-resource "aws_instance" "web" {
-  instance_type = "t3.large"
-  # Mỗi lần muốn dùng size khác cho dev/prod phải sửa code trực tiếp
-}
-
-# Tốt hơn — dùng variable
-resource "aws_instance" "web" {
-  instance_type = var.instance_type
-  # Giá trị được truyền vào từ bên ngoài
-}
-```
-
-## Khai Báo Variable
+Mỗi variable cần được khai báo với một khối `variable`. Nên khai báo trong file `variables.tf` để dễ quản lý.
 
 ```hcl
 variable "instance_type" {
-  description = "Loại EC2 instance dùng cho web server"
-  type        = string
-  default     = "t3.micro"
+  description = "Loại EC2 instance dùng cho web server (vd: t3.micro, t3.medium)" # Mô tả giúp người khác hiểu biến này làm gì
+  type        = string                                 # Kiểu dữ liệu của biến
+  default     = "t3.micro"                             # Giá trị mặc định (nếu không được cung cấp)
 
+  # Custom Validation - Kiểm tra giá trị đầu vào
   validation {
     condition     = contains(["t3.micro", "t3.small", "t3.medium"], var.instance_type)
-    error_message = "instance_type phải là một trong: t3.micro, t3.small, t3.medium"
+    error_message = "ERROR: instance_type không hợp lệ. Chỉ chấp nhận: t3.micro, t3.small, t3.medium."
   }
 }
 
 variable "environment" {
-  description = "Môi trường triển khai (dev, staging, production)"
+  description = "Môi trường triển khai (dev, staging, prod)"
   type        = string
-  # Không có default → bắt buộc người dùng phải cung cấp giá trị
-}
-
-variable "allowed_ports" {
-  description = "Danh sách port được phép mở"
-  type        = list(number)
-  default     = [80, 443]
-}
-
-variable "tags" {
-  description = "Tags chung áp dụng cho mọi resource"
-  type        = map(string)
-  default     = {}
+  # KHÔNG có 'default'. Điều này có nghĩa là biến này là bắt buộc.
+  # Người dùng sẽ bị yêu cầu cung cấp giá trị khi chạy plan/apply.
 }
 
 variable "db_password" {
-  description = "Mật khẩu database"
+  description = "Mật khẩu cho database chính"
   type        = string
-  sensitive   = true  # ẩn giá trị này khỏi output console và logs
+  sensitive   = true  # Che giấu giá trị này khỏi tất cả output trên console và log, tránh lộ bí mật.
 }
 ```
 
-## Các Cách Cung Cấp Giá Trị Cho Variable
+## 9.2. Các Cách Cung Cấp Giá Trị Cho Variable
 
-Terraform có nhiều cách để set giá trị, theo thứ tự ưu tiên từ thấp đến cao (cái sau ghi đè cái trước):
+Terraform có một hệ thống phân cấp để xác định giá trị cuối cùng của một biến. Thứ tự ưu tiên từ thấp đến cao (giá trị sau sẽ ghi đè giá trị trước):
 
-```
-1. Giá trị default trong khai báo variable (thấp nhất)
+1. **Giá trị `default` trong khai báo `variable` (ưu tiên thấp nhất).**
+2. **File `terraform.tfvars` hoặc `*.auto.tfvars` (tự động nạp).**
 
-2. File terraform.tfvars (tự động được load nếu tồn tại)
-   instance_type = "t3.medium"
-   environment   = "production"
+    ```hcl
+    # File: terraform.tfvars
+    environment   = "production"
+    instance_type = "t3.medium"
+    ```
 
-3. File *.auto.tfvars (tự động load, có thể có nhiều file)
-   network.auto.tfvars
-   database.auto.tfvars
+3. **Biến môi trường (Environment Variables) với tiền tố `TF_VAR_`.**
 
-4. Environment variable, với prefix TF_VAR_
-   export TF_VAR_db_password="supersecret"
+    ```bash
+    export TF_VAR_environment=staging
+    export TF_VAR_db_password="supersecret"
+    ```
 
-5. Flag -var khi chạy lệnh
-   terraform apply -var="instance_type=t3.large"
+4. **Truyền trực tiếp bằng flag `-var` trong câu lệnh (ưu tiên cao).**
 
-6. Flag -var-file chỉ định file cụ thể
-   terraform apply -var-file="production.tfvars"  (ưu tiên cao nhất)
-```
+    ```bash
+    terraform apply -var="instance_type=t3.large"
+    ```
+
+5. **File biến được chỉ định bằng flag `-var-file` (ưu tiên cao nhất).**
+
+    ```bash
+    terraform apply -var-file="production.tfvars"
+    ```
+
+**Thực hành tốt nhất:** Tạo một thư mục `environments/` và đặt các file `.tfvars` cho từng môi trường vào đó (vd: `environments/dev.tfvars`, `environments/prod.tfvars`). Khi chạy, bạn chỉ cần chỉ định file tương ứng.
+
+## 9.3. Type Constraints — Kiểm Tra Kiểu Dữ Liệu Nâng Cao
 
 ```hcl
-# Ví dụ file environments/production.tfvars
-environment    = "production"
-instance_type  = "t3.large"
-allowed_ports  = [443]  # production chỉ cho phép HTTPS
+# Kiểu cơ bản
+variable "simple_string" { type = string }
+variable "simple_number" { type = number }
+variable "simple_bool"   { type = bool }
 
-tags = {
-  Environment = "production"
-  CostCenter  = "platform-engineering"
-}
-```
+# Kiểu tập hợp (Collection Types)
+variable "list_of_strings" { type = list(string) } # ["a", "b", "c"]
+variable "map_of_numbers"  { type = map(number) }  # { key1 = 1, key2 = 2 }
 
-```bash
-# Áp dụng cấu hình cho production
-terraform apply -var-file="environments/production.tfvars"
-
-# Áp dụng cấu hình cho dev
-terraform apply -var-file="environments/dev.tfvars"
-```
-
-## Type Constraints — Kiểm Tra Kiểu Dữ Liệu
-
-```hcl
-variable "simple_string" {
-  type = string
-}
-
-variable "simple_number" {
-  type = number
-}
-
-variable "simple_bool" {
-  type = bool
-}
-
-variable "list_of_strings" {
-  type = list(string)
-}
-
-variable "map_of_numbers" {
-  type = map(number)
-}
-
-# Object type — cấu trúc phức tạp với field cụ thể
+# Kiểu cấu trúc (Structural Types)
 variable "server_config" {
+  description = "Cấu hình chi tiết cho một server"
   type = object({
     name          = string
     instance_type = string
     disk_size_gb  = number
-    enable_backup = optional(bool, false)  # optional với default value
+    enable_backup = optional(bool, false) # Thuộc tính không bắt buộc, mặc định là false
   })
 }
-
-# Cách dùng:
+# Cách dùng trong .tfvars:
 # server_config = {
 #   name          = "web-1"
 #   instance_type = "t3.medium"
 #   disk_size_gb  = 50
+#   # enable_backup được phép bỏ qua
 # }
-# enable_backup không cần khai báo, mặc định là false
 ```
 
 ---
 
 # 10. Output — Lấy Giá Trị Ra Ngoài
 
-## Output Là Gì
+Output giống như "giá trị trả về" của một hàm hoặc một module. Nó cho phép bạn trích xuất các thông tin hữu ích từ hạ tầng vừa tạo để dùng cho các mục đích khác.
 
-Output cho phép Terraform hiển thị giá trị sau khi apply xong, hoặc cho phép module khác/state khác đọc giá trị này.
+## 10.1. Khai Báo và Sử Dụng Output
 
 ```hcl
 output "instance_public_ip" {
-  description = "Địa chỉ IP public của web server"
-  value       = aws_instance.web.public_ip
+  description = "Địa chỉ IP công cộng để SSH vào web server"
+  value       = aws_instance.web_server.public_ip
 }
 
 output "database_endpoint" {
-  description = "Endpoint kết nối database"
+  description = "Địa chỉ endpoint để kết nối đến database"
   value       = aws_db_instance.main.endpoint
-  sensitive   = true  # ẩn giá trị này khỏi console output
+  sensitive   = true # Ẩn giá trị này khỏi console, tránh bị lộ
 }
 ```
 
+Sau khi `terraform apply`, các output không `sensitive` sẽ được hiển thị trực tiếp trên màn hình. Để xem tất cả output (kể cả sensitive), bạn dùng lệnh:
+
 ```bash
-# Sau khi apply, Terraform tự động hiển thị các output:
-Outputs:
-
-instance_public_ip = "54.123.45.67"
-database_endpoint = <sensitive>
-
-# Xem giá trị cụ thể (kể cả sensitive):
-terraform output database_endpoint
-
-# Xem dưới dạng JSON (để script khác parse)
-terraform output -json
+terraform output
+terraform output database_endpoint # Xem một output cụ thể
+terraform output -json             # Hiển thị dưới dạng JSON, rất hữu ích để các script khác parse
 ```
 
-## Tại Sao Output Quan Trọng
+## 10.2. Các Use Case Quan Trọng Của Output
 
-```
-Use case 1: Thông tin cần biết sau khi apply
-  IP address để SSH vào server
-  URL của load balancer
-  Connection string của database
-
-Use case 2: Truyền giá trị giữa các module
-  Module "networking" output ra subnet_id
-  Module "compute" dùng subnet_id đó làm input
-
-Use case 3: Truyền giá trị giữa các state riêng biệt
-  State "networking" có output vpc_id
-  State "application" đọc vpc_id đó qua remote state data source
-  (sẽ giải thích ở phần Data Source)
-
-Use case 4: CI/CD pipeline đọc output để dùng ở bước tiếp theo
-  Terraform tạo Kubernetes cluster, output ra cluster endpoint
-  Pipeline đọc output đó để cấu hình kubectl trong bước deploy
-```
+1. **Hiển thị thông tin cần thiết:** IP để truy cập ứng dụng, connection string của database, URL của Load Balancer.
+2. **Truyền dữ liệu giữa các Module:** Module con (child module) dùng output để trả về các giá trị cho module gốc (root module).
+3. **Chia sẻ dữ liệu giữa các State:** Đây là cách để các state độc lập giao tiếp với nhau. State A (networking) output ra `vpc_id`. State B (application) dùng data source `terraform_remote_state` để đọc `vpc_id` đó (xem phần Data Source).
+4. **Tích hợp với CI/CD Pipeline:** Pipeline có thể chạy `terraform output -json` để lấy các giá trị như `cluster_endpoint` và truyền vào bước deploy tiếp theo.
 
 ---
 
 # 11. Data Source — Đọc Tài Nguyên Có Sẵn
 
-## Sự Khác Biệt Giữa Resource và Data Source
+Data Sources cho phép Terraform "hỏi" và sử dụng thông tin từ các tài nguyên không thuộc quyền quản lý của nó.
 
-```
-Resource: Terraform TẠO RA và QUẢN LÝ vòng đời của nó
-  resource "aws_instance" "web" { ... }
-  → Terraform sẽ tạo, sửa, xóa instance này
+## 11.1. Sự Khác Biệt Giữa `resource` và `data`
 
-Data Source: Terraform CHỈ ĐỌC thông tin, không tạo, không quản lý
-  data "aws_ami" "ubuntu" { ... }
-  → Terraform chỉ truy vấn thông tin về AMI đã tồn tại sẵn,
-    không tạo AMI mới, không có quyền xóa nó
-```
+Đây là điểm phân biệt quan trọng nhất cần nắm:
 
-## Khi Nào Dùng Data Source
+- **`resource`**: Bạn ra lệnh cho Terraform **TẠO, SỬA, XÓA** một đối tượng. Terraform chịu trách nhiệm về toàn bộ vòng đời của nó.
+- **`data`**: Bạn yêu cầu Terraform **ĐỌC THÔNG TIN** của một đối tượng đã tồn tại sẵn. Terraform không tạo ra nó, không sửa nó, và chắc chắn sẽ không xóa nó.
+
+## 11.2. Các Use Case Phổ Biến
+
+**1. Lấy thông tin động:**
+Thay vì hard-code một Amazon Machine Image (AMI) ID (sẽ thay đổi theo thời gian), bạn có thể yêu cầu Terraform tự tìm AMI mới nhất.
 
 ```hcl
-# Tìm AMI mới nhất của Ubuntu thay vì hard-code ID cụ thể
-# (ID của AMI thay đổi theo thời gian khi có version mới)
+# Tìm AMI Ubuntu 22.04 mới nhất do Canonical sở hữu
 data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"]  # Canonical
+  most_recent = true # Lấy AMI mới nhất
+  owners      = ["099720109477"] # ID tài khoản AWS của Canonical
 
   filter {
     name   = "name"
@@ -1038,33 +997,47 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "web" {
-  ami           = data.aws_ami.ubuntu.id  # dùng AMI tìm được
+  ami           = data.aws_ami.ubuntu.id # Sử dụng AMI ID vừa tìm được
   instance_type = "t3.micro"
 }
 ```
 
-```
-Các trường hợp dùng data source phổ biến:
-
-1. Tham chiếu hạ tầng được tạo bởi team khác (không thuộc state của bạn)
-   data "aws_vpc" "existing" {
-     tags = { Name = "shared-vpc" }
-   }
-
-2. Lấy thông tin động (AMI mới nhất, availability zones có sẵn)
-   data "aws_availability_zones" "available" {
-     state = "available"
-   }
-
-3. Đọc giá trị tính toán phía cloud (account ID hiện tại, region hiện tại)
-   data "aws_caller_identity" "current" {}
-   # data.aws_caller_identity.current.account_id
-```
-
-## Remote State Data Source — Liên Kết Giữa Các State
+**2. Tham chiếu hạ tầng có sẵn:**
+Bạn cần đặt máy ảo vào một VPC và Subnet đã được tạo sẵn (có thể bởi team khác, hoặc từ một dự án Terraform khác).
 
 ```hcl
-# Trong state "application", đọc output từ state "networking"
+data "aws_vpc" "shared" {
+  tags = {
+    Name = "shared-vpc"
+  }
+}
+
+data "aws_subnet" "public" {
+  vpc_id = data.aws_vpc.shared.id
+  tags = {
+    Type = "Public"
+  }
+}
+
+resource "aws_instance" "app" {
+  subnet_id = data.aws_subnet.public.id
+  # ...
+}
+```
+
+**3. Đọc thông tin từ tài khoản hiện tại:**
+
+```hcl
+data "aws_caller_identity" "current" {}
+# Giờ bạn có thể dùng data.aws_caller_identity.current.account_id trong code
+```
+
+## 11.3. `terraform_remote_state` — Cầu Nối Giữa Các State
+
+Đây là một data source đặc biệt, dùng để đọc output từ một Terraform state khác.
+
+```hcl
+# Trong state của ứng dụng, đọc dữ liệu từ state quản lý hạ tầng mạng
 data "terraform_remote_state" "networking" {
   backend = "s3"
   config = {
@@ -1074,21 +1047,24 @@ data "terraform_remote_state" "networking" {
   }
 }
 
-resource "aws_instance" "web" {
+# Sử dụng output 'vpc_id' từ state networking
+resource "aws_instance" "app" {
   subnet_id = data.terraform_remote_state.networking.outputs.public_subnet_id
-  # Lấy giá trị output "public_subnet_id" từ state khác
+  # ...
 }
 ```
 
-Đây là cách các layer hạ tầng tách biệt (chia theo Cách 2 trong phần State ở trên) giao tiếp với nhau — không cần copy giá trị thủ công, luôn tự động đồng bộ với thực tế.
+Đây chính là cơ chế giúp mô hình "Micro States" hoạt động hiệu quả, cho phép các team khác nhau làm việc độc lập nhưng vẫn có thể chia sẻ dữ liệu hạ tầng một cách tự động.
 
 ---
 
 # 12. Dependency Graph — Terraform Biết Thứ Tự Làm Gì
 
-## Implicit Dependency — Phụ Thuộc Ngầm Định
+Một trong những sức mạnh thông minh nhất của Terraform là khả năng tự động xây dựng một "đồ thị phụ thuộc" (dependency graph) để xác định đúng thứ tự tạo, sửa, xóa tài nguyên. Bạn không cần phải chỉ dẫn từng bước.
 
-Terraform tự động hiểu thứ tự cần làm dựa trên cách bạn tham chiếu giữa các resource.
+## 12.1. Implicit Dependency (Phụ thuộc ngầm)
+
+Đây là cách Terraform suy ra sự phụ thuộc một cách tự nhiên dựa trên việc bạn tham chiếu thuộc tính của một resource trong cấu hình của một resource khác.
 
 ```hcl
 resource "aws_vpc" "main" {
@@ -1096,149 +1072,104 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.main.id   # ← tham chiếu này tạo ra dependency!
+  vpc_id     = aws_vpc.main.id   # <--- Tham chiếu này TẠO RA dependency
   cidr_block = "10.0.1.0/24"
 }
 
 resource "aws_instance" "web" {
-  subnet_id = aws_subnet.public.id  # ← dependency tiếp theo
+  subnet_id = aws_subnet.public.id # <--- Dependency tiếp theo
+  # ...
 }
 ```
 
-```
-Terraform tự suy ra dependency graph:
+Terraform sẽ tự động vẽ ra đồ thị trong đầu nó:
+`aws_vpc.main` → `aws_subnet.public` → `aws_instance.web`
 
-  aws_vpc.main
-       ↓
-  aws_subnet.public
-       ↓
-  aws_instance.web
+Nó hiểu rằng phải tạo VPC trước, sau đó mới đến Subnet, và cuối cùng là Instance. Khi destroy, nó sẽ làm ngược lại: xóa Instance, rồi Subnet, rồi VPC.
 
-→ Tự động: tạo VPC trước, rồi subnet, rồi instance
-→ Bạn KHÔNG cần viết "làm cái này trước, cái kia sau"
-  Terraform tự hiểu qua việc bạn tham chiếu .id của resource khác
+## 12.2. Parallel Execution (Thực thi song song)
 
-Khi destroy, Terraform làm NGƯỢC LẠI:
-  Xóa instance trước, rồi subnet, rồi VPC
-  (không thể xóa VPC khi vẫn còn subnet bên trong nó)
-```
-
-## Parallel Execution — Tận Dụng Song Song
+Một điểm mạnh nữa của đồ thị phụ thuộc là Terraform có thể xác định những resource nào **không** phụ thuộc lẫn nhau và tạo chúng **cùng một lúc**, giúp tăng tốc độ triển khai đáng kể.
 
 ```
-Những resource KHÔNG phụ thuộc lẫn nhau sẽ được tạo SONG SONG:
-
-  aws_vpc.main
-       ↓
-  ┌────┴────┬─────────┐
-  ▼         ▼          ▼
-subnet_a  subnet_b   subnet_c   ← ba cái này tạo CÙNG LÚC
-  │         │          │         (đều chỉ phụ thuộc vào VPC,
-  └────┬────┴──────────┘          không phụ thuộc lẫn nhau)
-       ▼
-  load_balancer (phụ thuộc cả ba subnet)
-
-Terraform mặc định chạy tối đa 10 operation song song
-(có thể điều chỉnh bằng flag -parallelism=N)
+       aws_vpc.main
+            |
+   ┌────────┼────────┐
+   ▼        ▼        ▼
+subnet_a subnet_b subnet_c   <--- Ba subnet này được tạo SONG SONG
+   │        │        │         vì chúng đều chỉ phụ thuộc vào VPC.
+   └────────┼────────┘
+            ▼
+   load_balancer   <--- Load balancer phải chờ cả 3 subnet tạo xong.
 ```
 
-## Khi Implicit Dependency Không Đủ — Explicit Dependency
+Mặc định, Terraform chạy tối đa 10 thao tác song song. Bạn có thể điều chỉnh bằng flag `-parallelism=N` khi chạy `plan` hoặc `apply`.
 
-Đôi khi có dependency thực tế nhưng không thể hiện qua việc tham chiếu attribute. Lúc này cần khai báo rõ ràng.
+## 12.3. Explicit Dependency (`depends_on`)
+
+Có những trường hợp sự phụ thuộc là có thật về mặt logic, nhưng không được thể hiện qua việc tham chiếu thuộc tính nào trong code. Lúc này, bạn cần khai báo một cách tường minh.
 
 ```hcl
-resource "aws_iam_role_policy" "example" {
-  # ... cấu hình policy
+# Một policy cho phép ứng dụng trên EC2 ghi vào S3 bucket
+resource "aws_iam_role_policy" "app_policy" {
+  name = "app-s3-access"
+  # ...
 }
 
-resource "aws_instance" "web" {
-  # Instance này CẦN policy đã tồn tại trước khi chạy
-  # (ứng dụng bên trong instance gọi AWS API ngay khi khởi động)
-  # nhưng không có attribute nào của policy được dùng trực tiếp trong code
-
-  depends_on = [aws_iam_role_policy.example]
-  # Khai báo rõ ràng: "đợi cái này xong trước"
+resource "aws_instance" "app" {
+  # Instance này khi khởi động sẽ gọi ngay đến S3.
+  # Nó cần policy trên đã sẵn sàng, nhưng không có argument nào
+  # trong resource "aws_instance" tham chiếu đến policy cả.
+  # Do đó, chúng ta cần khai báo rõ ràng:
+  depends_on = [aws_iam_role_policy.app_policy]
+  # ...
 }
 ```
 
-```
-Nguyên tắc: ưu tiên implicit dependency (qua tham chiếu attribute)
-Chỉ dùng depends_on khi THỰC SỰ cần thiết — không thể thể hiện
-qua tham chiếu tự nhiên
-
-Lạm dụng depends_on làm code khó đọc và mất đi lợi ích
-của dependency graph tự động
-```
+**Nguyên tắc:** Hãy luôn ưu tiên implicit dependency thông qua tham chiếu thuộc tính. Chỉ dùng `depends_on` khi thực sự không còn cách nào khác. Việc lạm dụng `depends_on` sẽ làm code khó đọc và mất đi sự thông minh của đồ thị phụ thuộc tự động.
 
 ---
 
 # 13. Module — Tái Sử Dụng Cấu Hình
 
-## Module Là Gì
+Module là cách bạn đóng gói và tái sử dụng các cấu hình Terraform. Nó giống như việc bạn tạo ra một "function" trong lập trình. Mọi cấu hình Terraform bạn viết đều nằm trong một module (thư mục gốc được gọi là root module).
 
-Module là một tập hợp file Terraform được đóng gói lại, có thể tái sử dụng nhiều lần với input khác nhau. Mọi cấu hình Terraform thực ra đều là module — thư mục gốc bạn đang chạy lệnh được gọi là "root module".
+## 13.1. Tại Sao Cần Module?
 
-## Tại Sao Cần Module
+Giả sử công ty bạn có 10 microservice. Mỗi microservice đều cần một bộ hạ tầng giống nhau: Load Balancer, Auto Scaling Group, Security Group, DNS Record. Nếu không có module, bạn sẽ phải copy-paste đoạn code đó 10 lần. Khi cần thay đổi logic chung (ví dụ: thêm một health check mới), bạn phải sửa ở tất cả 10 chỗ. Việc này rất thủ công và dễ gây ra sai sót.
 
-```
-Không có module:
-  Bạn cần tạo hạ tầng cho 5 microservice khác nhau
-  Mỗi microservice cần: load balancer, auto scaling group,
-  security group, CloudWatch alarms
-  → Copy-paste cùng đoạn code 5 lần
-  → Sửa một chỗ phải nhớ sửa cả 5 chỗ
-  → Dễ sai sót, dễ không đồng bộ
+Với module, bạn viết logic chung đó một lần và lưu vào một thư mục riêng. Sau đó, mỗi service chỉ cần gọi module đó và truyền vào các tham số khác nhau.
 
-Với module:
-  Viết một lần module "microservice"
-  Gọi module đó 5 lần với input khác nhau (tên, port, scale...)
-  Sửa logic chung → chỉ sửa một chỗ → áp dụng cho cả 5
-```
+## 13.2. Cấu Trúc Của Một Module
 
-## Cấu Trúc Một Module
+Một module là một thư mục chứa ít nhất một file `.tf`. Cấu trúc tiêu chuẩn thường bao gồm:
 
 ```
 modules/
 └── web-service/
-    ├── main.tf          # resource chính
-    ├── variables.tf     # input variables
-    ├── outputs.tf       # output values
-    └── README.md        # tài liệu mô tả cách dùng
+    ├── main.tf      # Khai báo các resource chính
+    ├── variables.tf # Định nghĩa input (đối số đầu vào)
+    ├── outputs.tf   # Định nghĩa output (giá trị trả về)
+    └── README.md    # Tài liệu hướng dẫn sử dụng module
 ```
+
+**Ví dụ nội dung module:**
 
 ```hcl
 # modules/web-service/variables.tf
 variable "service_name" {
-  description = "Tên của service"
-  type        = string
+  type = string
 }
-
 variable "instance_count" {
-  description = "Số lượng instance"
-  type        = number
-  default     = 2
-}
-
-variable "instance_type" {
-  type    = string
-  default = "t3.micro"
+  type    = number
+  default = 2
 }
 
 # modules/web-service/main.tf
-resource "aws_launch_template" "this" {
-  name_prefix   = "${var.service_name}-"
-  instance_type = var.instance_type
-}
-
 resource "aws_autoscaling_group" "this" {
   name             = var.service_name
   desired_capacity = var.instance_count
-  min_size         = var.instance_count
-  max_size         = var.instance_count * 2
-
-  launch_template {
-    id = aws_launch_template.this.id
-  }
+  # ... các cấu hình khác
 }
 
 # modules/web-service/outputs.tf
@@ -1247,256 +1178,168 @@ output "asg_name" {
 }
 ```
 
-## Gọi Module Từ Root Module
+## 13.3. Gọi Module Từ Root Module
 
 ```hcl
-# main.tf ở root module
+# Trong file main.tf ở thư mục gốc
 module "user_service" {
-  source = "./modules/web-service"
+  source = "./modules/web-service" # Đường dẫn đến thư mục module
 
   service_name   = "user-service"
-  instance_count = 3
-  instance_type  = "t3.medium"
-}
-
-module "order_service" {
-  source = "./modules/web-service"
-
-  service_name   = "order-service"
   instance_count = 5
-  instance_type  = "t3.large"
 }
 
-# Tham chiếu output của module
-output "user_service_asg" {
-  value = module.user_service.asg_name
-}
-```
-
-```
-Cùng một module, hai lần gọi với input khác nhau
-→ Tạo ra hai hạ tầng độc lập, mỗi cái phù hợp với nhu cầu riêng
-→ Code chung (logic launch_template, autoscaling_group) chỉ viết một lần
-```
-
-## Nguồn Module — Source
-
-```hcl
-# Local path — module nằm trong cùng repository
-module "example" {
+module "payment_service" {
   source = "./modules/web-service"
-}
 
-# Terraform Registry — module công khai do cộng đồng hoặc công ty publish
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
-}
-
-# Git repository — module riêng của công ty, không công khai
-module "internal_module" {
-  source = "git::https://github.com/mycompany/terraform-modules.git//web-service?ref=v1.2.0"
+  service_name   = "payment-service"
+  instance_count = 10
 }
 ```
 
-```
-Registry modules (như terraform-aws-modules) thường đã được
-cộng đồng kiểm thử kỹ, hỗ trợ nhiều use case, có sẵn best practice
-→ Nên ưu tiên dùng trước khi tự viết module mới từ đầu
-  cho những thành phần phổ biến (VPC, EKS, RDS...)
-```
+## 13.4. Các Nguồn (Source) Của Module
+
+Module không chỉ giới hạn ở các thư mục cục bộ. Bạn có thể gọi module từ nhiều nguồn khác nhau:
+
+- **Local path:** `source = "./modules/web-service"`
+- **Terraform Registry:** `source = "terraform-aws-modules/vpc/aws"` (Module VPC nổi tiếng của cộng đồng).
+- **GitHub (HTTPS):** `source = "github.com/my-org/terraform-modules//web-service?ref=v1.0.0"`
+- **S3 bucket, GCS bucket, HTTP URLs...**
+
+**Lời khuyên:** Đối với các thành phần hạ tầng phổ biến và phức tạp (VPC, EKS, RDS), bạn nên ưu tiên sử dụng các module đã được kiểm chứng từ Terraform Registry. Chúng thường đã tích hợp sẵn rất nhiều best practices mà bạn sẽ mất rất nhiều thời gian để tự xây dựng.
 
 ---
 
-# 14. Meta-Arguments — count, for_each, depends_on
+# 14. Meta-Arguments — `count`, `for_each`, `depends_on`
 
-Meta-arguments là các argument đặc biệt có thể dùng với BẤT KỲ resource hoặc module nào, không phải argument cụ thể của resource type đó.
+Đây là những argument đặc biệt, bạn có thể sử dụng với **bất kỳ** resource hay module nào, không phụ thuộc vào provider.
 
-## count — Tạo Nhiều Bản Sao Theo Số Lượng
+## 14.1. `count` — Tạo Nhiều Bản Sao Theo Số Lượng
+
+Dùng khi bạn cần tạo nhiều instance giống hệt nhau, và sự khác biệt giữa chúng chỉ là số thứ tự.
 
 ```hcl
 resource "aws_instance" "web" {
-  count = 3  # tạo 3 instance giống hệt nhau
+  count = 3 # Tạo ra 3 instance giống hệt nhau
 
   ami           = "ami-0c55b159cbfafe1f0"
   instance_type = "t3.micro"
 
   tags = {
-    Name = "web-server-${count.index}"
-    # count.index là số thứ tự: 0, 1, 2
-    # → web-server-0, web-server-1, web-server-2
+    Name = "web-server-${count.index}" # count.index là 0, 1, 2
   }
 }
 
-# Tham chiếu một instance cụ thể trong list
-output "first_instance_id" {
-  value = aws_instance.web[0].id
-}
-
-# Tham chiếu TẤT CẢ instance (trả về list)
-output "all_instance_ids" {
-  value = aws_instance.web[*].id
-}
+# Tham chiếu: aws_instance.web[0], aws_instance.web[1], aws_instance.web[2]
 ```
 
-## for_each — Tạo Nhiều Bản Sao Theo Map Hoặc Set
+**Vấn đề lớn nhất với `count`:**
+Khi bạn quản lý các resource bằng `count`, chúng được định danh bởi vị trí trong list. Nếu bạn xóa một phần tử ở giữa list, tất cả các phần tử phía sau sẽ bị thay đổi index. Terraform sẽ hiểu nhầm là cần phá hủy và tạo lại tất cả các resource đó, gây ra sự gián đoạn không cần thiết. Do đó, `count` phù hợp nhất cho các resource thực sự giống hệt nhau và bạn hiếm khi cần thay đổi số lượng một cách ngẫu nhiên.
+
+## 14.2. `for_each` — Tạo Nhiều Bản Sao Với Danh Tính Rõ Ràng
+
+Dùng khi bạn cần tạo nhiều instance với cấu hình khác nhau, và muốn mỗi instance được định danh bằng một khóa (key) có ý nghĩa. `for_each` làm việc với một map hoặc một set.
 
 ```hcl
-# Dùng khi mỗi resource cần một bộ giá trị riêng biệt, không chỉ là số đếm
 variable "environments" {
+  description = "Cấu hình cho các môi trường"
+  type = map(object({
+    instance_type = string
+  }))
   default = {
-    dev = {
-      instance_type = "t3.micro"
-    }
-    staging = {
-      instance_type = "t3.small"
-    }
-    production = {
-      instance_type = "t3.large"
-    }
+    dev = { instance_type = "t3.micro" }
+    staging = { instance_type = "t3.small" }
+    production = { instance_type = "t3.large" }
   }
 }
 
 resource "aws_instance" "web" {
-  for_each = var.environments
+  for_each = var.environments # Vòng lặp qua từng phần tử trong map
 
   ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = each.value.instance_type
+  instance_type = each.value.instance_type # Truy cập giá trị của phần tử hiện tại
 
   tags = {
-    Name        = "web-${each.key}"
+    Name        = "web-${each.key}" # Sử dụng key (dev, staging, production)
     Environment = each.key
   }
 }
 
-# Tham chiếu một resource cụ thể bằng key
-output "production_instance_id" {
-  value = aws_instance.web["production"].id
-}
+# Tham chiếu bằng key: aws_instance.web["dev"], aws_instance.web["production"]
 ```
 
-## count vs for_each — Khi Nào Dùng Cái Nào
+**Ưu điểm của `for_each`:** Resource được định danh bằng `key` (ví dụ: `"production"`). Nếu bạn xóa `"staging"` khỏi map, Terraform hiểu chính xác rằng chỉ cần xóa resource có key là `"staging"`. Các resource khác (`"dev"`, `"production"`) hoàn toàn không bị ảnh hưởng. Đây là cách an toàn và được khuyến nghị cho hầu hết các use case.
 
-```
-count phù hợp khi:
-  Các resource giống hệt nhau, chỉ khác số lượng
-  Không cần phân biệt resource bằng tên có ý nghĩa
-
-for_each phù hợp khi:
-  Mỗi resource cần config khác nhau (không chỉ là số đếm)
-  Muốn tham chiếu resource bằng tên rõ ràng (vd: "production")
-  thay vì chỉ số (vd: [2])
-
-VẤN ĐỀ QUAN TRỌNG với count:
-  Nếu bạn xóa phần tử ở GIỮA list, Terraform coi đó là
-  thay đổi TẤT CẢ phần tử phía sau (vì index dịch chuyển)
-  → Có thể gây ra việc xóa và tạo lại nhầm nhiều resource!
-
-  Ví dụ: có ["dev", "staging", "prod"] dùng count
-  Xóa "staging" → list còn ["dev", "prod"]
-  Terraform thấy: index 1 đổi từ "staging" thành "prod"
-  → Nghĩ rằng cần destroy resource cũ ở index 1, tạo mới
-  → Trong khi thực ra chỉ cần xóa "staging", giữ nguyên "prod"!
-
-  for_each tránh được vấn đề này vì dùng KEY thay vì index
-  → Xóa "staging" khỏi map → Terraform chỉ xóa đúng resource đó
-  → "prod" không bị ảnh hưởng gì cả
-
-Khuyến nghị: ưu tiên for_each trừ khi thực sự chỉ cần đếm số lượng
-giống hệt nhau hoàn toàn
-```
+## 14.3. `depends_on` (Đã giải thích chi tiết ở phần 12.3)
 
 ---
 
 # 15. Workspace — Quản Lý Nhiều Môi Trường
 
-## Workspace Là Gì
-
-Terraform workspace cho phép cùng một bộ cấu hình quản lý nhiều state riêng biệt — thường dùng để tách dev/staging/production.
+Workspace là một tính năng cho phép bạn dùng cùng một bộ code Terraform để quản lý nhiều tập hợp hạ tầng riêng biệt (ví dụ: dev, staging, production) bằng cách sử dụng các file state khác nhau.
 
 ```bash
-# Tạo workspace mới
+# Tạo và chuyển đổi workspace
 terraform workspace new staging
-terraform workspace new production
-
-# Liệt kê các workspace
-terraform workspace list
-# * default
-#   staging
-#   production
-
-# Chuyển sang workspace khác
 terraform workspace select production
-
-# Xem workspace hiện tại
-terraform workspace show
+terraform workspace show # Xem workspace hiện tại
 ```
 
 ```hcl
-# Dùng workspace name trong code
+# Sử dụng tên workspace trong code
 resource "aws_instance" "web" {
   instance_type = terraform.workspace == "production" ? "t3.large" : "t3.micro"
-
   tags = {
     Environment = terraform.workspace
   }
 }
 ```
 
-## Workspace Không Phải Lúc Nào Cũng Là Giải Pháp Tốt Nhất
+## 15.1. Ưu và Nhược Điểm Của Workspace
+
+- **Phù hợp khi:** Các môi trường của bạn có kiến trúc gần như giống hệt nhau, chỉ khác về quy mô (size, số lượng). Team nhỏ, muốn một cách đơn giản để quản lý.
+- **Không phù hợp khi:**
+  - Môi trường có kiến trúc khác biệt (production multi-region, dev single-region).
+  - Bạn cần kiểm soát truy cập riêng biệt (workspace dùng chung credentials và backend).
+  - Bạn muốn cấu hình backend khác nhau cho từng môi trường (ví dụ: dev dùng local state, prod dùng S3).
+
+## 15.2. Giải Pháp Thay Thế Cho Production
+
+Trong các hệ thống lớn và nghiêm túc, mô hình **"Tách biệt thư mục"** thường được ưa chuộng hơn Workspace:
 
 ```
-Workspace phù hợp khi:
-  Cấu hình GIỐNG HỆT nhau giữa các môi trường, chỉ khác giá trị
-  (vd: scale nhỏ hơn ở dev, scale lớn hơn ở production
-  nhưng cùng kiến trúc)
-
-  Team nhỏ, đơn giản hóa workflow
-
-Workspace KHÔNG phù hợp khi:
-  Môi trường có kiến trúc khác biệt đáng kể
-  (vd: production có multi-region, dev chỉ có một region)
-
-  Cần access control riêng biệt cho từng môi trường
-  (workspace dùng chung credentials, khó tách quyền)
-
-  Cần backend configuration khác nhau hoàn toàn
-
-Thay thế phổ biến hơn trong production: tách thư mục riêng biệt
-  environments/
-  ├── dev/
-  │   ├── main.tf
-  │   └── terraform.tfvars
-  ├── staging/
-  │   ├── main.tf
-  │   └── terraform.tfvars
-  └── production/
-      ├── main.tf
-      └── terraform.tfvars
-
-  Mỗi thư mục có backend riêng, state riêng, có thể có
-  cấu trúc khác nhau hoàn toàn nếu cần
-  Module dùng chung được gọi từ mỗi thư mục với input khác nhau
+environments/
+├── dev/
+│   ├── main.tf
+│   ├── backend.tf  (cấu hình backend riêng cho dev)
+│   └── dev.tfvars
+├── staging/
+│   ├── main.tf
+│   ├── backend.tf
+│   └── staging.tfvars
+└── production/
+    ├── main.tf
+    ├── backend.tf
+    └── production.tfvars
 ```
+
+Mỗi thư mục là một root module hoàn toàn độc lập, có thể có backend riêng, state riêng, thậm chí là cấu trúc code khác nhau. Các module dùng chung vẫn được gọi từ các thư mục này nhưng với input khác nhau. Cách này rõ ràng và an toàn hơn cho production.
+
+---
 
 # 16. Provisioner — Khi Nào Thực Sự Cần
 
-## Provisioner Là Gì
-
-Provisioner cho phép Terraform thực thi lệnh (chạy script, copy file) trên resource sau khi nó được tạo ra, hoặc trước khi nó bị xóa.
+Provisioner cho phép bạn thực thi các script (bash, PowerShell) trên máy ảo sau khi nó được tạo, hoặc trước khi nó bị xóa.
 
 ```hcl
 resource "aws_instance" "web" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.micro"
+  # ...
 
   provisioner "remote-exec" {
     inline = [
       "sudo apt update",
-      "sudo apt install -y nginx",
-      "sudo systemctl start nginx"
+      "sudo apt install -y nginx"
     ]
-
     connection {
       type        = "ssh"
       user        = "ubuntu"
@@ -1507,587 +1350,212 @@ resource "aws_instance" "web" {
 }
 ```
 
-## Tại Sao Provisioner Là Lựa Chọn Cuối Cùng
+## 16.1. Tại Sao Provisioner Là "Giải Pháp Cuối Cùng"?
 
-HashiCorp (công ty tạo ra Terraform) chính thức khuyến cáo: provisioner nên là **giải pháp cuối cùng**, không phải cách tiếp cận mặc định.
+HashiCorp, chính công ty tạo ra Terraform, coi provisioner là phương án cuối cùng. Lý do:
 
-```
-Vấn đề với provisioner:
+- **Phá vỡ tính "Declarative":** Provisioner là các lệnh thực thi tuần tự (imperative), đi ngược lại triết lý khai báo trạng thái mong muốn của Terraform. Terraform không thể quản lý được trạng thái của những gì đã xảy ra bên trong provisioner.
+- **Quản lý trạng thái kém:** Terraform chỉ biết là nó "đã chạy" provisioner. Nó không biết provisioner có thực sự thành công hay không, và cũng không thể phát hiện ra nếu một ai đó SSH vào máy và gỡ bỏ `nginx`.
+- **Khó debug:** Nếu provisioner bị lỗi giữa chừng (do network yếu, script sai...), resource sẽ bị đánh dấu là "tainted" (ô uế). Terraform sẽ hủy bỏ và tạo lại toàn bộ resource trong lần `apply` tiếp theo, gây gián đoạn không cần thiết.
 
-Terraform không quản lý được trạng thái của những gì
-provisioner thực thi. Terraform chỉ biết "đã chạy lệnh này chưa",
-không biết "lệnh này có còn đúng với trạng thái mong muốn không"
+## 16.2. Các Giải Pháp Thay Thế Tốt Hơn Provisioner
 
-Nếu provisioner fail giữa chừng (network timeout, lỗi script)
-→ Resource được tạo ra (vd: instance đã chạy) nhưng bị đánh dấu
-"tainted" — Terraform sẽ destroy và tạo lại ở lần apply tiếp theo
+Hãy chọn một trong những cách sau trước khi nghĩ đến provisioner:
 
-Provisioner làm cho cấu hình kém "declarative" hơn —
-nó là một chuỗi LỆNH cần thực thi, không phải MÔ TẢ trạng thái
-mong muốn — đi ngược lại triết lý cốt lõi của Terraform
-```
+1. **Pre-baked Machine Images (Ami/Image):**
+    Dùng công cụ như Packer để build sẵn một image máy ảo đã bao gồm đầy đủ ứng dụng và cấu hình (`nginx` đã được cài sẵn). Terraform chỉ việc launch image này. Kết quả là máy ảo khởi động xong là sẵn sàng hoạt động ngay. Đây là phương pháp nhanh và ổn định nhất.
 
-## Giải Pháp Tốt Hơn Thay Thế Provisioner
+2. **`user_data` / `cloud-init`:**
+    Hầu hết các cloud provider đều hỗ trợ một cơ chế để chạy script khi máy ảo khởi động lần đầu tiên. Bạn có thể nhúng script cài đặt vào argument `user_data` của resource.
 
-```
-Thay vì SSH vào cài đặt phần mềm sau khi tạo server:
+    ```hcl
+    resource "aws_instance" "web" {
+      # ...
+      user_data = <<-EOF
+        #!/bin/bash
+        sudo apt update
+        sudo apt install -y nginx
+        sudo systemctl start nginx
+      EOF
+    }
+    ```
 
-1. Dùng pre-baked image (Image đã build sẵn)
-   Dùng công cụ như Packer để build sẵn image có ứng dụng
-   cài đặt đầy đủ → Terraform chỉ cần launch image đó
-   → Không cần chạy lệnh nào sau khi tạo, instant ready
+    Script này do chính cloud provider thực thi, không cần Terraform phải kết nối vào. Tuy nhiên, cách này vẫn kém hơn pre-baked image.
 
-2. Dùng cloud-init / user_data
-   resource "aws_instance" "web" {
-     user_data = file("setup-script.sh")
-   }
-   Cloud provider tự chạy script này khi instance khởi động
-   lần đầu, không cần Terraform phải SSH vào
-
-3. Dùng configuration management tool riêng biệt
-   Terraform chỉ tạo hạ tầng (server, network)
-   Ansible/Chef/Puppet xử lý việc cài đặt cấu hình bên trong
-   Đây là "đúng công cụ cho đúng việc"
-
-4. Dùng Kubernetes thay vì raw VM
-   Nếu ứng dụng container hóa, deploy lên Kubernetes
-   Terraform chỉ tạo cluster, việc deploy app là việc khác
-```
-
-```hcl
-# Cách tiếp cận tốt hơn — dùng user_data thay vì provisioner
-resource "aws_instance" "web" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.micro"
-
-  user_data = <<-EOF
-    #!/bin/bash
-    apt update
-    apt install -y nginx
-    systemctl start nginx
-  EOF
-  # Script này chạy NGAY KHI instance boot, do cloud provider
-  # tự xử lý, không cần Terraform phải connect SSH
-}
-```
+3. **Công cụ Quản lý Cấu hình (Ansible, Chef, Puppet):**
+    Terraform tạo máy ảo, và ngay sau đó, một pipeline CI/CD sẽ kích hoạt Ansible để cấu hình mọi thứ bên trong máy ảo đó. Đây là sự phân công "đúng người đúng việc", tận dụng thế mạnh của từng công cụ.
 
 ---
 
 # 17. Import — Đưa Tài Nguyên Có Sẵn Vào Terraform
 
-## Vấn Đề Cần Giải Quyết
+Khi bắt đầu với Terraform, bạn thường đã có sẵn hạ tầng được tạo thủ công. `import` là cách để đưa những tài nguyên đó vào sự quản lý của Terraform mà không cần phải phá hủy và tạo lại.
 
-Rất nhiều tổ chức bắt đầu với hạ tầng được tạo thủ công (qua console), sau đó muốn chuyển sang quản lý bằng Terraform. Import giải quyết bài toán này — đưa resource đã tồn tại vào quyền quản lý của Terraform mà không cần xóa và tạo lại.
+## 17.1. Quy Trình Import Chuẩn (Sử Dụng `import` Block - TF >= 1.5.0)
 
-## Import Block (Cách Hiện Đại, Terraform 1.5+)
+Đây là cách hiện đại và được khuyến khích.
 
-```hcl
-import {
-  to = aws_instance.web
-  id = "i-0abc123def456789"
-}
+1. **Viết `import` block:** Tạo một file (vd: `imports.tf`) và khai báo ý định import.
 
-# Cần viết resource block tương ứng để Terraform biết
-# config nào sẽ áp dụng cho resource được import
-resource "aws_instance" "web" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.micro"
-  # Các giá trị này CẦN khớp với resource thực tế,
-  # nếu không Terraform sẽ thấy có thay đổi cần áp dụng
-}
-```
+    ```hcl
+    import {
+      to = aws_instance.my_server # Địa chỉ resource mà bạn muốn import vào
+      id = "i-0abc123def456789"   # ID thực tế của tài nguyên trên AWS
+    }
+    ```
 
-```bash
-# Chạy plan để xem Terraform sẽ làm gì
-terraform plan
-# Output sẽ cho biết: import resource này, và liệu config
-# hiện tại có khớp hoàn toàn với thực tế hay không
+2. **Viết `resource` block tương ứng:** Bạn cần viết một resource block trong code với cấu hình mà bạn **đoán** là đúng với tài nguyên thực tế.
 
-terraform apply
-```
+    ```hcl
+    resource "aws_instance" "my_server" {
+      ami           = "ami-0c55b159cbfafe1f0"
+      instance_type = "t3.micro"
+      # ...
+    }
+    ```
 
-## Quy Trình Import Thực Tế
+3. **Chạy `terraform plan`:**
+    Terraform sẽ đọc `import` block và thực hiện import vào state. Sau đó, nó sẽ so sánh code của bạn với trạng thái thực tế vừa import vào.
+    - Nếu code khớp hoàn toàn với thực tế, plan sẽ báo `No changes. Your infrastructure matches the configuration.`
+    - Nếu có sự khác biệt, plan sẽ hiển thị những gì nó muốn thay đổi.
 
-```
-Bước 1: Xác định resource thực tế cần import (ID của nó)
+4. **Điều chỉnh code cho đến khi plan "sạch":** Đây là bước quan trọng nhất. Bạn cần sửa đi sửa lại code `.tf` cho đến khi `terraform plan` không còn đề xuất bất kỳ thay đổi nào. Bạn không muốn Terraform phá hủy một tài nguyên chỉ vì code của bạn đoán sai một tham số.
 
-Bước 2: Viết resource block trong code TRƯỚC,
-        cố gắng đoán đúng các argument hiện tại
+5. **Chạy `terraform apply` để hoàn tất.**
 
-Bước 3: Chạy import (qua import block hoặc lệnh terraform import)
-
-Bước 4: Chạy terraform plan
-        Nếu plan cho thấy "no changes" → config khớp hoàn hảo
-        Nếu plan cho thấy changes → cần sửa code để khớp
-        với thực tế (KHÔNG để Terraform "sửa" resource thật
-        chỉ vì code của bạn đoán sai!)
-
-Bước 5: Lặp lại bước 4 cho đến khi plan completely clean
-        (không có thay đổi nào được đề xuất)
-```
-
-```
-Lưu ý quan trọng: import KHÔNG tự động viết code Terraform cho bạn
-(một số phiên bản mới có lệnh hỗ trợ generate config, nhưng
-vẫn cần review kỹ trước khi tin tưởng hoàn toàn)
-
-Quá trình import có thể tốn thời gian với hạ tầng lớn —
-nên làm từng phần nhỏ, verify kỹ mỗi bước, không vội vàng
-import hàng trăm resource cùng lúc
-```
+Sau khi hoàn tất, bạn có thể xóa `import` block đi vì việc import đã được ghi vào state. Giờ đây, tài nguyên đã nằm dưới sự quản lý của Terraform.
 
 ---
 
 # 18. Terraform Trong Team — Quy Trình Thực Tế
 
-## Git Workflow Cho Infrastructure Code
+Đây là cách Terraform được sử dụng trong một team phát triển phần mềm chuyên nghiệp. Nó kết hợp IaC với Git và CI/CD.
+
+## 18.1. Quy Trình GitOps cho Infrastructure
 
 ```
-Quy trình thực tế ở một team trưởng thành:
+1. Developer tạo branch mới cho thay đổi.
+   git checkout -b feature/add-redis-cache
 
-1. Engineer tạo branch mới từ main
-   git checkout -b add-redis-cache
+2. Developer viết code Terraform trên branch của mình.
+   - Chạy 'terraform fmt', 'validate' để kiểm tra local.
 
-2. Sửa file .tf — thêm resource Redis cache mới
+3. Developer push branch lên Git và tạo Pull Request (PR).
 
-3. Chạy local validation trước khi push
-   terraform fmt -check
-   terraform validate
-   terraform plan   (xem trước thay đổi sẽ là gì)
+4. CI Pipeline tự động chạy trên PR:
+   - terraform fmt -check -recursive  (Kiểm tra format code)
+   - terraform init                    (Khởi tạo)
+   - terraform validate                (Kiểm tra cú pháp)
+   - terraform plan -out=plan.tfplan   (Tạo kế hoạch thay đổi)
 
-4. Push code, tạo Pull Request
+5. Bot của CI sẽ post kết quả của 'terraform plan' lên PR.
+   Đây là bước QUAN TRỌNG NHẤT để review.
 
-5. CI Pipeline tự động chạy:
-   terraform fmt -check    (kiểm tra format)
-   terraform validate      (kiểm tra cú pháp)
-   terraform plan          (tính toán thay đổi)
-   → Comment kết quả plan vào PR để mọi người review
+6. Các Senior/Lead Engineer sẽ vào PR, xem xét kỹ lưỡng
+   kết quả plan, thảo luận, và yêu cầu thay đổi nếu cần.
 
-6. Team review Pull Request
-   Đọc kỹ phần plan: có gì sẽ bị destroy không?
-   Có hợp lý với business requirement không?
-   Approve
+7. Khi PR được approved, nó sẽ được merge vào nhánh chính (main/master).
 
-7. Merge vào main
-
-8. CI/CD Pipeline tự động (hoặc cần manual trigger
-   cho production) chạy:
-   terraform apply
-   → Áp dụng thay đổi thật vào hạ tầng
+8. Một CI/CD Pipeline khác (hoặc một stage khác) được kích hoạt
+   bởi sự kiện merge, sẽ chạy 'terraform apply plan.tfplan'
+   để thực thi những thay đổi đã được duyệt lên môi trường thật.
 ```
 
-## Tại Sao Review Plan Trong PR Quan Trọng
+## 18.2. Phân Quyền và Bảo Mật
 
-```
-Đây là lợi ích lớn nhất của Infrastructure as Code so với
-việc thay đổi thủ công qua console:
-
-Trước khi BẤT KỲ thay đổi nào chạm vào production,
-TOÀN BỘ team có thể thấy CHÍNH XÁC:
-  Resource nào sẽ được tạo
-  Resource nào sẽ bị sửa
-  Resource nào sẽ bị XÓA (cảnh báo lớn nhất!)
-
-Nếu một Pull Request có dòng:
-  # aws_db_instance.production will be destroyed
-- resource "aws_db_instance" "production" {
-
-→ Team ngay lập tức nhận ra có vấn đề nghiêm trọng
-  TRƯỚC KHI nó thực sự xảy ra, không phải sau khi
-  database đã biến mất
-```
-
-## CI/CD Pipeline Cho Terraform (Ví Dụ Generic)
-
-```yaml
-# Ví dụ cấu trúc pipeline (generic, không gắn cụ thể nền tảng CI nào)
-
-stages:
-  validate:
-    steps:
-      - terraform fmt -check -recursive
-      - terraform init -backend=false
-      - terraform validate
-
-  plan:
-    steps:
-      - terraform init
-      - terraform plan -out=tfplan
-      - # Post plan output làm comment vào Pull Request
-
-  # Stage này chỉ chạy khi PR được merge vào main
-  apply:
-    when: branch == main
-    steps:
-      - terraform init
-      - terraform apply tfplan
-      # Dùng plan ĐÃ ĐƯỢC REVIEW, không tính lại plan mới
-      # Đảm bảo apply đúng những gì đã được approve
-
-  # Đối với production, thường thêm bước approval thủ công
-  apply_production:
-    when: branch == main && environment == production
-    needs_manual_approval: true
-    steps:
-      - terraform apply tfplan
-```
-
-## Phân Quyền Truy Cập
-
-```
-Không phải ai trong team cũng nên có quyền chạy
-terraform apply trực tiếp vào production
-
-Mô hình phổ biến:
-
-  Developer: có quyền chạy plan, không có quyền apply trực tiếp
-             Apply chỉ chạy qua CI/CD pipeline sau khi PR approved
-
-  CI/CD service account: có quyền apply, nhưng credentials
-             được giữ riêng, không ai SSH/access trực tiếp
-
-  Production apply: thường cần thêm bước approval
-             (một người khác ngoài tác giả PR phải click approve
-             trước khi pipeline thực sự chạy apply)
-
-Nguyên tắc: KHÔNG AI chạy terraform apply trực tiếp từ máy cá nhân
-vào production. Mọi thay đổi production đi qua pipeline có
-audit trail đầy đủ
-```
+- **Nguyên tắc "Không ai chạm tay vào Production":** Không một kỹ sư nào có quyền chạy `terraform apply` trực tiếp từ máy tính cá nhân của họ lên môi trường production.
+- **CI/CD Service Account:** Chỉ có tài khoản dịch vụ (service account) của CI/CD pipeline mới có quyền `apply`. Thông tin xác thực (credentials) của tài khoản này được lưu trữ an toàn trong CI/CD tool (GitHub Actions Secrets, GitLab CI Variables...).
+- **Approval Gate (Cổng phê duyệt):** Trước khi pipeline thực sự chạy `apply` lên production, nó sẽ tạm dừng và chờ một người có thẩm quyền (thường là team lead hoặc người không phải tác giả PR) vào nhấn nút "Approve".
 
 ---
 
 # 19. Các Sai Lầm Thường Gặp
 
-## Sai Lầm 1: Không Dùng Remote State Ngay Từ Đầu
+Dưới đây là những sai lầm "kinh điển" mà hầu hết người mới học Terraform đều mắc phải.
 
-```
-Vấn đề:
-  Bắt đầu dự án với local state "để học cho nhanh"
-  Dự án phát triển, thêm người vào team
-  Phát hiện ra mỗi người có một bản state riêng không đồng bộ
+1. **Không dùng Remote State ngay từ đầu:** Bắt đầu với local state cho dễ, đến khi có thêm người thì vỡ lở. **Bài học:** Luôn cấu hình remote state ngay từ `terraform init` đầu tiên.
 
-Giải pháp:
-  Cấu hình remote state NGAY TỪ KHI BẮT ĐẦU dự án thật
-  (kể cả khi chỉ có một người làm việc lúc đầu)
-  Việc chuyển từ local sang remote sau này phức tạp hơn
-  nhiều so với cấu hình đúng từ đầu
-```
+2. **Hard-code giá trị nhạy cảm:**
 
-## Sai Lầm 2: Hard-code Giá Trị Nhạy Cảm
-
-```hcl
-# SAI — password xuất hiện trực tiếp trong code, commit vào Git
-resource "aws_db_instance" "main" {
-  password = "SuperSecret123!"
-}
-```
-
-```
-Vấn đề:
-  Password nằm trong Git history MÃI MÃI, kể cả sau khi xóa
-  khỏi code (lịch sử Git vẫn còn commit cũ)
-  Bất kỳ ai có quyền đọc repository đều thấy được password
-
-Giải pháp:
-  Dùng secret manager bên ngoài (Vault, hoặc dịch vụ
-  secret manager của cloud provider)
-  Terraform đọc secret tại thời điểm apply, không bao giờ
-  lưu giá trị plaintext vào code
-
-  data "vault_generic_secret" "db_password" {
-    path = "secret/database/main"
-  }
-
-  resource "aws_db_instance" "main" {
-    password = data.vault_generic_secret.db_password.data["password"]
-  }
-
-  Lưu ý: dù không hard-code, giá trị secret VẪN sẽ xuất hiện
-  trong state file! → State file PHẢI được mã hóa và bảo vệ
-  nghiêm ngặt, không bao giờ commit vào Git
-```
-
-## Sai Lầm 3: Một State Khổng Lồ Cho Toàn Bộ Tổ Chức
-
-```
-Vấn đề:
-  Một file state quản lý TẤT CẢ mọi thứ — từ networking
-  đến từng microservice nhỏ nhất
-
-  terraform plan mất 10+ phút chỉ để tính toán
-  Một lỗi nhỏ ở một resource có thể block toàn bộ team
-  khác đang cần apply thay đổi không liên quan
-  Lock conflict xảy ra liên tục
-
-Giải pháp:
-  Chia state theo blast radius và theo team ownership
-  Networking layer riêng, database layer riêng,
-  mỗi service riêng nếu cần
-  Dùng data source hoặc remote state để liên kết giữa các layer
-```
-
-## Sai Lầm 4: Không Kiểm Tra Kỹ Plan Trước Khi Apply
-
-```
-Vấn đề thường gặp nhất gây ra incident:
-  Chạy terraform apply, thấy có "X to destroy"
-  Không đọc kỹ resource nào sẽ bị destroy
-  Gõ "yes" theo phản xạ
-  → Database production bị xóa, mất dữ liệu
-
-Giải pháp:
-  LUÔN đọc kỹ phần Plan trước khi confirm apply
-  Đặc biệt chú ý dòng có dấu "-" (destroy) hoặc "-/+" (replace)
-  Với resource quan trọng, dùng lifecycle { prevent_destroy = true }
-  để Terraform tự chặn destroy nhầm
-  Tách riêng plan và apply trong CI/CD, có bước review giữa
-  hai bước này (không tự động apply ngay sau plan)
-```
-
-## Sai Lầm 5: Quản Lý Quá Nhiều Thứ Bằng count Khi Nên Dùng for_each
-
-```
-Đã giải thích chi tiết ở Section 14 —
-dùng count cho resource cần phân biệt rõ ràng theo tên
-dễ dẫn đến việc destroy/recreate nhầm khi list thay đổi thứ tự
-```
-
-## Sai Lầm 6: Không Ghim Version Của Provider
-
-```hcl
-# SAI — không giới hạn version
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      # Không có version constraint
+    ```hcl
+    # TUYỆT ĐỐI KHÔNG LÀM
+    resource "aws_db_instance" "main" {
+      password = "MySuperSecretPassword"
     }
-  }
-}
-```
+    ```
 
-```
-Vấn đề:
-  Provider tự động lấy version mới nhất mỗi lần init
-  Version mới có thể có breaking change
-  Code chạy tốt hôm qua, hôm nay tự nhiên fail
-  vì provider đã update mà không ai biết
+    **Hậu quả:** Mật khẩu sẽ nằm trong Git history mãi mãi và trong cả file state. **Giải pháp:** Dùng biến môi trường (`TF_VAR_db_password`), secret manager (Vault, AWS Secrets Manager) hoặc lấy giá trị từ CI/CD pipeline.
 
-Giải pháp:
-  Luôn ghim version constraint (như đã giải thích Section 4)
-  Commit file .terraform.lock.hcl vào Git
-  Update provider version một cách có chủ đích, có testing,
-  không để nó tự động trôi
-```
+3. **Monolithic State:** Một file state "cân" cả thế giới. **Hậu quả:** Plan/apply chậm, lock conflict liên tục, một lỗi nhỏ block cả team. **Giải pháp:** Chia state theo kiến trúc và "blast radius".
+
+4. **Không kiểm tra kỹ `plan` trước khi `apply`:** Gõ `yes` như một phản xạ. Đây là nguyên nhân số một dẫn đến việc xóa nhầm database production. **Bài học:** Hãy coi việc đọc `plan` là một nghi thức bắt buộc.
+
+5. **Dùng `count` khi nên dùng `for_each`:** Dẫn đến việc Terraform hiểu nhầm và đòi phá hủy/tạo lại nhiều resource không liên quan khi bạn thay đổi list.
+
+6. **Không ghim phiên bản Provider:** Không dùng `version` constraint trong `required_providers` và không commit `.terraform.lock.hcl`. **Hậu quả:** Code "chạy được trên máy tao" nhưng lỗi trên máy người khác hoặc trên CI/CD.
 
 ---
 
 # 20. Terraform Best Practices
 
-## Cấu Trúc Thư Mục Khuyến Nghị
+Đây là những lời khuyên đúc kết từ thực tế để bạn có một codebase Terraform mạnh mẽ, dễ bảo trì và an toàn.
 
-```
-project/
-├── environments/
-│   ├── dev/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── terraform.tfvars
-│   │   └── backend.tf
-│   ├── staging/
-│   │   └── (cấu trúc tương tự)
-│   └── production/
-│       └── (cấu trúc tương tự)
-│
-├── modules/
-│   ├── networking/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   ├── compute/
-│   │   └── ...
-│   └── database/
-│       └── ...
-│
-└── README.md
-```
+1. **Cấu Trúc Thư Mục Rõ Ràng:**
 
-## Naming Convention Nhất Quán
+    ```text
+    project-root/
+    ├── modules/                     # Chứa các module dùng chung
+    │   ├── networking/
+    │   └── compute/
+    ├── environments/                # Chứa cấu hình cho từng môi trường
+    │   ├── dev/
+    │   │   ├── main.tf
+    │   │   ├── variables.tf
+    │   │   ├── outputs.tf
+    │   │   ├── backend.tf
+    │   │   └── terraform.tfvars
+    │   └── production/
+    └── global/                      # Các tài nguyên toàn cục như IAM, Route53
+    ```
 
-```hcl
-# Nguyên tắc đặt tên resource:
-# Dùng snake_case, mô tả rõ mục đích, không lặp lại loại resource trong tên
+2. **Đặt Tên Và Tag Nhất Quán:**
+    - Sử dụng `snake_case` cho mọi thứ.
+    - Luôn thêm `description` cho `variable` và `output`.
+    - Tag mọi resource với ít nhất các tag như `Project`, `Environment`, `ManagedBy = "terraform"`. Điều này cực kỳ hữu ích cho việc quản lý chi phí (cost tracking) và phân loại tài nguyên.
 
-# Tốt:
-resource "aws_instance" "web_server" { }
-resource "aws_security_group" "web_sg" { }
+3. **Ghim Phiên Bản (Version Pinning):**
+    - Luôn khai báo `required_version` cho Terraform CLI.
+    - Luôn khai báo phiên bản cho provider.
+    - Luôn commit `.terraform.lock.hcl`.
+    - Khi gọi module từ Git, luôn dùng `?ref=vX.Y.Z`.
 
-# Không tốt — lặp lại thông tin đã có trong resource type:
-resource "aws_instance" "aws_instance_web_server" { }
+4. **Biến Hóa Code Của Bạn (Parameterize):**
+    - Hard-code càng ít càng tốt. Đưa mọi thứ có thể thay đổi thành `variable`.
+    - Dùng file `.tfvars` riêng cho mỗi môi trường.
 
-# Variable và output cũng nên có description rõ ràng,
-# luôn luôn — kể cả khi tên đã có vẻ rõ ràng
-variable "instance_type" {
-  description = "EC2 instance type, ví dụ t3.micro hoặc t3.large"
-  type        = string
-}
-```
+5. **Tích Hợp Công Cụ Phân Tích Tĩnh (Linting & Security):**
+    - Chạy `terraform fmt` và `terraform validate` là chưa đủ.
+    - Sử dụng các công cụ như `tflint` để phát hiện lỗi tiềm ẩn và `tfsec` hoặc `checkov` để quét các lỗi cấu hình bảo mật (ví dụ: bucket S3 public, security group mở rộng quá mức). Tích hợp chúng vào CI pipeline của bạn.
 
-## Tag Resource Nhất Quán
-
-```hcl
-# Định nghĩa tag chung một lần, áp dụng cho mọi resource
-locals {
-  common_tags = {
-    Project     = "my-application"
-    Environment = var.environment
-    ManagedBy   = "terraform"
-    Owner       = "platform-team"
-  }
-}
-
-resource "aws_instance" "web" {
-  # ...
-  tags = merge(local.common_tags, {
-    Name = "web-server"
-  })
-}
-```
-
-```
-Tại sao tag nhất quán quan trọng:
-  Dễ filter resource theo project/environment trên console
-  Cost tracking — biết chi phí của environment nào, project nào
-  Dễ tìm resource nào được tạo bởi Terraform vs tạo thủ công
-  (ManagedBy = "terraform" giúp phân biệt rõ ràng)
-```
-
-## Sử Dụng Linter và Security Scanner
-
-```
-Trước khi merge code Terraform, nên chạy qua các công cụ kiểm tra:
-
-  terraform fmt    — format code đúng chuẩn (built-in)
-  terraform validate — kiểm tra cú pháp (built-in)
-
-  Linter bổ sung (công cụ bên thứ ba phổ biến):
-    Kiểm tra best practice, phát hiện lỗi tiềm ẩn,
-    style không nhất quán
-
-  Security scanner (công cụ bên thứ ba phổ biến):
-    Phát hiện misconfiguration nguy hiểm
-    Ví dụ: security group mở port SSH cho 0.0.0.0/0,
-    storage bucket public accessible,
-    encryption không được bật cho database
-
-Tích hợp các công cụ này vào CI pipeline để tự động
-chặn merge nếu phát hiện vấn đề nghiêm trọng
-```
-
-## Module Versioning
-
-```hcl
-# Khi gọi module nội bộ qua Git, LUÔN ghim version cụ thể
-module "web_service" {
-  source = "git::https://github.com/mycompany/tf-modules.git//web-service?ref=v2.3.1"
-  # KHÔNG dùng ref=main — main có thể thay đổi bất cứ lúc nào
-  # gây ra thay đổi không mong muốn ở mọi nơi gọi module này
-}
-```
-
-```
-Khi module nội bộ thay đổi, tăng version theo Semantic Versioning:
-  Patch (v2.3.1 → v2.3.2): bug fix, không thay đổi behavior
-  Minor (v2.3.0 → v2.4.0): thêm tính năng mới, backward compatible
-  Major (v2.0.0 → v3.0.0): breaking change, cần action từ
-  người dùng module để upgrade
-```
-
-## Đừng Tự Động Apply Production Mà Không Có Approval
-
-```
-Pipeline tốt cho production:
-
-  Merge vào main
-       ↓
-  Auto-deploy vào DEV (không cần approval, rủi ro thấp)
-       ↓
-  Auto-deploy vào STAGING (không cần approval)
-       ↓
-  Manual approval gate ← một người review và click "Approve"
-       ↓
-  Deploy vào PRODUCTION
-
-Đây không phải là thiếu tin tưởng vào automation —
-đây là defense in depth. Plan đã được review trong PR,
-nhưng có thêm một lớp kiểm tra cuối cùng trước khi
-chạm vào hệ thống có real user traffic là hợp lý
-```
+6. **Production Approval Gate:**
+    - Pipeline cho production **không bao giờ** được tự động chạy `terraform apply`.
+    - Luôn có một bước phê duyệt thủ công (manual approval) trước khi thực sự thay đổi hạ tầng production, ngay cả khi PR đã được duyệt và merge. Đây là lớp bảo vệ "defense in depth" cuối cùng.
 
 ---
 
-## Tóm Tắt Toàn Bộ
+## 📎 Tóm Tắt và Tài Liệu Tham Khảo
 
-```
-TRIẾT LÝ CỐT LÕI:
-  Declarative — mô tả trạng thái mong muốn, không phải các bước
-  Idempotent — apply nhiều lần cho cùng kết quả
-  Plan trước, Apply sau — luôn review trước khi thay đổi thật
+### Tóm tắt các nguyên lý cốt lõi
 
-KIẾN TRÚC:
-  Terraform Core (engine) + Provider (plugin kết nối dịch vụ thật)
-  HCL là ngôn ngữ cấu hình — block, argument, expression
+- **Declarative over Imperative:** Mô tả cái bạn muốn, không phải làm thế nào để đạt được nó.
+- **Plan then Apply:** Luôn luôn xem xét kế hoạch trước khi thực thi.
+- **State is the Source of Truth:** Bảo vệ state file như bảo vệ dữ liệu quan trọng nhất của bạn.
+- **Modules for Reuse:** Đóng gói các thành phần để tái sử dụng và giảm trùng lặp.
+- **Automate Everything via CI/CD:** Loại bỏ yếu tố con người khỏi quy trình triển khai production.
 
-STATE:
-  State = bộ nhớ của Terraform, ánh xạ code ↔ resource thực tế
-  Remote state bắt buộc khi làm việc team
-  State locking tránh xung đột khi nhiều người cùng apply
-  Không bao giờ sửa state file bằng tay, dùng terraform state *
+### Tài Liệu Tham Khảo Chính Thức
 
-VARIABLES VÀ OUTPUT:
-  Variables tham số hóa cấu hình cho nhiều môi trường
-  Output lấy giá trị ra, truyền giữa module/state
-
-DEPENDENCY:
-  Implicit dependency qua tham chiếu attribute (ưu tiên)
-  Explicit dependency qua depends_on (chỉ khi cần thiết)
-  Terraform tự chạy song song những gì không phụ thuộc nhau
-
-MODULE:
-  Đóng gói cấu hình tái sử dụng
-  Ghim version khi gọi module nội bộ qua Git
-
-META-ARGUMENTS:
-  for_each ưu tiên hơn count khi cần phân biệt theo tên
-  count phù hợp cho resource giống hệt nhau, chỉ khác số lượng
-
-PROVISIONER:
-  Giải pháp cuối cùng, không phải mặc định
-  Ưu tiên: pre-baked image, user_data, configuration management
-  tool riêng biệt
-
-QUY TRÌNH TEAM:
-  Pull Request → CI chạy plan → Review → Merge → CD apply
-  Production cần thêm manual approval gate
-  Không ai apply trực tiếp từ máy cá nhân vào production
-
-SAI LẦM CẦN TRÁNH:
-  Local state khi làm team
-  Hard-code secret trong code
-  Một state khổng lồ cho mọi thứ
-  Không đọc kỹ plan trước khi apply
-  Không ghim version provider
-```
-
-## 📎 Tài Liệu Tham Khảo
-
-| Chủ đề | Link |
-|---|---|
-| Terraform Documentation | <https://developer.hashicorp.com/terraform/docs> |
-| HCL Syntax | <https://developer.hashicorp.com/terraform/language/syntax/configuration> |
-| Terraform Registry | <https://registry.terraform.io> |
-| State Management | <https://developer.hashicorp.com/terraform/language/state> |
-| Module Development | <https://developer.hashicorp.com/terraform/language/modules/develop> |
-| Provisioners (và lý do tránh dùng) | <https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax> |
-| Best Practices | <https://developer.hashicorp.com/well-architected-framework> |
+- [Terraform Official Documentation](https://developer.hashicorp.com/terraform/docs)
+- [HashiCorp Well-Architected Framework](https://developer.hashicorp.com/well-architected-framework)
+- [Terraform Registry](https://registry.terraform.io)
+- [Terraform Best Practices (community)](https://www.terraform-best-practices.com/)
